@@ -1,6 +1,6 @@
 # backend/run.py
 from app import create_app, db
-from app.models import User # Make sure models are imported for migrations
+from app.models import User
 
 app = create_app()
 

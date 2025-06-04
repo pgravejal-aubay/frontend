@@ -6,7 +6,7 @@ export const homeStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10, // Adjusted padding slightly for home screen
+    padding: 10,
     backgroundColor: '#f5f5f5',
   },
   welcomeText: {
@@ -19,44 +19,43 @@ export const homeStyles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     textAlign: 'center',
-    color: 'green', // Or another appropriate color
+    color: 'green', 
   },
   cameraContainer: {
     width: '90%',
-    aspectRatio: 3 / 4, // Common aspect ratio for portrait photos
+    aspectRatio: 3 / 4,
     overflow: 'hidden',
     borderRadius: 10,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#ccc', // Slightly lighter border
-    backgroundColor: '#000', // Background for the camera view area
+    borderColor: '#ccc',
+    backgroundColor: '#000',
   },
   camera: {
     flex: 1,
   },
-  cameraButtonContainer: { // For buttons overlaid on the camera
-    position: 'absolute', // Position over the camera
+  cameraButtonContainer: {
+    position: 'absolute', 
     bottom: 20,
     left: 0,
     right: 0,
     flexDirection: 'row',
-    justifyContent: 'space-around', // Space out buttons like flip and capture
+    justifyContent: 'space-around', 
     alignItems: 'center',
     paddingHorizontal: 20,
   },
-  // You might want separate styles for a capture button if it's different
-  // e.g., a circular button
+
   captureButton: {
-    // Styles for a dedicated capture button, if you add one
+    // Styles for a dedicated capture button
   },
-  flipButtonText: { // If you want to style the text of the flip button
+  flipButtonText: {
     fontSize: 18,
     marginBottom: 10,
     color: 'white',
   },
   previewImage: {
     width: 200,
-    height: (200 * 4) / 3, // Maintain aspect ratio if it's portrait
+    height: (200 * 4) / 3, 
     resizeMode: 'contain',
     marginVertical: 15,
     borderWidth: 1,
@@ -65,7 +64,7 @@ export const homeStyles = StyleSheet.create({
   },
   logoutButtonContainer: { // To give the logout button some space or styling
     marginTop: 20,
-    width: '60%', // Example width
+    width: '60%',
   },
   centeredText: {
     flex: 1,

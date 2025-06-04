@@ -62,22 +62,15 @@ export default function App() {
   const authContext = useMemo(
     () => ({
       signIn: async (data) => {
-        // In a real app, you'll send a request to your server to get a token
-        // For now, we'll assume login service sets the token in AsyncStorage
-        // and then we update the state.
-        // The login screen itself handles calling the login service.
-        // This function is more about updating the app's auth state.
-        const token = await getToken(); // Re-fetch token after login service
+        const token = await getToken();
         dispatch({ type: 'SIGN_IN', token: token });
       },
       signOut: async () => {
-        await logout(); // Call the actual logout service
+        await logout(); 
         dispatch({ type: 'SIGN_OUT' });
       },
       signUp: async (data) => {
-        // Similar to signIn, registration screen handles API call
-        // This could be used to navigate or refresh state if needed after signup
-        // For this example, after signup, user goes to login screen.
+
       },
     }),
     []

@@ -26,7 +26,7 @@ export const authStyles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
   },
-  buttonContainer: { // Example for spacing buttons
+  buttonContainer: {
     marginTop: 10,
     width: '80%',
   },

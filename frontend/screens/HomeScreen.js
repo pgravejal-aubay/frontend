@@ -1,7 +1,7 @@
 // frontend/screens/HomeScreen.js
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, Button, Image, Alert, ActivityIndicator, TouchableOpacity, Platform } from 'react-native'; // Keep Platform
-import { Camera, CameraType } from 'expo-camera'; // CameraType might be the issue on web
+import { Camera, CameraType } from 'expo-camera'; 
 import { getUserData, fetchProtectedData } from '../services/authService';
 import { AuthContext } from '../App';
 import { homeStyles } from '../styles/homeStyles';

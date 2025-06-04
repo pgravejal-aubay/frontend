@@ -1,6 +1,6 @@
 # backend/app/routes.py
 from flask import Blueprint, jsonify
-from app.auth import token_required # Import the decorator
+from app.auth import token_required
 
 bp = Blueprint('main', __name__)
 
