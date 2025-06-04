@@ -1,0 +1,2 @@
+pip install Flask Flask-SQLAlchemy Flask-Migrate Flask-CORS Werkzeug python-dotenv PyJWT bcrypt
+export FLASK_APP=run.py

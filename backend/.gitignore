@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+venv.bak/
+.env.bak/
+
+# Instance Folder (contains sensitive config or DB file if not in version control)
+instance/site.db
+
+# Secrets file
+.env
+secrets.ini
+config.yaml # If it contains secrets
+
+# IDE and Editor Folders
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Coverage reports
+.coverage
+htmlcov/
+coverage.xml
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.egg
+
+# PyInstaller (if you use it)
+*.spec
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
