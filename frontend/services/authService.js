@@ -2,9 +2,10 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// IMPORTANT: Replace with your computer's local IP address
-const API_URL = 'http://172.17.46.8:5000/auth'; // <--- CHANGE THIS!
-const API_GENERAL_URL = 'http://172.17.46.8:5000/api'; // <--- CHANGE THIS!
+
+// frontend/services/authService.js
+const API_URL = 'http://10.0.2.2:5000/auth';
+const API_GENERAL_URL = 'http://10.0.2.2:5000/api';
 
 export const register = async (username, email, password) => {
   try {
@@ -51,19 +52,41 @@ export const getUserData = async () => {
 }
 
 export const fetchProtectedData = async () => {
+    console.log("authService: Attempting to fetch protected data...");
     const token = await getToken();
-    if (!token) throw new Error("No token found");
+    console.log("authService: Token for protected data:", token);
+
+    if (!token) {
+        console.warn("authService: No token found for protected data.");
+        throw new Error("No token found");
+    }
 
     try {
+        console.log(`authService: Calling GET ${API_GENERAL_URL}/protected`);
         const response = await axios.get(`${API_GENERAL_URL}/protected`, {
-            headers: { 'x-access-token': token }
+            headers: { 'x-access-token': token },
+            timeout: 15000 // 15 second timeout - INCREASED FOR DEBUGGING
         });
+        console.log("authService: Successfully fetched protected data:", response.data);
         return response.data;
     } catch (error) {
-        console.error("Error fetching protected data:", error.response?.data || error.message);
+        console.error("authService: Error fetching protected data. Details:", {
+            message: error.message,
+            code: error.code, // e.g., 'ECONNABORTED' for timeout
+            isAxiosError: error.isAxiosError,
+            requestUrl: error.config?.url,
+            requestMethod: error.config?.method,
+            responseStatus: error.response?.status,
+            responseData: error.response?.data,
+        });
         if (error.response?.status === 401) { // Token might be expired or invalid
-            await logout(); // Log out user if token is bad
+            console.log("authService: Token invalid (401), attempting logout.");
+            await logout();
         }
-        throw error.response?.data || { message: 'Failed to fetch protected data' };
+        // Rethrow a more user-friendly or specific error
+        if (error.code === 'ECONNABORTED') {
+             throw { message: 'Request timed out. Please check your network and backend server.' };
+        }
+        throw error.response?.data || { message: `Failed to fetch protected data: ${error.message || 'Unknown network error'}` };
     }
 };

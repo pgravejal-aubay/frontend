@@ -1,8 +1,8 @@
 // frontend/screens/LoginScreen.js
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, Alert, TouchableOpacity } from 'react-native'; // Removed StyleSheet
 import { login } from '../services/authService';
-import { AuthContext } from '../App'; 
+import { AuthContext } from '../contexts/AuthContext'; // Add this line
 import { authStyles } from '../styles/authStyles';
 
 export default function LoginScreen({ navigation }) {
@@ -21,9 +21,8 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
     setError('');
     try {
-      await login(username, password);
-      signIn(); // Update auth state in App.js
-      // Navigation to HomeScreen is handled by App.js based on token presence
+      await login(username, password); // authService.login performs API call & stores token
+      signIn(); // context.signIn reads the stored token & updates global App state
     } catch (err) {
       setError(err.message || 'Could not log in.');
     } finally {
@@ -32,18 +31,18 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={authStyles.container}> 
-      <Text style={authStyles.title}>Login</Text> 
+    <View style={authStyles.container}>
+      <Text style={authStyles.title}>Login</Text>
       {error ? <Text style={authStyles.errorText}>{error}</Text> : null}
       <TextInput
-        style={authStyles.input} 
+        style={authStyles.input}
         placeholder="Username"
         value={username}
         onChangeText={setUsername}
         autoCapitalize="none"
       />
       <TextInput
-        style={authStyles.input} 
+        style={authStyles.input}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}

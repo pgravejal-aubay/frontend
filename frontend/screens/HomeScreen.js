@@ -1,23 +1,22 @@
 // frontend/screens/HomeScreen.js
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { View, Text, Button, Image, Alert, ActivityIndicator, TouchableOpacity, Platform } from 'react-native'; // Keep Platform
-import { Camera, CameraType } from 'expo-camera'; 
+import { View, Text, Button, Image, Alert, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera'; // Use CameraView and hook
 import { getUserData, fetchProtectedData } from '../services/authService';
-import { AuthContext } from '../App';
+import { AuthContext } from '../contexts/AuthContext'; // Add this line (correct path)
 import { homeStyles } from '../styles/homeStyles';
 
 export default function HomeScreen({ navigation }) {
-  const [hasCameraPermission, setHasCameraPermission] = useState(null);
-  // Initialize with string for web compatibility, or conditional on CameraType
-  const [type, setType] = useState(
-    Platform.OS === 'web' && !CameraType ? 'back' : (CameraType?.back || 'back')
-  ); // Default to 'back' string if CameraType.back is undefined
+  const [permission, requestPermission] = useCameraPermissions();
+  const [facing, setFacing] = useState('back'); // 'facing' prop uses 'front' or 'back'
+
   const [capturedImage, setCapturedImage] = useState(null);
   const cameraRef = useRef(null);
   const [userData, setUserDataState] = useState(null);
-  const [protectedMessage, setProtectedMessage] = useState('');
-  const [loading, setLoading] = useState(true); // Combined loading state
-  const [cameraReady, setCameraReady] = useState(false); // New state for camera readiness
+  const [protectedMessage, setProtectedMessage] = useState(''); // Keep for potential future use or debugging
+  const [loadingData, setLoadingData] = useState(true); // Specific loading state for data
+  const [takingPicture, setTakingPicture] = useState(false); // Specific for picture process
+  const [cameraReady, setCameraReady] = useState(false);
 
   const { signOut } = useContext(AuthContext);
 
@@ -25,37 +24,42 @@ export default function HomeScreen({ navigation }) {
     let isMounted = true;
 
     const loadData = async () => {
-      setLoading(true); // Start loading
+      if (!isMounted) return;
+      setLoadingData(true);
       try {
-        const cameraStatus = await Camera.requestCameraPermissionsAsync();
-        if (isMounted) setHasCameraPermission(cameraStatus.status === 'granted');
+        // Permission is requested via UI if not granted.
+        // Initial permission status is available in 'permission' object.
 
         const uData = await getUserData();
         if (isMounted) setUserDataState(uData);
 
-        // Only fetch protected data if we have a user (or token implies user)
-        if (uData) { // Or check for token existence if uData might be initially null
+        if (uData) { // Only fetch protected data if user data is available (implies logged in)
             const pData = await fetchProtectedData();
             if (isMounted) setProtectedMessage(pData.message);
+        } else {
+            // If no user data, it might indicate an issue, potentially sign out
+            console.warn("HomeScreen: No user data found on load.");
+            // signOut(); // Consider if this is the right place or if App.js handles it
         }
 
       } catch (error) {
         console.error("HomeScreen Error:", error);
         if (isMounted) {
+            const isAuthError = error.message?.includes("Token") || error.message?.includes("401") || error.message?.includes("No token found");
             Alert.alert(
               "Error",
-              error.message?.includes("Token") || error.message?.includes("Network Error")
-                ? "Session may be invalid or network issue. Please log in again."
-                : "Could not load data.",
+              isAuthError
+                ? "Your session may have expired or there was a network issue. Please log in again."
+                : "Could not load user data. Please try again later.",
               [{ text: "OK", onPress: () => {
-                  if (error.message?.includes("Token")){
+                  if (isAuthError){
                      signOut();
                   }
               }}]
             );
         }
       } finally {
-        if (isMounted) setLoading(false); // Stop loading
+        if (isMounted) setLoadingData(false);
       }
     };
 
@@ -64,55 +68,49 @@ export default function HomeScreen({ navigation }) {
     return () => {
       isMounted = false;
     };
-  }, [signOut]); // signOut dependency
+  }, [signOut]); // Add 'permission' if you want to reload data when permission changes
 
   const toggleCameraType = () => {
-    setType(current => {
-      // Use string comparison for web and robust handling
-      if (Platform.OS === 'web' || !CameraType || !CameraType.front || !CameraType.back) {
-        return current === 'back' ? 'front' : 'back';
-      }
-      // Use CameraType for native if available
-      return current === CameraType.back ? CameraType.front : CameraType.back;
-    });
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
   };
 
   const takePicture = async () => {
-    if (cameraRef.current && cameraReady && !loading) {
-      setLoading(true);
+    if (cameraRef.current && cameraReady && !takingPicture) {
+      setTakingPicture(true);
       try {
-        const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
+        const photo = await cameraRef.current.takePictureAsync({ quality: 0.7,  skipProcessing: true });
         setCapturedImage(photo.uri);
       } catch (error) {
         console.error("Error taking picture: ", error);
         Alert.alert("Capture Error", "Could not take picture. Please try again.");
       } finally {
-        setLoading(false);
+        setTakingPicture(false);
       }
     } else if (!cameraReady) {
         Alert.alert("Camera Not Ready", "Please wait for the camera to initialize.");
+    } else if (takingPicture) {
+        // Already processing, do nothing or show feedback
     }
   };
 
   const handleLogout = async () => {
     await signOut();
+    // Navigation to Login screen will be handled by App.js due to userToken becoming null
   };
 
-  // Handle loading state for permissions and data fetching
-  if (loading && hasCameraPermission === null) {
+  if (!permission) {
+    // Permissions are still loading (useCameraPermissions hook might take a moment)
     return <View style={homeStyles.activityIndicatorContainer}><ActivityIndicator size="large" color="#0000ff" /></View>;
   }
 
-  if (hasCameraPermission === false) {
+  if (!permission.granted) {
+    // Camera permissions are not granted yet.
     return (
       <View style={homeStyles.container}>
         <Text style={homeStyles.centeredText}>
-          No access to camera. Please enable camera permissions in your device settings for this app.
+          We need your permission to show the camera. Please grant camera access.
         </Text>
-        <Button title="Grant Permission" onPress={async () => {
-            const { status } = await Camera.requestCameraPermissionsAsync();
-            setHasCameraPermission(status === 'granted');
-        }} />
+        <Button onPress={requestPermission} title="Grant Permission" />
         <View style={homeStyles.logoutButtonContainer}>
             <Button title="Logout" onPress={handleLogout} color="red" />
         </View>
@@ -120,8 +118,8 @@ export default function HomeScreen({ navigation }) {
     );
   }
 
-  // If permissions are granted but still loading data, show a loader
-  if (loading) {
+  // Permissions are granted. Now check if data is still loading.
+  if (loadingData) {
     return <View style={homeStyles.activityIndicatorContainer}><ActivityIndicator size="large" color="#0000ff" /></View>;
   }
 
@@ -131,26 +129,36 @@ export default function HomeScreen({ navigation }) {
       {/* {protectedMessage && <Text style={homeStyles.infoText}>{protectedMessage}</Text>} */}
 
       <View style={homeStyles.cameraContainer}>
-        <Camera
+        <CameraView // Use CameraView
             style={homeStyles.camera}
-            type={type} // This will now be 'front' or 'back' string, or CameraType enum value
+            facing={facing} // Use 'facing' prop
             ref={cameraRef}
-            onCameraReady={() => setCameraReady(true)} // Set camera ready state
-            // ratio might be needed for Android, web usually adapts
-            ratio={Platform.OS === 'android' ? "16:9" : undefined }
+            onCameraReady={() => {
+                console.log("Camera is ready");
+                setCameraReady(true);
+            }}
+            mode="picture" // Explicitly set mode, can also be 'video'
+            // 'ratio' prop is deprecated for CameraView. Aspect ratio is usually handled by the view style or default behavior.
+            // If you need specific picture sizes, use the 'pictureSize' prop.
         >
           <View style={homeStyles.cameraButtonContainer}>
-            {cameraReady && ( // Only show flip button if camera is ready
-              <TouchableOpacity onPress={toggleCameraType} style={{padding: 10}}>
+            {cameraReady && (
+              <TouchableOpacity onPress={toggleCameraType} style={{padding: 10, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 5}}>
                   <Text style={homeStyles.flipButtonText}>Flip</Text>
               </TouchableOpacity>
             )}
           </View>
-        </Camera>
-        {!cameraReady && <ActivityIndicator size="small" color="#fff" style={{position: 'absolute', alignSelf: 'center', top: '50%'}}/>}
+        </CameraView>
+        {!cameraReady && permission.granted && // Show loader only if permission granted but camera not ready
+            <ActivityIndicator size="small" color="#fff" style={{position: 'absolute', alignSelf: 'center', top: '50%'}}/>
+        }
       </View>
 
-      <Button title={loading ? "Processing..." : (cameraReady ? "Take Picture" : "Camera loading...")} onPress={takePicture} disabled={loading || !cameraReady} />
+      <Button
+        title={takingPicture ? "Processing..." : (cameraReady ? "Take Picture" : "Camera Initializing...")}
+        onPress={takePicture}
+        disabled={takingPicture || !cameraReady}
+      />
 
       {capturedImage && (
         <>

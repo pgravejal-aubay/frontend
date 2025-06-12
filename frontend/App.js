@@ -1,19 +1,18 @@
 // frontend/App.js
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react'; // Removed useState as dispatch handles state
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator } from 'react-native'; // Removed StyleSheet
 
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
-import { getToken, logout } from './services/authService'; // Import logout
+import { getToken, logout } from './services/authService';
+// import { AuthContext } from './App'; // Remove this line
+import { AuthContext } from './contexts/AuthContext'; // Add this line
 
 const Stack = createStackNavigator();
-
-// Create a simple AuthContext
-export const AuthContext = React.createContext();
 
 export default function App() {
   const [state, dispatch] = React.useReducer(
@@ -30,13 +29,17 @@ export default function App() {
             ...prevState,
             isSignout: false,
             userToken: action.token,
+            isLoading: false, // Ensure loading is false
           };
         case 'SIGN_OUT':
           return {
             ...prevState,
             isSignout: true,
             userToken: null,
+            isLoading: false, // Ensure loading is false
           };
+        default:
+          return prevState;
       }
     },
     {
@@ -52,6 +55,7 @@ export default function App() {
       try {
         userToken = await getToken();
       } catch (e) {
+        console.error("Failed to restore token", e);
         // Restoring token failed
       }
       dispatch({ type: 'RESTORE_TOKEN', token: userToken });
@@ -61,29 +65,24 @@ export default function App() {
 
   const authContext = useMemo(
     () => ({
-      signIn: async (data) => {
-        const token = await getToken();
+      signIn: async () => { // Called by LoginScreen after authService.login stores the token
+        const token = await getToken(); // Read the token that was just stored
         dispatch({ type: 'SIGN_IN', token: token });
       },
       signOut: async () => {
-        await logout(); 
+        await logout();
         dispatch({ type: 'SIGN_OUT' });
       },
       signUp: async (data) => {
-
+        // This is a placeholder. If sign-up should auto-login,
+        // it would call the register service, then potentially signIn.
       },
     }),
     []
   );
 
-  // Re-bind auth context if dispatch changes (though it shouldn't often)
-  // This is mainly to update the context passed to LoginScreen
-  useEffect(() => {
-     if (state.userToken) {
-         authContext.signIn(); // Trigger state update if token is restored
-     }
-  }, [state.userToken, authContext]);
-
+  // Removed the potentially problematic useEffect that re-called signIn on token change.
+  // RESTORE_TOKEN and the signIn action in LoginScreen handle token state updates sufficiently.
 
   if (state.isLoading) {
     return (
