@@ -3,14 +3,13 @@ import React, { useEffect, useMemo } from 'react'; // Removed useState as dispat
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, ActivityIndicator } from 'react-native'; // Removed StyleSheet
+import { View, ActivityIndicator } from 'react-native'; 
 
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import { getToken, logout } from './services/authService';
-// import { AuthContext } from './App'; // Remove this line
-import { AuthContext } from './contexts/AuthContext'; // Add this line
+import { AuthContext } from './contexts/AuthContext';
 
 const Stack = createStackNavigator();
 
