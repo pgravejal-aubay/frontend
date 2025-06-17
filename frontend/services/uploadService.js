@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // frontend/services/authService.js
-const API_GENERAL_URL = 'http://10.0.2.2:5000/api';
+const API_GENERAL_URL = 'http://10.0.2.2:5000/video';
 
 export const local_video = async (video) => {
   try {

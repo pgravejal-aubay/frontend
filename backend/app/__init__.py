@@ -29,6 +29,9 @@ def create_app(config_class=Config):
     from app.routes import bp as main_bp
     app.register_blueprint(main_bp)
 
+    from app.video import bp as video_bp
+    app.register_blueprint(video_bp, url_prefix='/video')
+
     @app.route('/hello')
     def hello():
         return "Hello from Flask Backend (Account Management Focus)!"
