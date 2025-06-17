@@ -1,6 +1,7 @@
 // frontend/screens/HomeScreen.js
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, Button, Image, Alert, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
 import { CameraView, useCameraPermissions } from 'expo-camera'; // Use CameraView and hook
 import * as DocumentPicker from 'expo-document-picker';
 import { getUserData, fetchProtectedData } from '../services/authService';
@@ -103,32 +104,39 @@ export default function HomeScreen({ navigation }) {
     
 const importVideo = async () => {
   try {
-    const video = await DocumentPicker.getDocumentAsync({
-    type: 'video/*',
-    copyToCacheDirectory: false ,
-    multiple: false,
-  });
+    // Demande de permission à la médiathèque
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission refusée', 'L\'application a besoin d\'accéder à vos fichiers pour importer une vidéo.');
+      return;
+    }
 
-  if (video.canceled) { 
-    Alert.alert('Import Cancelled');
-    return;
-  }
-  
-  const MAX_FILE_SIZE_MB = 100;
-  const fileSizeInMB = (video.assets[0].size/1000000).toFixed(2);
-  if (fileSizeInMB > MAX_FILE_SIZE_MB) {
-    Alert.alert('File too large',
-      `The selected video is ${fileSizeInMB} MB. Please select a video smaller than ${MAX_FILE_SIZE_MB} MB.`
-    );
-    return;
-  }
+    const video = await DocumentPicker.getDocumentAsync({
+      type: 'video/*',
+      copyToCacheDirectory: false,
+      multiple: false,
+    });
+
+    if (video.canceled) { 
+      Alert.alert('Import Cancelled');
+      return;
+    }
+
+    const MAX_FILE_SIZE_MB = 100;
+    const fileSizeInMB = (video.assets[0].size / 1000000).toFixed(2);
+    if (fileSizeInMB > MAX_FILE_SIZE_MB) {
+      Alert.alert('File too large',
+        `The selected video is ${fileSizeInMB} MB. Please select a video smaller than ${MAX_FILE_SIZE_MB} MB.`
+      );
+      return;
+    }
+
     const data = await local_video(video);
     Alert.alert(data.message);
+  } catch (error) {
+    console.error('Error picking video:', error);
+    Alert.alert('An error occurred while importing the video.');
   }
-  catch (error) {
-  console.error('Error picking video:', error);
-  Alert.alert('An error occurred while importing the video.');
-}
 };
 
 
