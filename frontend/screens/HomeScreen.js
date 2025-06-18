@@ -168,6 +168,7 @@ export default function HomeScreen({ navigation }) {
       )}
 
       <View style={homeStyles.logoutButtonContainer}>
+        <Button title="Paramètres" onPress={() => navigation.navigate('Settings')} color="#6750a4" />
         <Button title="Logout" onPress={handleLogout} color="red" />
       </View>
     </View>
