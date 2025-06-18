@@ -1,4 +1,3 @@
-// frontend/App.js
 import React, { useEffect, useMemo } from 'react'; // Removed useState as dispatch handles state
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -8,6 +7,7 @@ import { View, ActivityIndicator } from 'react-native';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
+import ProcessingScreen from './screens/ProcessingScreen';
 import { getToken, logout } from './services/authService';
 import { AuthContext } from './contexts/AuthContext';
 
@@ -80,8 +80,6 @@ export default function App() {
     []
   );
 
-  // Removed the potentially problematic useEffect that re-called signIn on token change.
-  // RESTORE_TOKEN and the signIn action in LoginScreen handle token state updates sufficiently.
 
   if (state.isLoading) {
     return (
@@ -101,7 +99,10 @@ export default function App() {
               <Stack.Screen name="Register" component={RegisterScreen} />
             </>
           ) : (
-            <Stack.Screen name="Home" component={HomeScreen} />
+          <>
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen name="Processing" component={ProcessingScreen} />
+            </>
           )}
         </Stack.Navigator>
       </NavigationContainer>

@@ -1,7 +1,5 @@
-// frontend/screens/HomeScreen.js
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, Button, Image, Alert, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
-import * as MediaLibrary from 'expo-media-library';
 import { CameraView, useCameraPermissions } from 'expo-camera'; // Use CameraView and hook
 import * as DocumentPicker from 'expo-document-picker';
 import { getUserData, fetchProtectedData } from '../services/authService';
@@ -40,7 +38,6 @@ export default function HomeScreen({ navigation }) {
             const pData = await fetchProtectedData();
             if (isMounted) setProtectedMessage(pData.message);
         } else {
-            // If no user data, it might indicate an issue, potentially sign out
             console.warn("HomeScreen: No user data found on load.");
             // signOut(); // Consider if this is the right place or if App.js handles it
         }
@@ -101,29 +98,23 @@ export default function HomeScreen({ navigation }) {
     // Navigation to Login screen will be handled by App.js due to userToken becoming null
   };
 
-    
+
 const importVideo = async () => {
   try {
-    // Demande de permission à la médiathèque
-    const { status } = await MediaLibrary.requestPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission refusée', 'L\'application a besoin d\'accéder à vos fichiers pour importer une vidéo.');
-      return;
-    }
-
     const video = await DocumentPicker.getDocumentAsync({
       type: 'video/*',
-      copyToCacheDirectory: false,
+      copyToCacheDirectory: true, // Recommended for reliability
       multiple: false,
     });
 
     if (video.canceled) { 
-      Alert.alert('Import Cancelled');
       return;
     }
-
+  
+    const asset = video.assets[0];
     const MAX_FILE_SIZE_MB = 100;
-    const fileSizeInMB = (video.assets[0].size / 1000000).toFixed(2);
+    const fileSizeInMB = (asset.size / 1000000).toFixed(2);
+
     if (fileSizeInMB > MAX_FILE_SIZE_MB) {
       Alert.alert('File too large',
         `The selected video is ${fileSizeInMB} MB. Please select a video smaller than ${MAX_FILE_SIZE_MB} MB.`
@@ -131,22 +122,26 @@ const importVideo = async () => {
       return;
     }
 
-    const data = await local_video(video);
-    Alert.alert(data.message);
+    const data = await local_video(asset); 
+    
+    if (data.task_id) {
+        navigation.navigate('Processing', { taskId: data.task_id });
+    } else {
+        Alert.alert('Error', data.message || "Upload failed, no task ID received.");
+    }
+
   } catch (error) {
-    console.error('Error picking video:', error);
-    Alert.alert('An error occurred while importing the video.');
+    console.error('Error importing video:', error);
+    Alert.alert('Import Error', `An issue occurred: ${error.message}`);
   }
 };
 
 
   if (!permission) {
-    // Permissions are still loading (useCameraPermissions hook might take a moment)
     return <View style={homeStyles.activityIndicatorContainer}><ActivityIndicator size="large" color="#0000ff" /></View>;
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet.
     return (
       <View style={homeStyles.container}>
         <Text style={homeStyles.centeredText}>
@@ -160,7 +155,6 @@ const importVideo = async () => {
     );
   }
 
-  // Permissions are granted. Now check if data is still loading.
   if (loadingData) {
     return <View style={homeStyles.activityIndicatorContainer}><ActivityIndicator size="large" color="#0000ff" /></View>;
   }
@@ -179,7 +173,7 @@ const importVideo = async () => {
                 console.log("Camera is ready");
                 setCameraReady(true);
             }}
-            mode="picture" // Explicitly set mode, can also be 'video'
+            mode="video" // Explicitly set mode, can also be 'video'
             // 'ratio' prop is deprecated for CameraView. Aspect ratio is usually handled by the view style or default behavior.
             // If you need specific picture sizes, use the 'pictureSize' prop.
         >
@@ -205,7 +199,7 @@ const importVideo = async () => {
        <Button
         title={"Import Video"}
         onPress={importVideo}
-        disabled={takingPicture || !cameraReady}
+        disabled={takingPicture}
       />
       {capturedImage && (
         <>

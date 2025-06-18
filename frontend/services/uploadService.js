@@ -1,7 +1,6 @@
-import * as FileSystem from 'expo-file-system';
 import axios from 'axios';
-
-const API_GENERAL_URL = 'http://10.0.2.2:5000/video';
+import { getApiUrl, getAuthHeaders } from './api';
+import * as FileSystem from 'expo-file-system';
 
 const copyToCache = async (video) => {
   const sourceUri = video.uri;
@@ -17,24 +16,52 @@ const copyToCache = async (video) => {
 };
 
 export const local_video = async (videoAsset) => {
-  try {
-    const video = videoAsset.assets[0];
-    const fileUri = await copyToCache(video);
+  const apiUrl = getApiUrl('/video/upload');
+  const headers = await getAuthHeaders();
 
-    const formData = new FormData();
-    formData.append('video', {
-      uri: fileUri,
-      name: video.name || 'video.mp4',
-      type: video.mimeType || 'video/mp4',
-    });
-    const response = await axios.post(`${API_GENERAL_URL}/upload`, formData, {
+  const fileUri = await copyToCache(videoAsset);
+
+  const formData = new FormData();
+  formData.append('video', {
+    uri: fileUri,
+    name: videoAsset.name || 'video.mp4',
+    type: videoAsset.mimeType || 'video/mp4',
+  });
+
+  // Axios gère automatiquement le Content-Type pour FormData
+  try {
+    const response = await axios.post(apiUrl, formData, {
       headers: {
+        ...headers,
         'Content-Type': 'multipart/form-data',
       },
     });
     return response.data;
   } catch (error) {
-    console.error('Upload Error:', error);
-    throw error.response?.data || { message: 'Impossible to save video' };
+    throw error.response?.data || { message: 'Échec de l’envoi de la vidéo.' };
+  }
+};
+
+export const checkTaskStatus = async (taskId) => {
+  const apiUrl = getApiUrl(`/api/task/status/${taskId}`);
+  const headers = await getAuthHeaders();
+
+  try {
+    const response = await axios.get(apiUrl, { headers });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Échec de la vérification du statut.' };
+  }
+};
+
+export const cancelTask = async (taskId) => {
+  const apiUrl = getApiUrl(`/api/task/cancel/${taskId}`);
+  const headers = await getAuthHeaders();
+
+  try {
+    const response = await axios.post(apiUrl, null, { headers });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Échec de l’annulation de la tâche.' };
   }
 };
