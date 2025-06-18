@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { checkTaskStatus, cancelTask } from '../services/uploadService';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
+
+import { processingStyles as styles } from '../styles/processingStyles';
 
 const ProcessingScreen = ({ route, navigation }) => {
     const { taskId } = route.params;
@@ -85,30 +87,5 @@ const ProcessingScreen = ({ route, navigation }) => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    content: {
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    titleText: {
-        fontFamily: 'SpaceMono-Regular',
-        fontSize: 32,
-        color: '#000',
-        textAlign: 'center',
-        lineHeight: 43.2,
-    },
-    cancelButton: {
-        position: 'absolute',
-        top: 60,
-        right: 30,
-    },
-});
 
 export default ProcessingScreen;
