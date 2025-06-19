@@ -115,6 +115,7 @@
 // frontend/App.js
 
 import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react'; // Removed useState as dispatch handles state
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, ActivityIndicator, Text } from 'react-native';
@@ -125,6 +126,8 @@ import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen'; // La page Vidéo
 import TranslationScreen from './screens/TranslationScreen'; // La page Traduction
 
+import HomeScreen from './screens/HomeScreen';
+import ProcessingScreen from './screens/ProcessingScreen';
 import { getToken, logout } from './services/authService';
 import { AuthContext } from './contexts/AuthContext';
 
@@ -181,6 +184,7 @@ export default function App() {
     []
   );
 
+
   if (state.isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -210,6 +214,9 @@ export default function App() {
               <Stack.Screen name="Video" component={HomeScreen} />
               <Stack.Screen name="Settings" component={SettingsScreen} />
               <Stack.Screen name="History" component={HistoryScreen} />
+          <>
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen name="Processing" component={ProcessingScreen} />
             </>
           )}
         </Stack.Navigator>
