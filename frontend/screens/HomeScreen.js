@@ -1,7 +1,6 @@
 // frontend/screens/HomeScreen.js
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, Button, Image, Alert, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
-import * as MediaLibrary from 'expo-media-library';
 import { CameraView, useCameraPermissions } from 'expo-camera'; // Use CameraView and hook
 import * as DocumentPicker from 'expo-document-picker';
 import { getUserData, fetchProtectedData } from '../services/authService';
@@ -20,6 +19,7 @@ export default function HomeScreen({ navigation }) {
   const [loadingData, setLoadingData] = useState(true); // Specific loading state for data
   const [takingPicture, setTakingPicture] = useState(false); // Specific for picture process
   const [cameraReady, setCameraReady] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   const { signOut } = useContext(AuthContext);
 
@@ -98,11 +98,13 @@ export default function HomeScreen({ navigation }) {
 
   const handleLogout = async () => {
     await signOut();
+    console.log("sfd");
     // Navigation to Login screen will be handled by App.js due to userToken becoming null
   };
 
     
 const importVideo = async () => {
+  setIsImporting(true);
   try {
     const video = await DocumentPicker.getDocumentAsync({
       type: 'video/*',
@@ -111,6 +113,7 @@ const importVideo = async () => {
     });
 
     if (video.canceled) { 
+      console.log("Stop importing video");
       return;
     }
   
@@ -136,6 +139,10 @@ const importVideo = async () => {
   } catch (error) {
     console.error('Error importing video:', error);
     Alert.alert('Import Error', `An issue occurred: ${error.message}`);
+  } finally {
+    setIsImporting(false);
+    toggleCameraType();
+    toggleCameraType();
   }
 };
 
@@ -199,13 +206,13 @@ const importVideo = async () => {
       <Button
         title={takingPicture ? "Processing..." : (cameraReady ? "Take Picture" : "Camera Initializing...")}
         onPress={takePicture}
-        disabled={takingPicture || !cameraReady}
+        disabled={takingPicture || !cameraReady || isImporting} 
       />
 
        <Button
-        title={"Import Video"}
+        title={isImporting ? "Importing..." : "Import Video"}
         onPress={importVideo}
-        disabled={takingPicture || !cameraReady}
+        disabled={takingPicture || isImporting}
       />
       <View style={homeStyles.logoutButtonContainer}>
         <Button title="Logout" onPress={handleLogout} color="red" />

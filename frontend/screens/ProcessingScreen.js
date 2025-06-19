@@ -19,12 +19,12 @@ const ProcessingScreen = ({ route, navigation }) => {
         try {
             await cancelTask(taskId);
             Alert.alert("Cancelled", "Processing has been cancelled.", [
-                { text: "OK", onPress: () => navigation.goBack() }
+                { text: "OK", onPress: () => navigation.navigate("Home") }
             ]);
         } catch (error) {
             console.error("Error cancelling:", error);
             Alert.alert("Error", "Unable to cancel the task.", [
-                 { text: "OK", onPress: () => navigation.goBack() }
+                 { text: "OK", onPress: () => navigation.navigate("Home") }
             ]);
         }
     };
@@ -36,19 +36,19 @@ const ProcessingScreen = ({ route, navigation }) => {
             if (response.status === 'completed') {
                 clearInterval(intervalRef.current);
                 Alert.alert("Success", `Translation: ${response.result.translated_text}`, [
-                        { text: "OK", onPress: () => navigation.goBack() }
+                        { text: "OK", onPress: () => navigation.navigate("Home") }
                 ]);
             } else if (response.status === 'failed' || response.status === 'cancelled') {
                 clearInterval(intervalRef.current);
                  Alert.alert("Failed", "Processing could not be completed.", [
-                        { text: "OK", onPress: () => navigation.goBack() }
+                        { text: "OK", onPress: () => navigation.navigate("Home") }
                 ]);
             }
         } catch (error) {
             console.error("Status check error:", error);
             clearInterval(intervalRef.current);
              Alert.alert("Error", "Unable to contact the server to check status.", [
-                        { text: "OK", onPress: () => navigation.goBack() }
+                        { text: "OK", onPress: () => navigation.navigate("Home") }
                 ]);
         }
     };

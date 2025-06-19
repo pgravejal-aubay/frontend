@@ -36,5 +36,5 @@ def upload_video(current_user):
 
             # Respond immediately with the task ID
             return jsonify({'message': 'Upload successful, processing started.', 'task_id': task_id}), 202
-    except Exception as e:
+    except Exception:
         return jsonify({'message' : 'Video not found'}), 404
