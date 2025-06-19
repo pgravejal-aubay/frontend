@@ -28,7 +28,7 @@ export const local_video = async (videoAsset) => {
     type: videoAsset.mimeType || 'video/mp4',
   });
 
-  // Axios gère automatiquement le Content-Type pour FormData
+  // Axios automatically handles Content-Type for FormData
   try {
     const response = await axios.post(apiUrl, formData, {
       headers: {
@@ -38,7 +38,7 @@ export const local_video = async (videoAsset) => {
     });
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Échec de l’envoi de la vidéo.' };
+    throw error.response?.data || { message: 'Failed to upload video.' };
   }
 };
 
@@ -50,7 +50,7 @@ export const checkTaskStatus = async (taskId) => {
     const response = await axios.get(apiUrl, { headers });
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Échec de la vérification du statut.' };
+    throw error.response?.data || { message: 'Failed to check status.' };
   }
 };
 
@@ -62,6 +62,6 @@ export const cancelTask = async (taskId) => {
     const response = await axios.post(apiUrl, null, { headers });
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Échec de l’annulation de la tâche.' };
+    throw error.response?.data || { message: 'Failed to cancel task.' };
   }
 };

@@ -1,5 +1,7 @@
+// frontend/screens/HomeScreen.js
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, Button, Image, Alert, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
 import { CameraView, useCameraPermissions } from 'expo-camera'; // Use CameraView and hook
 import * as DocumentPicker from 'expo-document-picker';
 import { getUserData, fetchProtectedData } from '../services/authService';
@@ -38,6 +40,7 @@ export default function HomeScreen({ navigation }) {
             const pData = await fetchProtectedData();
             if (isMounted) setProtectedMessage(pData.message);
         } else {
+            // If no user data, it might indicate an issue, potentially sign out
             console.warn("HomeScreen: No user data found on load.");
             // signOut(); // Consider if this is the right place or if App.js handles it
         }
@@ -98,7 +101,7 @@ export default function HomeScreen({ navigation }) {
     // Navigation to Login screen will be handled by App.js due to userToken becoming null
   };
 
-
+    
 const importVideo = async () => {
   try {
     const video = await DocumentPicker.getDocumentAsync({
@@ -138,10 +141,12 @@ const importVideo = async () => {
 
 
   if (!permission) {
+    // Permissions are still loading (useCameraPermissions hook might take a moment)
     return <View style={homeStyles.activityIndicatorContainer}><ActivityIndicator size="large" color="#0000ff" /></View>;
   }
 
   if (!permission.granted) {
+    // Camera permissions are not granted yet.
     return (
       <View style={homeStyles.container}>
         <Text style={homeStyles.centeredText}>
@@ -155,6 +160,7 @@ const importVideo = async () => {
     );
   }
 
+  // Permissions are granted. Now check if data is still loading.
   if (loadingData) {
     return <View style={homeStyles.activityIndicatorContainer}><ActivityIndicator size="large" color="#0000ff" /></View>;
   }
@@ -199,15 +205,8 @@ const importVideo = async () => {
        <Button
         title={"Import Video"}
         onPress={importVideo}
-        disabled={takingPicture}
+        disabled={takingPicture || !cameraReady}
       />
-      {capturedImage && (
-        <>
-            <Image source={{ uri: capturedImage }} style={homeStyles.previewImage} />
-            <Button title="Clear Preview" onPress={() => setCapturedImage(null)} />
-        </>
-      )}
-
       <View style={homeStyles.logoutButtonContainer}>
         <Button title="Logout" onPress={handleLogout} color="red" />
       </View>
