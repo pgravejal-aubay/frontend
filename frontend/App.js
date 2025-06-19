@@ -122,28 +122,17 @@ import { View, ActivityIndicator, Text } from 'react-native';
 // --- Import de tous les écrans (sans doublons) ---
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
-import HomeScreen from './screens/HomeScreen'; // C'est ta page "Video"
-import ProcessingScreen from './screens/ProcessingScreen'; // La page de ton ami
-import TranslationScreen from './screens/TranslationScreen'; // Ta page
-
+import HomeScreen from './screens/HomeScreen'; 
+import ProcessingScreen from './screens/ProcessingScreen'; 
+import TranslationScreen from './screens/TranslationScreen'; 
 import SettingsScreen from './screens/SettingsScreen';
-// import TranslationScreen from './screens/TranslationScreen'; // Ajouté pour compatibilité
 import { getToken, logout } from './services/authService';
 import { AuthContext } from './contexts/AuthContext';
 
-// Placeholder screens
-const HistoryScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }} >
-    <Text>Page Historique</Text>
-  </View>
-);
-
-const Stack = createStackNavigator();
-
 // --- Ecrans temporaires (placeholders) ---
-const SettingsScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Page Paramètres</Text></View>;
 const HistoryScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Page Historique</Text></View>;
 
+const Stack = createStackNavigator();
 
 export default function App() {
   const [state, dispatch] = React.useReducer(
@@ -209,24 +198,16 @@ export default function App() {
               <Stack.Screen name="Register" component={RegisterScreen} />
             </>
           ) : (
-            <>
-              {/* <Stack.Screen name="Translation" component={TranslationScreen} /> */}
-              <Stack.Screen name="Video" component={HomeScreen} />
-              <Stack.Screen name="Settings" component={SettingsScreen} />
-              <Stack.Screen name="History" component={HistoryScreen} />
-              // Ecrans si l'utilisateur EST connecté
+            // Ecrans si l'utilisateur EST connecté
             <>
               {/* Le flux normal commencera sur la page Vidéo */}
-              <Stack.Screen name="Video" component={HomeScreen} />
+              <Stack.Screen name="Home" component={HomeScreen} />
               
               {/* Toutes les autres pages de l'application sont déclarées ici */}
               <Stack.Screen name="Processing" component={ProcessingScreen} />
               <Stack.Screen name="Translation" component={TranslationScreen} />
               <Stack.Screen name="Settings" component={SettingsScreen} />
               <Stack.Screen name="History" component={HistoryScreen} />
-            </>
-              {/* Note: "ProcessingScreen" est mentionné mais non défini, j'ai laissé comme commentaire */}
-              {/* <Stack.Screen name="Processing" component={ProcessingScreen} /> */}
             </>
           )}
         </Stack.Navigator>
