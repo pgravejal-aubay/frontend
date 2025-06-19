@@ -14,14 +14,14 @@ def translate_video_task(task_id):
     task['status'] = 'processing'
     print(f"Starting processing for task {task_id}...")
 
-    # Simulate a long process (e.g., 30 seconds)
-    for i in range(15):
+    # Simulate the video translation process
+    for i in range(5):
         # Check every 2 seconds if a cancellation has been requested
         if task.get('cancel_requested'):
             task['status'] = 'cancelled'
             print(f"Task {task_id} cancelled by the user.")
             return
-        time.sleep(2)
+        time.sleep(1)
 
     # Processing is complete
     task['status'] = 'completed'
