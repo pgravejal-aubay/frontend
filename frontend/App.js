@@ -115,26 +115,23 @@
 // frontend/App.js
 
 import React, { useEffect, useMemo } from 'react';
-import React, { useEffect, useMemo } from 'react'; // Removed useState as dispatch handles state
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, ActivityIndicator, Text } from 'react-native';
 
-// --- Import de tous les écrans ---
+// --- Import de tous les écrans (sans doublons) ---
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
-import HomeScreen from './screens/HomeScreen'; // La page Vidéo
-import TranslationScreen from './screens/TranslationScreen'; // La page Traduction
+import HomeScreen from './screens/HomeScreen'; // C'est ta page "Video"
+import ProcessingScreen from './screens/ProcessingScreen'; // La page de ton ami
+import TranslationScreen from './screens/TranslationScreen'; // Ta page
 
-import HomeScreen from './screens/HomeScreen';
-import ProcessingScreen from './screens/ProcessingScreen';
 import { getToken, logout } from './services/authService';
 import { AuthContext } from './contexts/AuthContext';
 
 const Stack = createStackNavigator();
 
 // --- Ecrans temporaires (placeholders) ---
-// Pour que l'application ne plante pas si les fichiers n'existent pas encore.
 const SettingsScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Page Paramètres</Text></View>;
 const HistoryScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Page Historique</Text></View>;
 
@@ -184,7 +181,6 @@ export default function App() {
     []
   );
 
-
   if (state.isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -206,17 +202,14 @@ export default function App() {
           ) : (
             // Ecrans si l'utilisateur EST connecté
             <>
-              {/* --- C'EST LA PARTIE IMPORTANTE --- */}
-              {/* L'écran "Translation" est en premier pour qu'il s'affiche par défaut. */}
-              <Stack.Screen name="Translation" component={TranslationScreen} />
-
-              {/* Les autres écrans sont déclarés après */}
+              {/* Le flux normal commencera sur la page Vidéo */}
               <Stack.Screen name="Video" component={HomeScreen} />
+              
+              {/* Toutes les autres pages de l'application sont déclarées ici */}
+              <Stack.Screen name="Processing" component={ProcessingScreen} />
+              <Stack.Screen name="Translation" component={TranslationScreen} />
               <Stack.Screen name="Settings" component={SettingsScreen} />
               <Stack.Screen name="History" component={HistoryScreen} />
-          <>
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="Processing" component={ProcessingScreen} />
             </>
           )}
         </Stack.Navigator>
