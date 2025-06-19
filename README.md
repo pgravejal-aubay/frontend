@@ -16,7 +16,7 @@ Intstaller node sur windows et ajouter npm / npx au path
 
 npm install
 
-npx expo install expo-file-system expo-document-picker expo-media-library
+npx expo install expo-file-system expo-document-picker expo-media-library react-native-picker expo-av
 
 
 npx expo start --clear pour run le frontend
