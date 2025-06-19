@@ -1,13 +1,131 @@
+// // frontend/App.js
+// import React, { useEffect, useMemo } from 'react'; // Removed useState as dispatch handles state
+// import { NavigationContainer } from '@react-navigation/native';
+// import { createStackNavigator } from '@react-navigation/stack';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { View, ActivityIndicator } from 'react-native'; 
+
+// import LoginScreen from './screens/LoginScreen';
+// import RegisterScreen from './screens/RegisterScreen';
+// import HomeScreen from './screens/HomeScreen';
+// import { getToken, logout } from './services/authService';
+// import { AuthContext } from './contexts/AuthContext';
+
+// const Stack = createStackNavigator();
+
+// export default function App() {
+//   const [state, dispatch] = React.useReducer(
+//     (prevState, action) => {
+//       switch (action.type) {
+//         case 'RESTORE_TOKEN':
+//           return {
+//             ...prevState,
+//             userToken: action.token,
+//             isLoading: false,
+//           };
+//         case 'SIGN_IN':
+//           return {
+//             ...prevState,
+//             isSignout: false,
+//             userToken: action.token,
+//             isLoading: false, // Ensure loading is false
+//           };
+//         case 'SIGN_OUT':
+//           return {
+//             ...prevState,
+//             isSignout: true,
+//             userToken: null,
+//             isLoading: false, // Ensure loading is false
+//           };
+//         default:
+//           return prevState;
+//       }
+//     },
+//     {
+//       isLoading: true,
+//       isSignout: false,
+//       userToken: null,
+//     }
+//   );
+
+//   useEffect(() => {
+//     const bootstrapAsync = async () => {
+//       let userToken;
+//       try {
+//         userToken = await getToken();
+//       } catch (e) {
+//         console.error("Failed to restore token", e);
+//         // Restoring token failed
+//       }
+//       dispatch({ type: 'RESTORE_TOKEN', token: userToken });
+//     };
+//     bootstrapAsync();
+//   }, []);
+
+//   const authContext = useMemo(
+//     () => ({
+//       signIn: async () => { // Called by LoginScreen after authService.login stores the token
+//         const token = await getToken(); // Read the token that was just stored
+//         dispatch({ type: 'SIGN_IN', token: token });
+//       },
+//       signOut: async () => {
+//         await logout();
+//         dispatch({ type: 'SIGN_OUT' });
+//       },
+//       signUp: async (data) => {
+//         // This is a placeholder. If sign-up should auto-login,
+//         // it would call the register service, then potentially signIn.
+//       },
+//     }),
+//     []
+//   );
+
+//   // Removed the potentially problematic useEffect that re-called signIn on token change.
+//   // RESTORE_TOKEN and the signIn action in LoginScreen handle token state updates sufficiently.
+
+//   if (state.isLoading) {
+//     return (
+//       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+//         <ActivityIndicator size="large" />
+//       </View>
+//     );
+//   }
+
+//   return (
+//     <AuthContext.Provider value={authContext}>
+//       <NavigationContainer>
+//         <Stack.Navigator screenOptions={{ headerShown: false }}>
+//           {state.userToken == null ? (
+//             <>
+//               <Stack.Screen name="Login" component={LoginScreen} />
+//               <Stack.Screen name="Register" component={RegisterScreen} />
+//             </>
+//           ) : (
+//             <Stack.Screen name="Home" component={HomeScreen} />
+//           )}
+//         </Stack.Navigator>
+//       </NavigationContainer>
+//     </AuthContext.Provider>
+//   );
+// }
+
+
+
+// code modifié
 // frontend/App.js
+
 import React, { useEffect, useMemo } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, ActivityIndicator, Text } from 'react-native';
 
+// --- Import de tous les écrans (sans doublons) ---
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
-import HomeScreen from './screens/HomeScreen';
+import HomeScreen from './screens/HomeScreen'; // C'est ta page "Video"
+import ProcessingScreen from './screens/ProcessingScreen'; // La page de ton ami
+import TranslationScreen from './screens/TranslationScreen'; // Ta page
+
 import SettingsScreen from './screens/SettingsScreen';
 // import TranslationScreen from './screens/TranslationScreen'; // Ajouté pour compatibilité
 import { getToken, logout } from './services/authService';
@@ -22,39 +140,26 @@ const HistoryScreen = () => (
 
 const Stack = createStackNavigator();
 
+// --- Ecrans temporaires (placeholders) ---
+const SettingsScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Page Paramètres</Text></View>;
+const HistoryScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Page Historique</Text></View>;
+
+
 export default function App() {
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
       switch (action.type) {
         case 'RESTORE_TOKEN':
-          return {
-            ...prevState,
-            userToken: action.token,
-            isLoading: false,
-          };
+          return { ...prevState, userToken: action.token, isLoading: false };
         case 'SIGN_IN':
-          return {
-            ...prevState,
-            isSignout: false,
-            userToken: action.token,
-            isLoading: false,
-          };
+          return { ...prevState, isSignout: false, userToken: action.token, isLoading: false };
         case 'SIGN_OUT':
-          return {
-            ...prevState,
-            isSignout: true,
-            userToken: null,
-            isLoading: false,
-          };
+          return { ...prevState, isSignout: true, userToken: null, isLoading: false };
         default:
           return prevState;
       }
     },
-    {
-      isLoading: true,
-      isSignout: false,
-      userToken: null,
-    }
+    { isLoading: true, isSignout: false, userToken: null }
   );
 
   useEffect(() => {
@@ -63,7 +168,7 @@ export default function App() {
       try {
         userToken = await getToken();
       } catch (e) {
-        console.error('Failed to restore token', e);
+        console.error("Failed to restore token", e);
       }
       dispatch({ type: 'RESTORE_TOKEN', token: userToken });
     };
@@ -74,15 +179,13 @@ export default function App() {
     () => ({
       signIn: async () => {
         const token = await getToken();
-        dispatch({ type: 'SIGN_IN', token });
+        dispatch({ type: 'SIGN_IN', token: token });
       },
       signOut: async () => {
         await logout();
         dispatch({ type: 'SIGN_OUT' });
       },
-      signUp: async () => {
-        // Placeholder
-      },
+      signUp: async (data) => { /* Placeholder */ },
     }),
     []
   );
@@ -100,6 +203,7 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {state.userToken == null ? (
+            // Ecrans si l'utilisateur N'EST PAS connecté
             <>
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Register" component={RegisterScreen} />
@@ -110,7 +214,17 @@ export default function App() {
               <Stack.Screen name="Video" component={HomeScreen} />
               <Stack.Screen name="Settings" component={SettingsScreen} />
               <Stack.Screen name="History" component={HistoryScreen} />
-              <Stack.Screen name="Home" component={HomeScreen} />
+              // Ecrans si l'utilisateur EST connecté
+            <>
+              {/* Le flux normal commencera sur la page Vidéo */}
+              <Stack.Screen name="Video" component={HomeScreen} />
+              
+              {/* Toutes les autres pages de l'application sont déclarées ici */}
+              <Stack.Screen name="Processing" component={ProcessingScreen} />
+              <Stack.Screen name="Translation" component={TranslationScreen} />
+              <Stack.Screen name="Settings" component={SettingsScreen} />
+              <Stack.Screen name="History" component={HistoryScreen} />
+            </>
               {/* Note: "ProcessingScreen" est mentionné mais non défini, j'ai laissé comme commentaire */}
               {/* <Stack.Screen name="Processing" component={ProcessingScreen} /> */}
             </>
