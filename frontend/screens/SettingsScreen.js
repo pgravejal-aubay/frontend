@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Picker } from '@react-native-picker/picker';
 import { Separator } from '@/components/ui/separator';
+import AppHeader from '../components/AppHeaders';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useContext } from 'react';
@@ -59,80 +60,13 @@ const SettingsScreen = () => {
     6: 'x1', // Vitesse de lecture
   });
 
-  // État pour le menu utilisateur
-  const [isUserMenuVisible, setUserMenuVisible] = useState(false);
-
-  // Fonctions pour le menu utilisateur
-  const handleGoHome = () => navigation.navigate('Home');
-  const handleGoToHistory = () => navigation.navigate('History');
-  const handleGoToSettings = () => console.log('Already on Settings'); // Déjà sur Settings
-  const handleClose = () => navigation.navigate('Home'); // Retour à Home comme dans TranslationScreen
-  const handleLogoutFromMenu = () => {
-    setUserMenuVisible(false);
-    Alert.alert('Déconnexion', 'Vous avez été déconnecté.');
-    navigation.navigate('Login');
-  };
-  const handleDeleteAccount = () => {
-    setUserMenuVisible(false);
-    Alert.alert(
-      'Supprimer le compte',
-      'Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: () => {
-            console.log('Compte supprimé');
-            navigation.navigate('Login');
-          },
-        },
-      ]
-    );
-  };
-
   return (
     <View style={styles.container}>
       {/* Header fixe */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => setUserMenuVisible(true)}>
-            <Ionicons name="person-outline" size={26} color="#000" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={handleGoHome}>
-            <Ionicons name="home-outline" size={26} color="#000" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.iconButton} onPress={handleGoToHistory}>
-            <Ionicons name="bookmark-outline" size={26} color="#000" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={handleGoToSettings}>
-            <Ionicons name="settings-outline" size={26} color="#000" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <AppHeader />
 
       {/* Contenu défilant */}
       <ScrollView>
-        {/* Menu utilisateur (modal) */}
-        <Modal
-          transparent={true}
-          visible={isUserMenuVisible}
-          onRequestClose={() => setUserMenuVisible(false)}
-          animationType="fade"
-        >
-          <TouchableOpacity style={{ flex: 1 }} onPressOut={() => setUserMenuVisible(false)}>
-            <View style={styles.userMenu}>
-              <TouchableOpacity style={styles.menuItem} onPress={handleLogoutFromMenu}>
-                <Text style={styles.menuItemText}>Déconnexion</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem} onPress={handleDeleteAccount}>
-                <Text style={[styles.menuItemText, { color: 'red' }]}>Supprimer le compte</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </Modal>
 
         {/* Preferences Section */}
         <View style={styles.section}>
