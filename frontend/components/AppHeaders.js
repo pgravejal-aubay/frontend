@@ -1,6 +1,7 @@
 // frontend/components/AppHeader.js
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import {AuthContext  } from "../contexts/AuthContext";
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
@@ -9,8 +10,10 @@ export default function AppHeader() {
     const navigation = useNavigation();
     const [isProfileModalVisible, setProfileModalVisible] = useState(false);
 
-    const handleLogout = () => {
+    const { signOut } = useContext(AuthContext);
+    const handleLogout = async () => {
         setProfileModalVisible(false);
+        await signOut();
         console.log("Déconnexion demandée");
         // Logique de déconnexion
     };
