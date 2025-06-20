@@ -13,11 +13,12 @@ import HomeScreen from './screens/HomeScreen';
 import ProcessingScreen from './screens/ProcessingScreen'; 
 import TranslationScreen from './screens/TranslationScreen'; 
 import SettingsScreen from './screens/SettingsScreen';
+import HistoryScreen from './screens/HistoryScreen';
 import { getToken, logout } from './services/authService';
 import { AuthContext } from './contexts/AuthContext';
 
 // --- Ecrans temporaires (placeholders) ---
-const HistoryScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Page Historique</Text></View>;
+//const HistoryScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Page Historique</Text></View>;
 
 const Stack = createStackNavigator();
 
