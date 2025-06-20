@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { View, ActivityIndicator, Text } from 'react-native';
 
 // --- Import de tous les écrans (sans doublons) ---
+import CoverScreen from './screens/CoverScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen'; 
@@ -80,8 +81,13 @@ export default function App() {
           {state.userToken == null ? (
             // Ecrans si l'utilisateur N'EST PAS connecté
             <>
+              <Stack.Screen name="Cover" component={CoverScreen} />
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Register" component={RegisterScreen} />
+              
+              {/* --- MODIFICATION ICI --- */}
+              {/* On rend la page Vidéo accessible même si on n'est pas connecté */}
+              <Stack.Screen name="Video" component={HomeScreen} />
             </>
           ) : (
             // Ecrans si l'utilisateur EST connecté
