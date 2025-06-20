@@ -19,6 +19,9 @@ def create_app(config_class=Config):
     except OSError:
         pass # Already exists
 
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.instance_path, 'uploads')
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
     db.init_app(app)
     migrate.init_app(app, db)
     CORS(app) # Enable CORS for all routes, or specify origins
@@ -28,6 +31,10 @@ def create_app(config_class=Config):
 
     from app.routes import bp as main_bp
     app.register_blueprint(main_bp)
+
+    with app.app_context():
+        from . import ai_pipeline
+        ai_pipeline.load_models()
 
     @app.route('/hello')
     def hello():
