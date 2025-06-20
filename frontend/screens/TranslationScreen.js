@@ -80,10 +80,11 @@ export default function TranslationScreen() {
             <Feather name="download" size={28} color="#000" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
-            <MaterialCommunityIcons name="share-outline" size={28} color="#000" />
+            <Ionicons name="share-social-outline" size={28} color="#000" />
           </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
   );
 }
+

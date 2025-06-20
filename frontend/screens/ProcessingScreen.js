@@ -84,7 +84,7 @@ const ProcessingScreen = ({ route, navigation }) => {
                 <ActivityIndicator size="large" color="#555" style={{ marginBottom: 40 }} />
                 <Text style={styles.titleText}>
                     Génération de la{'\n'}
-                    traduction...
+                    traduction en cours...
                 </Text>
             </View>
         </View>
