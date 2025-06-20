@@ -5,7 +5,7 @@ from .ai_pipeline import run_translation_pipeline
 from flask import current_app
 
 tasks = {}
-
+UPLOAD_FOLDER = 'uploads'
 def translate_video_task(task_id: str, video_path: str):
     """
     Runs the complete pipeline: frame extraction THEN translation.

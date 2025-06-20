@@ -16,7 +16,7 @@ const copyToCache = async (video) => {
 };
 
 export const local_video = async (videoAsset) => {
-  const apiUrl = getApiUrl('/api/upload');
+  const apiUrl = getApiUrl('/video/upload');
   const headers = await getAuthHeaders();
 
   const fileUri = await copyToCache(videoAsset);

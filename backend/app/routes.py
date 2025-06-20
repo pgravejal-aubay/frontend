@@ -1,9 +1,7 @@
 # backend/app/routes.py
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, jsonify, current_app
 import os
-import threading
-import uuid
-from app.tasks import tasks, translate_video_task
+from app.tasks import tasks
 from app.auth import token_required
 
 bp = Blueprint('main', __name__)
