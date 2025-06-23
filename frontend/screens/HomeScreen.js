@@ -111,7 +111,7 @@ export default function HomeScreen({ navigation }) {
             return;
             }
 
-            const data = await local_video(asset); 
+            const data = await local_video(asset,targetLanguage); 
             
             if (data.task_id) {
                 navigation.navigate('Processing', { taskId: data.task_id });

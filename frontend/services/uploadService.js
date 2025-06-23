@@ -15,7 +15,7 @@ const copyToCache = async (video) => {
   return destPath;
 };
 
-export const local_video = async (videoAsset) => {
+export const local_video = async (videoAsset,targetLanguage) => {
   const apiUrl = getApiUrl('/video/upload');
   const headers = await getAuthHeaders();
 
@@ -27,7 +27,7 @@ export const local_video = async (videoAsset) => {
     name: videoAsset.name || 'video.mp4',
     type: videoAsset.mimeType || 'video/mp4',
   });
-
+  formData.append('targetLang', targetLanguage);
   // Axios automatically handles Content-Type for FormData
   try {
     const response = await axios.post(apiUrl, formData, {
