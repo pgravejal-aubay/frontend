@@ -32,6 +32,9 @@ def create_app(config_class=Config):
     from app.routes import bp as main_bp
     app.register_blueprint(main_bp)
 
+    from app.video import bp as video_bp
+    app.register_blueprint(video_bp, url_prefix='/video')
+
     with app.app_context():
         from . import ai_pipeline
         ai_pipeline.load_models()

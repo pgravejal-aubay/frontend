@@ -22,7 +22,7 @@ export default function CoverScreen() {
   // --- MODIFICATION ICI ---
   const handleContinueWithoutAccount = () => {
     // On remplace l'alerte par la navigation directe vers la page Vidéo
-    navigation.navigate('Video');
+    navigation.navigate('HomeScreen');
   };
 
   return (

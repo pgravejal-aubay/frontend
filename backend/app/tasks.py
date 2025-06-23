@@ -3,6 +3,7 @@ import os
 import cv2
 from .ai_pipeline import run_translation_pipeline
 from flask import current_app
+import shutil
 
 tasks = {}
 UPLOAD_FOLDER = 'uploads'
@@ -51,32 +52,7 @@ def translate_video_task(task_id: str, video_path: str):
         
     finally:
         # Optional: Clean up temporary files
-        pass
-
-# Old version of translate_video_task for reference
-# This version was used before the integration of the AI pipeline.
-# def translate_video_task(task_id):
-#     """
-#     Function that simulates a long video translation process.
-#     It will be executed in a separate thread.
-#     """
-#     task = tasks[task_id]
-#     task['status'] = 'processing'
-#     print(f"Starting processing for task {task_id}...")
-
-#     # Simulate the video translation process
-#     for i in range(5):
-#         # Check every 1 second if a cancellation has been requested
-#         if task.get('cancel_requested'):
-#             task['status'] = 'cancelled'
-#             print(f"Task {task_id} cancelled by the user.")
-#             return
-#         time.sleep(1)
-
-#     # Processing is complete
-#     task['status'] = 'completed'
-#     task['result'] = {
-#         'translated_text': 'This is the translated video text.',
-#         'video_url': f'/results/{task_id}_translated.mp4' # Fake result URL
-#     }
-#     print(f"Processing completed for task {task_id}.")
+        try:
+            shutil.rmtree(UPLOAD_FOLDER)
+        except Exception as e:
+                print(f"Erreur when clean up temps files : {e}")

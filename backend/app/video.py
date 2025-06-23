@@ -31,7 +31,7 @@ def upload_video(current_user):
             tasks[task_id] = {'status': 'pending', 'user': current_user.username}
 
             # Start background processing
-            thread = threading.Thread(target=translate_video_task, args=(task_id,))
+            thread = threading.Thread(target=translate_video_task, args=(task_id, file_path))
             thread.start()
 
             # Respond immediately with the task ID
