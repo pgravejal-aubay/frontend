@@ -1,81 +1,107 @@
 // frontend/styles/homeStyles.js
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
+ 
+/*
+  NOTE: Les styles pour l'en-tête (header, headerRight) et pour la modale (modalView, etc.)
+  ont été déplacés dans le composant `frontend/components/AppHeader.js` pour être réutilisables.
+*/
 
 export const homeStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#f5f5f5',
-  },
-  welcomeText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  infoText: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
-    color: 'green', 
-  },
-  cameraContainer: {
-    width: '90%',
-    aspectRatio: 3 / 4,
-    overflow: 'hidden',
-    borderRadius: 10,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#000',
-  },
-  camera: {
-    flex: 1,
-  },
-  cameraButtonContainer: {
-    position: 'absolute', 
-    bottom: 20,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-around', 
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-
-  captureButton: {
-    // Styles for a dedicated capture button
-  },
-  flipButtonText: {
-    fontSize: 18,
-    marginBottom: 10,
-    color: 'white',
-  },
-  previewImage: {
-    width: 200,
-    height: (200 * 4) / 3, 
-    resizeMode: 'contain',
-    marginVertical: 15,
-    borderWidth: 1,
-    borderColor: 'grey',
-    borderRadius: 5,
-  },
-  logoutButtonContainer: { // To give the logout button some space or styling
-    marginTop: 20,
-    width: '60%',
-  },
-  centeredText: {
-    flex: 1,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    fontSize: 16,
-    padding: 20,
-  },
-  activityIndicatorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    // Menus déroulants (avec le style corrigé)
+    pickerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        backgroundColor: '#fff', // Assurer un fond blanc
+    },
+    pickerContainer: {
+        width: '42%',
+        height: 45,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        borderRadius: 8,
+        justifyContent: 'center',
+    },
+    picker: {
+        width: '100%',
+    },
+    // Caméra
+    cameraPreview: {
+        flex: 1,
+        marginHorizontal: 20,
+        borderRadius: 24,
+        overflow: 'hidden',
+        backgroundColor: '#E0E0E0',
+    },
+    timerOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    timerText: {
+        color: 'white',
+        fontSize: 96,
+        fontWeight: 'bold',
+    },
+    // Contrôles
+    controlsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 30,
+        paddingVertical: 30,
+        backgroundColor: '#fff', // Assurer un fond blanc
+    },
+    sideControls: {
+        gap: 20,
+    },
+    controlButton: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: '#F0F0F0',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    recordButton: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: 'black',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 4,
+        borderColor: '#F0F0F0',
+    },
+    recordInnerWhite: {
+        width: 70,
+        height: 70,
+        borderRadius: 35,
+        backgroundColor: 'white',
+    },
+    recordInnerRed: {
+        width: 30,
+        height: 30,
+        borderRadius: 8,
+        backgroundColor: 'red',
+    },
+    // Écran de permission
+    permissionContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    permissionText: {
+        fontSize: 18,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
 });

@@ -1,17 +1,67 @@
-// frontend/services/authService.js
 import axios from 'axios';
+import { getApiUrl, getAuthHeaders } from './api';
+import * as FileSystem from 'expo-file-system';
 
-// frontend/services/authService.js
-const API_GENERAL_URL = 'http://10.0.2.2:5000/api';
+const copyToCache = async (video) => {
+  const sourceUri = video.uri;
+  const fileName = video.name || 'video.mp4';
+  const destPath = `${FileSystem.cacheDirectory}${fileName}`;
 
-export const local_video = async (video) => {
+  await FileSystem.copyAsync({
+    from: sourceUri,
+    to: destPath,
+  });
+
+  return destPath;
+};
+
+export const local_video = async (videoAsset) => {
+  const apiUrl = getApiUrl('/video/upload');
+  const headers = await getAuthHeaders();
+
+  const fileUri = await copyToCache(videoAsset);
+
+  const formData = new FormData();
+  formData.append('video', {
+    uri: fileUri,
+    name: videoAsset.name || 'video.mp4',
+    type: videoAsset.mimeType || 'video/mp4',
+  });
+
+  // Axios automatically handles Content-Type for FormData
   try {
-    const response = await axios.post(`${API_GENERAL_URL}/upload`, {
-      video,
+    const response = await axios.post(apiUrl, formData, {
+      headers: {
+        ...headers,
+        'Content-Type': 'multipart/form-data',
+      },
     });
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Impossible to save your video' };
+    throw error.response?.data || { message: 'Failed to upload video.' };
   }
 };
 
+export const checkTaskStatus = async (taskId) => {
+  const apiUrl = getApiUrl(`/api/task/status/${taskId}`);
+  const headers = await getAuthHeaders();
+
+  try {
+    const response = await axios.get(apiUrl, { headers });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Failed to check status.' };
+  }
+};
+
+export const cancelTask = async (taskId) => {
+  const apiUrl = getApiUrl(`/api/task/cancel/${taskId}`);
+  const headers = await getAuthHeaders();
+
+  try {
+    const response = await axios.post(apiUrl, null, { headers });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: 'Failed to cancel task.' };
+  }
+};

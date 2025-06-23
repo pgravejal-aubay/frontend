@@ -48,3 +48,11 @@ build/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
+
+# Temporary files
+instance/uploads/
+
+# model weights
+app/POC2/checkpoints/
+app/POC2/flan_model/
+app/POC2/MMPose/checkpoint/
