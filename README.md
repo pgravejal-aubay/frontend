@@ -1,7 +1,6 @@
-pip install Flask Flask-SQLAlchemy Flask-Migrate Flask-CORS Werkzeug python-dotenv PyJWT bcrypt
 
 # Dans backend/app, ouvrir un terminal wsl: 
-pip install Flask Flask-SQLAlchemy Flask-Migrate Flask-CORS Werkzeug python-dotenv PyJWT bcrypt
+pip install install -r requierments.txt
 set FLASK_APP=run.py
 
 flask db init  # Only run once to create the migrations folder
