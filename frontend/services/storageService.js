@@ -15,16 +15,11 @@ export const getHistory = async () => {
   }
 };
 
-export const addToHistory = async (translationEntry) => { // La fonction accepte maintenant l'objet complet
+export const addToHistory = async (translationEntry) => {
   try {
     const history = await getHistory();
-
-    // On n'a plus besoin de créer un nouvel objet, on utilise celui qui est passé en paramètre.
-    
-    // Ajoute la nouvelle traduction au début de la liste
     const updatedHistory = [translationEntry, ...history];
     
-    // Limite l'historique à 100 entrées pour ne pas surcharger le stockage
     if (updatedHistory.length > 100) {
         updatedHistory.pop();
     }
@@ -49,8 +44,10 @@ export const getSavedTranslations = async () => {
 export const saveTranslation = async (translationToSave) => {
   try {
     const saved = await getSavedTranslations();
-    // Vérifie si la traduction n'est pas déjà enregistrée
-    const isAlreadySaved = saved.some(item => item.id === translationToSave.id);
+    // Check if the translation is already saved
+    const isAlreadySaved = saved.some(item => 
+      item.originalText === translationToSave.originalText && 
+      item.translatedText === translationToSave.translatedText);
     if (!isAlreadySaved) {
         const updatedSaved = [translationToSave, ...saved];
         const jsonValue = JSON.stringify(updatedSaved);

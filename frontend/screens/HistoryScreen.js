@@ -1,15 +1,12 @@
 // frontend/screens/HistoryScreen.js
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-// NOUVEAU: Import pour rafraîchir les données à chaque fois que l'écran est affiché
 import { useFocusEffect } from '@react-navigation/native';
 import AppHeader from '../components/AppHeaders';
 import { styles } from '../styles/HistoryStyle';
 
-// NOUVEAU: Import des fonctions de chargement depuis le service
 import { getHistory, getSavedTranslations } from '../services/storageService';
 
-// Petite fonction pour mettre la première lettre en majuscule
 const capitalize = (s) => {
   if (typeof s !== 'string') return ''
   return s.charAt(0).toUpperCase() + s.slice(1)
@@ -18,11 +15,9 @@ const capitalize = (s) => {
 const HistoryScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('Historique');
   
-  // NOUVEAU: États pour stocker l'historique et les éléments enregistrés
   const [historyItems, setHistoryItems] = useState([]);
   const [savedItems, setSavedItems] = useState([]);
 
-  // NOUVEAU: Utilisation de useFocusEffect pour charger les données à chaque focus de l'écran
   useFocusEffect(
     React.useCallback(() => {
       const loadData = async () => {
@@ -54,7 +49,6 @@ const HistoryScreen = ({ navigation }) => {
         <Text style={styles.languageText}>
           {capitalize(item.sourceLang)} {'->'} {capitalize(item.targetLang)}
         </Text>
-        {/* Affichage du texte original et traduit */}
         <Text style={styles.originalText}>{item.originalText}</Text>
         <Text style={styles.translationText}>{item.translatedText}</Text>
       </View>
@@ -80,7 +74,6 @@ const HistoryScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.content}>
-        {/* MODIFIÉ: Affichage dynamique basé sur les données chargées */}
         {activeTab === 'Historique' && renderList(historyItems)}
         {activeTab === 'Enregistrés' && renderList(savedItems)}
       </ScrollView>

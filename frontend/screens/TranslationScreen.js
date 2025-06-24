@@ -24,32 +24,26 @@ export default function TranslationScreen() {
   const navigation = useNavigation();
   const route = useRoute();
 
-  // MODIFIÉ: On récupère toutes les informations de la traduction
-  // Exemple de structure de route.params que vous devriez utiliser :
-  // { originalText: "...", translatedText: "...", sourceLang: "German", targetLang: "French" }
   const { 
     originalText = "der winter ist vergangen im norden und schottland", 
-    translatedText = "L'hiver est passé dans le nord et en Écosse",
+    translatedText = "der winter ist vergangen im norden und schottland", // wait for translation
     sourceLang = "German",
     targetLang = "French",
   } = route.params || {};
 
-  // NOUVEAU: On crée un objet de traduction unique pour cette session
   const [translationEntry] = useState({
-    id: Date.now().toString(), // ID unique basé sur le temps
+    id: Date.now().toString(), 
     originalText,
     translatedText,
     sourceLang,
     targetLang,
   });
 
-  // NOUVEAU: Utilisation de useEffect pour sauvegarder dans l'historique au chargement de l'écran
   useEffect(() => {
-    // S'assure qu'on a bien une traduction à sauvegarder
     if (translationEntry.originalText && translationEntry.translatedText) {
       addToHistory(translationEntry);
     }
-  }, []); // Le tableau vide signifie que cet effet ne s'exécute qu'une seule fois au montage
+  }, []);
 
   const handleReportError = () => {
     Alert.alert("Signaler une erreur", "Merci d'avoir signalé cette erreur. Nous allons l'examiner.");
@@ -62,7 +56,6 @@ export default function TranslationScreen() {
     }
   };
 
-  // MODIFIÉ: La fonction d'enregistrement est maintenant connectée au storageService
   const handleSave = async () => {
     try {
       const isNewSave = await saveTranslation(translationEntry);
