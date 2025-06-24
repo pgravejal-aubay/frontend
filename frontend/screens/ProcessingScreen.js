@@ -47,14 +47,14 @@ const ProcessingScreen = ({ route, navigation }) => {
             } else if (response.status === 'failed' || response.status === 'cancelled') {
                 clearInterval(intervalRef.current);
                  Alert.alert("Échec", "Le traitement n'a pas pu être terminé.", [
-                        { text: "OK", onPress: () => navigation.navigate('Video') }
+                        { text: "OK", onPress: () => navigation.navigate('Home') }
                 ]);
             }
         } catch (error) {
             console.error("Erreur de vérification:", error);
             clearInterval(intervalRef.current);
              Alert.alert("Erreur", "Impossible de contacter le serveur.", [
-                        { text: "OK", onPress: () => navigation.navigate('Video') }
+                        { text: "OK", onPress: () => navigation.navigate('Home') }
             ]);
         }
     };
