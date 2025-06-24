@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { 
   View, 
   Text, 
@@ -13,10 +13,12 @@ import * as Speech from 'expo-speech';
 import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AppHeader from '../components/AppHeaders';
+import { AuthContext } from '../contexts/AuthContext';
 
 import { styles } from '../styles/translationStyles';
 
 export default function TranslationScreen() {
+  const { textSize } = useContext(AuthContext);
   const handleClose = () => { navigation.navigate('Home'); };
   const navigation = useNavigation();
   const route = useRoute();
@@ -62,7 +64,7 @@ export default function TranslationScreen() {
         
         <View style={styles.translationBox}>
           <ScrollView>
-            <Text style={styles.translationText}>{translatedText}</Text>
+            <Text style={[styles.translationText, { fontSize: 24 + textSize }]}>{translatedText}</Text>
           </ScrollView>
         </View>
       </View>
