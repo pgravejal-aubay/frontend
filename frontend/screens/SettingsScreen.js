@@ -1,5 +1,5 @@
 // frontend/screens/SettingsScreen.js
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TouchableOpacity, Alert, Modal, ScrollView } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -8,7 +8,6 @@ import { Separator } from '@/components/ui/separator';
 import AppHeader from '../components/AppHeaders';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { styles } from '../styles/SettingsStyle';
 
@@ -46,7 +45,7 @@ const preferenceItems = [
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
-  const { signOut } = useContext(AuthContext);
+  const { signOut, setTextSize, textSize } = useContext(AuthContext);
 
   const handleLogout = async () => {
     await signOut();
@@ -60,6 +59,14 @@ const SettingsScreen = () => {
     6: 'x1', // Vitesse de lecture
   });
 
+  // Fonction pour ajuster la taille du texte
+  const handleTextSizeChange = (increment) => {
+    const newOffset = textSize + (increment ? 2 : -2); // Incrément/décrément de 2
+    if (newOffset >= -6 && newOffset <= 6) {
+      setTextSize(newOffset);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Header fixe */}
@@ -70,10 +77,10 @@ const SettingsScreen = () => {
 
         {/* Preferences Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Préférences</Text>
+          <Text style={[styles.sectionTitle, { fontSize: 28 + textSize }]}>Préférences</Text>
           {preferenceItems.map((item) => (
             <View key={item.id} style={styles.preferenceItem}>
-              <Text style={styles.preferenceLabel}>{item.label}</Text>
+              <Text style={[styles.preferenceLabel, { fontSize: 22 + textSize }]}>{item.label}</Text>
               {item.type === 'switch' && (
                 <Switch
                   defaultChecked={item.defaultChecked}
@@ -83,11 +90,11 @@ const SettingsScreen = () => {
               )}
               {item.type === 'size-control' && (
                 <View style={styles.sizeControl}>
-                  <Button variant="ghost" size="icon" style={styles.sizeButton}>
+                  <Button variant="ghost" size="icon" style={styles.sizeButton} onPress={() => handleTextSizeChange(false)}>
                     <Ionicons name="remove" size={16} color="black" style={styles.icon} />
                   </Button>
                   <Separator style={styles.separator} />
-                  <Button variant="ghost" size="icon" style={styles.sizeButton}>
+                  <Button variant="ghost" size="icon" style={styles.sizeButton} onPress={() => handleTextSizeChange(true)}>
                     <Ionicons name="add" size={16} color="black" style={styles.icon} />
                   </Button>
                 </View>
@@ -111,20 +118,20 @@ const SettingsScreen = () => {
 
         {/* Conditions and Policies Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Conditions et politiques</Text>
+          <Text style={[styles.sectionTitle, { fontSize: 28 + textSize }]}>Conditions et politiques</Text>
           {policyButtons.map((button) => (
             <Button key={button.id} variant="outline" style={styles.policyButton}>
-              <Text style={styles.policyText}>{button.label}</Text>
+              <Text style={[styles.policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>
           ))}
         </View>
 
         {/* Assistance Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Assistance</Text>
+          <Text style={[styles.sectionTitle, { fontSize: 28 + textSize }]}>Assistance</Text>
           {assistanceButtons.map((button) => (
             <Button key={button.id} variant="outline" style={styles.policyButton}>
-              <Text style={styles.policyText}>{button.label}</Text>
+              <Text style={[styles.policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>
           ))}
         </View>
