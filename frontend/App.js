@@ -32,11 +32,13 @@ export default function App() {
           return { ...prevState, isSignout: false, userToken: action.token, isLoading: false };
         case 'SIGN_OUT':
           return { ...prevState, isSignout: true, userToken: null, isLoading: false };
+        case 'SET_TEXT_SIZE_OFFSET':
+          return { ...prevState, textSize : action.offset };
         default:
           return prevState;
       }
     },
-    { isLoading: true, isSignout: false, userToken: null }
+    { isLoading: true, isSignout: false, userToken: null, textSize : 0 }
   );
 
   useEffect(() => {
@@ -63,8 +65,10 @@ export default function App() {
         dispatch({ type: 'SIGN_OUT' });
       },
       signUp: async (data) => { /* Placeholder */ },
+      setTextSize: (offset) => dispatch({ type: 'SET_TEXT_SIZE_OFFSET', offset }),
+      textSize: state.textSize, // Expose l'offset de taille
     }),
-    []
+    [state.textSize]
   );
 
   if (state.isLoading) {
