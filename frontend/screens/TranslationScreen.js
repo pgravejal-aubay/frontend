@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+// frontend/screens/TranslationScreen.js
+
+import React, { useState, useEffect } from 'react'; // NOUVEAU: import de useEffect
 import { 
   View, 
   Text, 
@@ -6,14 +8,15 @@ import {
   ScrollView, 
   SafeAreaView, 
   Alert,
-  Modal
 } from 'react-native';
-import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AppHeader from '../components/AppHeaders';
 
+// NOUVEAU: Import des fonctions du service de stockage
+import { addToHistory, saveTranslation } from '../services/storageService'; 
 import { styles } from '../styles/translationStyles';
 
 export default function TranslationScreen() {
@@ -21,9 +24,32 @@ export default function TranslationScreen() {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const [translatedText, setTranslatedText] = useState(
-    route.params?.translatedText || 'Le texte de la traduction apparaîtra ici.'
-  );
+  // MODIFIÉ: On récupère toutes les informations de la traduction
+  // Exemple de structure de route.params que vous devriez utiliser :
+  // { originalText: "...", translatedText: "...", sourceLang: "German", targetLang: "French" }
+  const { 
+    originalText = "der winter ist vergangen im norden und schottland", 
+    translatedText = "L'hiver est passé dans le nord et en Écosse",
+    sourceLang = "German",
+    targetLang = "French",
+  } = route.params || {};
+
+  // NOUVEAU: On crée un objet de traduction unique pour cette session
+  const [translationEntry] = useState({
+    id: Date.now().toString(), // ID unique basé sur le temps
+    originalText,
+    translatedText,
+    sourceLang,
+    targetLang,
+  });
+
+  // NOUVEAU: Utilisation de useEffect pour sauvegarder dans l'historique au chargement de l'écran
+  useEffect(() => {
+    // S'assure qu'on a bien une traduction à sauvegarder
+    if (translationEntry.originalText && translationEntry.translatedText) {
+      addToHistory(translationEntry);
+    }
+  }, []); // Le tableau vide signifie que cet effet ne s'exécute qu'une seule fois au montage
 
   const handleReportError = () => {
     Alert.alert("Signaler une erreur", "Merci d'avoir signalé cette erreur. Nous allons l'examiner.");
@@ -36,9 +62,19 @@ export default function TranslationScreen() {
     }
   };
 
-  const handleSave = () => {
-    // Cette fonction correspond au bouton "télécharger" qui enregistre la traduction
-    Alert.alert("Enregistré", "La traduction a été sauvegardée.");
+  // MODIFIÉ: La fonction d'enregistrement est maintenant connectée au storageService
+  const handleSave = async () => {
+    try {
+      const isNewSave = await saveTranslation(translationEntry);
+      if (isNewSave) {
+        Alert.alert("Enregistré", "La traduction a été sauvegardée.");
+      } else {
+        Alert.alert("Déjà enregistré", "Cette traduction est déjà dans vos favoris.");
+      }
+    } catch (e) {
+      Alert.alert("Erreur", "La sauvegarde a échoué.");
+      console.error("Failed to save from screen", e);
+    }
   };
 
   const handleShare = async () => {
@@ -52,7 +88,6 @@ export default function TranslationScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header fixe */}
       <AppHeader />
 
       <View style={styles.mainContent}>
@@ -62,7 +97,10 @@ export default function TranslationScreen() {
         
         <View style={styles.translationBox}>
           <ScrollView>
-            <Text style={styles.translationText}>{translatedText}</Text>
+            {/* On peut afficher le texte original et le texte traduit */}
+            <Text style={styles.translationText}>{originalText}</Text>
+            <View style={{height: 20}} />
+            <Text style={[styles.translationText, {fontWeight: 'bold'}]}>{translatedText}</Text>
           </ScrollView>
         </View>
       </View>
@@ -87,4 +125,3 @@ export default function TranslationScreen() {
     </SafeAreaView>
   );
 }
-
