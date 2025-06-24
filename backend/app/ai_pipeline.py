@@ -17,7 +17,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
 # Dictionnaire de correspondance des langues (codes ISO NLLB)
-lang_codes = {"fr": "fra_Latn","en": "eng_Latn","de": "deu_Latn"}
+lang_codes = {"fr": "fra_Latn","en": "eng_Latn","de": "deu_Latn","es": "spa_Latn"}
 
 # Dictionary to hold pre-loaded models
 MODELS = {}
