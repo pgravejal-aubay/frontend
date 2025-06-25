@@ -3,6 +3,7 @@ import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, Button, Alert, TouchableOpacity } from 'react-native'; // Removed StyleSheet
 import { login } from '../services/authService';
 import { AuthContext } from '../contexts/AuthContext'; // Add this line
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { authStyles } from '../styles/authStyles';
 
 export default function LoginScreen({ navigation }) {
@@ -12,6 +13,7 @@ export default function LoginScreen({ navigation }) {
   const [error, setError] = useState('');
 
   const { signIn, textSize } = useContext(AuthContext); // Get signIn from context
+  const theme = useColorScheme() ?? 'light';
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -31,28 +33,28 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={authStyles.container}>
-      <Text style={[authStyles.title, { fontSize: 28 + textSize }]}>Login</Text>
-      {error ? <Text style={[authStyles.errorText, { fontSize: 16 + textSize }]}>{error}</Text> : null}
+    <View style={authStyles(theme).container}>
+      <Text style={[authStyles(theme).title, { fontSize: 28 + textSize }]}>Login</Text>
+      {error ? <Text style={[authStyles(theme).errorText, { fontSize: 16 + textSize }]}>{error}</Text> : null}
       <TextInput
-        style={authStyles.input}
+        style={authStyles(theme).input}
         placeholder="Username"
         value={username}
         onChangeText={setUsername}
         autoCapitalize="none"
       />
       <TextInput
-        style={authStyles.input}
+        style={authStyles(theme).input}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-      <View style={authStyles.buttonContainer}>
+      <View style={authStyles(theme).buttonContainer}>
         <Button title={loading ? "Logging in..." : "Login"} onPress={handleLogin} disabled={loading} />
       </View>
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={[authStyles.linkButtonText, { fontSize: 14 + textSize }]}>Don't have an account? Register</Text>
+        <Text style={[authStyles(theme).linkButtonText, { fontSize: 14 + textSize }]}>Don't have an account? Register</Text>
       </TouchableOpacity>
     </View>
   );
