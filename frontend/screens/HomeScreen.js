@@ -31,6 +31,7 @@ export default function HomeScreen({ navigation }) {
     const [targetLanguage, setTargetLanguage] = useState('fr');
     const [isImporting, setIsImporting] = useState(false);
     const [isDelayting, setIsDelaying] = useState(false);
+    const [selectedPipeline, setSelectedPipeline] = useState('v1'); // 'v1' or 'v2'
 
  
     useEffect(() => {
@@ -57,32 +58,59 @@ export default function HomeScreen({ navigation }) {
         }, 1000);
     };
  
+    // Similar modification for handleRecordPress if it calls local_video
     const handleRecordPress = async () => {
         if (!cameraRef.current) return;
         if (isRecording) {
             setIsRecording(false);
-            cameraRef.current.stopRecording();
+            cameraRef.current.stopRecording(); 
+            // Note: stopRecording() itself doesn't return the video object directly in all expo-camera versions
+            // The video object is usually available in the onRecordingFinished callback or promise resolution.
+            // The existing code relied on `recordAsync` promise.
         } else {
             setIsRecording(true);
-            cameraRef.current.recordAsync({ quality: '1080p' })
-                .then(async (video) => {
+            try {
+                const video = await cameraRef.current.recordAsync({ quality: '1080p' });
+                setIsRecording(false); // Set recording to false once recording is done
+                if (video && video.uri) {
                     console.log('Vidéo enregistrée dans le cache :', video.uri);
+                    // Create an asset-like object for local_video
+                    const videoAsset = {
+                        uri: video.uri,
+                        name: `recording-${Date.now()}.mp4`,
+                        mimeType: 'video/mp4', // Assuming mp4
+                        // size: not directly available, but could be estimated or fetched if needed
+                    };
+                    
+                    // --- Process with selected pipeline ---
+                    const data = await local_video(videoAsset, selectedPipeline);
+                    if (data.task_id) {
+                        navigation.navigate('Processing', { taskId: data.task_id });
+                    } else {
+                        Alert.alert('Error', data.message || "Upload failed after recording, no task ID received.");
+                    }
+                    // --- End process with selected pipeline ---
+
+                    // Optional: Save to MediaLibrary (can be done in parallel or after upload starts)
                     try {
                         const { status } = await MediaLibrary.requestPermissionsAsync();
                         if (status === 'granted') {
                             await MediaLibrary.createAssetAsync(video.uri);
-                            Alert.alert('Vidéo enregistrée !', 'Votre vidéo a bien été sauvegardée dans la galerie.');
-                        } else {
-                            Alert.alert('Permission refusée', "Impossible de sauvegarder la vidéo sans l'accès à la galerie.");
+                            // Alert.alert('Vidéo enregistrée !', 'Votre vidéo a bien été sauvegardée dans la galerie.');
+                            console.log("Video saved to gallery.");
                         }
                     } catch (error) {
                         console.error("Erreur lors de la sauvegarde de la vidéo :", error);
-                        Alert.alert('Erreur', "Une erreur est survenue lors de la sauvegarde.");
                     }
-                    navigation.navigate('Waiting', { videoUri: video.uri });
-                })
-                .catch(error => console.error("Erreur d'enregistrement:", error))
-                .finally(() => setIsRecording(false));
+
+                } else {
+                     Alert.alert('Erreur', "L'enregistrement a échoué ou n'a pas retourné de vidéo.");
+                }
+            } catch (error) {
+                console.error("Erreur d'enregistrement:", error);
+                Alert.alert('Erreur', "Une erreur est survenue pendant l'enregistrement.");
+                setIsRecording(false);
+            }
         }
     };
    
@@ -111,7 +139,7 @@ export default function HomeScreen({ navigation }) {
             return;
             }
 
-            const data = await local_video(asset); 
+             const data = await local_video(asset, selectedPipeline); 
             
             if (data.task_id) {
                 navigation.navigate('Processing', { taskId: data.task_id });
@@ -121,7 +149,7 @@ export default function HomeScreen({ navigation }) {
 
         } catch (error) {
             console.error('Error importing video:', error);
-            Alert.alert('Import Error', `An issue occurred: ${error.message}`);
+            Alert.alert('Import Error', `An issue occurred: ${error.message || 'Unknown error'}`);
         } finally {
             setIsImporting(false);
         }
@@ -155,6 +183,18 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.container}>
             <AppHeader />
             {/* Le reste de votre JSX reste identique... */}
+            <View style={styles.pickerRow}>
+                <View style={[styles.pickerContainer, {width: '90%', marginBottom: 10}]}>
+                    <Picker
+                        selectedValue={selectedPipeline}
+                        onValueChange={(itemValue) => setSelectedPipeline(itemValue)}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="Modèle V1 (POC2/MMPose)" value="v1" />
+                        <Picker.Item label="Modèle V2 (MediaPipe/TwoStream)" value="v2" />
+                    </Picker>
+                </View>
+            </View>
             <View style={styles.pickerRow}>
                 <View style={styles.pickerContainer}>
                     <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles.picker}>
