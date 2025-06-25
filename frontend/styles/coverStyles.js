@@ -1,27 +1,30 @@
 // styles/coverStyles.js
-
 import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
+// import { useColorScheme } from '@/hooks/useColorScheme';
 
-export const styles = StyleSheet.create({
+// const theme = Colors[useColorScheme() ?? 'light'];
+
+export const styles = (theme = 'light') => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors[theme].background, // #40e0d0 (clair) ou #27b2a4 (sombre)
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
   buttonContainer: {
     alignItems: 'center',
-    paddingBottom: 200, 
+    paddingBottom: 200,
   },
   loginButton: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors[theme].buttonBackground, // #6d0d61
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: Colors[theme].border, // #6d0d61
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 40,
-    marginBottom: 40, 
-    shadowColor: "#000",
+    marginBottom: 40,
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
@@ -31,7 +34,7 @@ export const styles = StyleSheet.create({
     elevation: 3,
   },
   loginButtonText: {
-    color: '#333',
+    color: Colors[theme].text, // #eb76c7
     fontSize: 16,
     fontWeight: '500',
   },
@@ -39,17 +42,15 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  // --- MODIFICATION ICI ---
   arrowText: {
-    color: '#666',
-    fontSize: 22, // Encore plus grosse ! (de 18 à 22)
+    color: Colors[theme].text, // #eb76c7
+    fontSize: 22,
     fontWeight: 'bold',
     marginRight: 5,
-    // On ajuste la correction verticale car la flèche est plus grande
-    transform: [{ translateY: -2 }], 
+    transform: [{ translateY: -2 }],
   },
   linkText: {
-    color: '#666',
+    color: Colors[theme].text, // #eb76c7
     fontSize: 14,
   },
 });
