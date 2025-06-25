@@ -5,6 +5,7 @@ import {AuthContext  } from "../contexts/AuthContext";
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import { supression } from '../services/authService'
 
 export default function AppHeader() {
     const navigation = useNavigation();
@@ -18,8 +19,11 @@ export default function AppHeader() {
         // Logique de déconnexion
     };
 
-    const handleDeleteAccount = () => {
+    const handleDeleteAccount = async () => {
         setProfileModalVisible(false);
+        await supression();
+        await signOut();
+        console.log("Suppresion demandée");
         // Logique de suppression
     };
 

@@ -40,7 +40,7 @@ def register():
     if User.query.filter_by(email=data['email']).first():
         return jsonify({'message': 'Email already registered'}), 409
     if(data['password'] != data['confirmPassword']):
-        return jsonify({'message' : 'Passwords are differents'}), 400
+        return jsonify({'message' : 'Passwords are different'}), 400
     user = User(name=data['name'], email=data['email'], surname=data['surname'])
     user.set_password(data['password'])
     db.session.add(user)
@@ -53,7 +53,7 @@ def login():
     if not data or not data.get('email') or not data.get('password'):
         return jsonify({'message': 'Missing mail or password'}), 400
 
-    user = User.query.filter_by(mail=data['mail']).first()
+    user = User.query.filter_by(email=data['email']).first()
 
     if not user or not user.check_password(data['password']):
         return jsonify({'message': 'Invalid mail or password'}), 401
@@ -65,3 +65,20 @@ def login():
     }, current_app.config['JWT_SECRET_KEY'], algorithm="HS256")
 
     return jsonify({'token': token, 'name': user.name, 'email': user.email}), 200
+
+
+@bp.route('/delete', methods=['POST'])
+def acount_deletion():
+    data = request.get_json()
+    if not data or not data.get('email'):
+        return jsonify({'message': 'Cannot acces to your mail to do the deletion'}), 400
+    user = User.query.filter_by(email=data['email']).first()
+    if not user: 
+        return jsonify({'message': 'User not found'}), 400
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': 'Account deleted successfully'}), 200
+
+    
+
+    

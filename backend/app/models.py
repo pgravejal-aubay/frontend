@@ -18,4 +18,4 @@ class User(db.Model):
         return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
 
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f'<User {self.name}>'
