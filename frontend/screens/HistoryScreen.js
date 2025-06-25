@@ -4,10 +4,12 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import AppHeader from '../components/AppHeaders';
 import { styles } from '../styles/HistoryStyle';
 import { AuthContext } from '../contexts/AuthContext';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 const HistoryScreen = ({ navigation }) => {
   const { textSize } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('Historique');
+  const theme = useColorScheme() ?? 'light';
 
   const historyItems = [
     { id: 1, english: "I have traveled", french: "J'ai voyagé" },
@@ -16,33 +18,33 @@ const HistoryScreen = ({ navigation }) => {
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={styles(theme).container}>
       <AppHeader />
-      <View style={styles.tabContainer}>
+      <View style={styles(theme).tabContainer}>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'Historique' && styles.activeTab]}
+          style={[styles(theme).tab, activeTab === 'Historique' && styles(theme).activeTab]}
           onPress={() => setActiveTab('Historique')}
         >
-          <Text style={[styles.tabText, { fontSize: 16 + textSize }]}>Historique</Text>
+          <Text style={[styles(theme).tabText, { fontSize: 16 + textSize }]}>Historique</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'Enregistrés' && styles.activeTab]}
+          style={[styles(theme).tab, activeTab === 'Enregistrés' && styles(theme).activeTab]}
           onPress={() => setActiveTab('Enregistrés')}
         >
-          <Text style={[styles.tabText, { fontSize: 16 + textSize }]}>Enregistrés</Text>
+          <Text style={[styles(theme).tabText, { fontSize: 16 + textSize }]}>Enregistrés</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles(theme).content}>
         {activeTab === 'Historique' &&
           historyItems.map((item) => (
-            <View key={item.id} style={styles.itemContainer}>
-              <Text style={[styles.languageText, { fontSize: 14 + textSize }]}>Anglais {'->'} Français</Text>
-              <Text style={[styles.translationText, { fontSize: 18 + textSize }]}>{item.french}</Text>
+            <View key={item.id} style={styles(theme).itemContainer}>
+              <Text style={[styles(theme).languageText, { fontSize: 14 + textSize }]}>Anglais {'->'} Français</Text>
+              <Text style={[styles(theme).translationText, { fontSize: 18 + textSize }]}>{item.french}</Text>
             </View>
           ))}
         {activeTab === 'Enregistrés' && (
-          <View style={styles.emptyState}>
-            <Text style={[styles.emptyText, { fontSize: 16 + textSize }]}>Aucun enregistrement...</Text>
+          <View style={styles(theme).emptyState}>
+            <Text style={[styles(theme).emptyText, { fontSize: 16 + textSize }]}>Aucun enregistrement...</Text>
           </View>
         )}
       </ScrollView>
