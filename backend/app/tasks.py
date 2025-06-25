@@ -7,7 +7,7 @@ import shutil
 
 tasks = {}
 UPLOAD_FOLDER = 'uploads'
-def translate_video_task(task_id: str, video_path: str):
+def translate_video_task(task_id: str, video_path: str,targetLang: str):
     """
     Runs the complete pipeline: frame extraction THEN translation.
     """
@@ -37,7 +37,7 @@ def translate_video_task(task_id: str, video_path: str):
         
         print(f"Task {task_id}: Successfully extracted {count} frames to {frames_dir}")
 
-        translated_text = run_translation_pipeline(frames_dir, task_temp_dir)
+        translated_text = run_translation_pipeline(frames_dir, task_temp_dir,targetLang)
 
         task['status'] = 'completed'
         task['result'] = {

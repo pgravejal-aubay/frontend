@@ -3,6 +3,7 @@ import os
 import glob
 import numpy as np
 import torch
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from mmpose.apis import inference_topdown, init_model
 from mmpose.structures import merge_data_samples
 
@@ -11,6 +12,12 @@ from .POC2.translate_glosses import GlossTranslator
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__)) 
 POC2_DIR = os.path.join(APP_DIR, 'POC2')
+model_name = "facebook/nllb-200-distilled-600M"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+# Dictionnaire de correspondance des langues (codes ISO NLLB)
+lang_codes = {"fr": "fra_Latn","en": "eng_Latn","de": "deu_Latn","es": "spa_Latn"}
 
 # Dictionary to hold pre-loaded models
 MODELS = {}
@@ -43,7 +50,7 @@ def load_models():
     print(f"Gloss Translator loaded.")
 
 
-def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str) -> str:
+def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str, targetLang: str) -> str:
     """
     Runs the complete pipeline on a sequence of frames.
     Args:
@@ -110,5 +117,24 @@ def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str) -> str:
     #      model_dir=os.path.join(POC2_DIR, "flan_model"),
     # )
     final_text = MODELS['gloss_translator'].translate(gloss_sequence=predicted_glosses)
+    print(f"   Translated text: '{final_text}'")
+    print("4. Translating to target language")
+    final_text = text_translation(final_text,targetLang)
     print(f"   Final translated text: '{final_text}'")
     return final_text
+
+def text_translation(text, target_lang):
+    if target_lang not in lang_codes:
+        raise ValueError("Language not support.")
+    if target_lang == "de":
+        return text
+    source_lang = "deu_Latn"  # Texte source en allemand
+    target_lang_code = lang_codes[target_lang]
+    tokenizer.src_lang = source_lang
+    encoded = tokenizer(text, return_tensors="pt")
+    generated_tokens = model.generate(
+        **encoded,
+        forced_bos_token_id=tokenizer.convert_tokens_to_ids(target_lang_code)
+    )
+    translated = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
+    return translated[0]
