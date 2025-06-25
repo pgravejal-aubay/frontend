@@ -9,6 +9,7 @@ import AppHeader from '../components/AppHeaders';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../contexts/AuthContext';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { styles } from '../styles/SettingsStyle';
 
 // Define data for repeating elements
@@ -46,6 +47,7 @@ const preferenceItems = [
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const { signOut, setTextSize, textSize } = useContext(AuthContext);
+  const theme = useColorScheme() ?? 'light';
 
   const handleLogout = async () => {
     await signOut();
@@ -68,7 +70,7 @@ const SettingsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles(theme).container}>
       {/* Header fixe */}
       <AppHeader />
 
@@ -76,11 +78,11 @@ const SettingsScreen = () => {
       <ScrollView>
 
         {/* Preferences Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { fontSize: 28 + textSize }]}>Préférences</Text>
+        <View style={styles(theme).section}>
+          <Text style={[styles(theme).sectionTitle, { fontSize: 28 + textSize }]}>Préférences</Text>
           {preferenceItems.map((item) => (
-            <View key={item.id} style={styles.preferenceItem}>
-              <Text style={[styles.preferenceLabel, { fontSize: 22 + textSize }]}>{item.label}</Text>
+            <View key={item.id} style={styles(theme).preferenceItem}>
+              <Text style={[styles(theme).preferenceLabel, { fontSize: 22 + textSize }]}>{item.label}</Text>
               {item.type === 'switch' && (
                 <Switch
                   defaultChecked={item.defaultChecked}
@@ -89,22 +91,22 @@ const SettingsScreen = () => {
                 />
               )}
               {item.type === 'size-control' && (
-                <View style={styles.sizeControl}>
-                  <Button variant="ghost" size="icon" style={styles.sizeButton} onPress={() => handleTextSizeChange(false)}>
-                    <Ionicons name="remove" size={16} color="black" style={styles.icon} />
+                <View style={styles(theme).sizeControl}>
+                  <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
+                    <Ionicons name="remove" size={16} color="black" style={styles(theme).icon} />
                   </Button>
-                  <Separator style={styles.separator} />
-                  <Button variant="ghost" size="icon" style={styles.sizeButton} onPress={() => handleTextSizeChange(true)}>
-                    <Ionicons name="add" size={16} color="black" style={styles.icon} />
+                  <Separator style={styles(theme).separator} />
+                  <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(true)}>
+                    <Ionicons name="add" size={16} color="black" style={styles(theme).icon} />
                   </Button>
                 </View>
               )}
               {item.type === 'picker' && (
-                <View style={styles.pickerContainer}>
+                <View style={styles(theme).pickerContainer}>
                   <Picker
                     selectedValue={selectedValues[item.id]}
                     onValueChange={(value) => setSelectedValues({ ...selectedValues, [item.id]: value })}
-                    style={styles.picker}
+                    style={styles(theme).picker}
                   >
                     {item.options?.map((option) => (
                       <Picker.Item key={option.value} label={option.label} value={option.value} />
@@ -117,21 +119,21 @@ const SettingsScreen = () => {
         </View>
 
         {/* Conditions and Policies Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { fontSize: 28 + textSize }]}>Conditions et politiques</Text>
+        <View style={styles(theme).section}>
+          <Text style={[styles(theme).sectionTitle, { fontSize: 28 + textSize }]}>Conditions et politiques</Text>
           {policyButtons.map((button) => (
-            <Button key={button.id} variant="outline" style={styles.policyButton}>
-              <Text style={[styles.policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
+            <Button key={button.id} variant="outline" style={styles(theme).policyButton}>
+              <Text style={[styles(theme).policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>
           ))}
         </View>
 
         {/* Assistance Section */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { fontSize: 28 + textSize }]}>Assistance</Text>
+        <View style={styles(theme).section}>
+          <Text style={[styles(theme).sectionTitle, { fontSize: 28 + textSize }]}>Assistance</Text>
           {assistanceButtons.map((button) => (
-            <Button key={button.id} variant="outline" style={styles.policyButton}>
-              <Text style={[styles.policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
+            <Button key={button.id} variant="outline" style={styles(theme).policyButton}>
+              <Text style={[styles(theme).policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>
           ))}
         </View>
