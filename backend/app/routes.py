@@ -23,8 +23,7 @@ def get_task_status(current_user, task_id):
     task = tasks.get(task_id)
     if not task:
         return jsonify({'message': 'Task not found'}), 404
-    
-    if task.get('user') != current_user.username:
+    if task.get('name') != current_user.name:
         return jsonify({'message': 'Unauthorized to view this task'}), 403
 
     return jsonify(task), 200
@@ -36,7 +35,7 @@ def cancel_task(current_user, task_id):
     if not task:
         return jsonify({'message': 'Task not found'}), 404
 
-    if task.get('user') != current_user.username:
+    if task.get('name') != current_user.name:
         return jsonify({'message': 'Unauthorized to cancel this task'}), 403
 
     if task['status'] == 'processing':

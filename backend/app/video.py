@@ -32,7 +32,7 @@ def upload_video(current_user):
             print(f"File '{file.filename}' received from user {current_user.name}. Target language: {target_lang}")
 
             task_id = str(uuid.uuid4())
-            tasks[task_id] = {'status': 'pending', 'user': current_user.name}
+            tasks[task_id] = {'status': 'pending', 'name': current_user.name}
 
             # ✅ Passer la langue cible à la tâche
             thread = threading.Thread(target=translate_video_task, args=(task_id, file_path, target_lang))
