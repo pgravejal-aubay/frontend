@@ -35,15 +35,13 @@ def token_required(f):
 @bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    if not data or not data.get('username') or not data.get('password') or not data.get('email'):
-        return jsonify({'message': 'Missing username, email, or password'}), 400
-
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({'message': 'Username already exists'}), 409
+    if not data or not data.get('name') or not data.get('password') or not data.get('email') or not data.get('surname') or not data.get('confirmPassword'):
+        return jsonify({'message': 'Missing Information'}), 400
     if User.query.filter_by(email=data['email']).first():
         return jsonify({'message': 'Email already registered'}), 409
-
-    user = User(username=data['username'], email=data['email'])
+    if(data['password'] != data['confirmPassword']):
+        return jsonify({'message' : 'Passwords are differents'}), 400
+    user = User(name=data['name'], email=data['email'], surname=data['surname'])
     user.set_password(data['password'])
     db.session.add(user)
     db.session.commit()
@@ -52,13 +50,13 @@ def register():
 @bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    if not data or not data.get('username') or not data.get('password'):
-        return jsonify({'message': 'Missing username or password'}), 400
+    if not data or not data.get('email') or not data.get('password'):
+        return jsonify({'message': 'Missing mail or password'}), 400
 
-    user = User.query.filter_by(username=data['username']).first()
+    user = User.query.filter_by(mail=data['mail']).first()
 
     if not user or not user.check_password(data['password']):
-        return jsonify({'message': 'Invalid username or password'}), 401
+        return jsonify({'message': 'Invalid mail or password'}), 401
 
     # Create token
     token = jwt.encode({
@@ -66,4 +64,4 @@ def login():
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24) # Token expires in 24 hours
     }, current_app.config['JWT_SECRET_KEY'], algorithm="HS256")
 
-    return jsonify({'token': token, 'username': user.username, 'email': user.email}), 200
+    return jsonify({'token': token, 'name': user.name, 'email': user.email}), 200

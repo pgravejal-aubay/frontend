@@ -7,12 +7,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const API_URL = 'http://10.0.2.2:5000/auth';
 const API_GENERAL_URL = 'http://10.0.2.2:5000/api';
 
-export const register = async (username, email, password) => {
+export const register = async (name,surname,email, password,confirmPassword) => {
   try {
     const response = await axios.post(`${API_URL}/register`, {
-      username,
+      name,
+      surname,
       email,
       password,
+      confirmPassword,
     });
     return response.data;
   } catch (error) {
@@ -23,12 +25,12 @@ export const register = async (username, email, password) => {
 export const login = async (username, password) => {
   try {
     const response = await axios.post(`${API_URL}/login`, {
-      username,
+      email,
       password,
     });
     if (response.data.token) {
       await AsyncStorage.setItem('userToken', response.data.token);
-      await AsyncStorage.setItem('userData', JSON.stringify({username: response.data.username, email: response.data.email}));
+      await AsyncStorage.setItem('userData', JSON.stringify({username: response.data.name, email: response.data.email}));
     }
     return response.data;
   } catch (error)
@@ -41,6 +43,10 @@ export const logout = async () => {
   await AsyncStorage.removeItem('userToken');
   await AsyncStorage.removeItem('userData');
 };
+
+export const supression = async () => {
+
+}
 
 export const getToken = async () => {
   return await AsyncStorage.getItem('userToken');

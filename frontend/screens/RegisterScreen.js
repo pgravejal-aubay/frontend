@@ -27,7 +27,23 @@ export default function RegisterScreen({ navigation }) {
   const [error, setError] = useState('');
 
   // ... les fonctions (handleRegister, openLink) ne changent pas ...
-  const handleRegister = async () => { /* ... */ };
+ const handleRegister = async () => {
+    if (!nom || !email || !password || !confirmPassword || !prenom) {
+      setError('Please fill all fields.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const data = await register (prenom,nom,email, password,confirmPassword);
+      Alert.alert('Success', data.message, [{ text: "OK", onPress: () => navigation.navigate('Login') }]);
+    } catch (err) {
+      setError(err.message || 'Could not register.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const openLink = () => { /* ... */ };
 
   return (
