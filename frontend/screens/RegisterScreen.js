@@ -1,79 +1,108 @@
 // frontend/screens/RegisterScreen.js
 import React, { useState } from 'react';
 import { 
-  View, 
-  Text, 
-  TextInput, 
-  Alert, 
-  TouchableOpacity, 
-  SafeAreaView,
-  ScrollView,
-  ActivityIndicator
+  View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView, 
+  KeyboardAvoidingView, Platform, ActivityIndicator, Pressable, StatusBar, Alert
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/Feather';
+
+// On utilise toujours le même fichier de style, c'est parfait
+import { authStyles as styles } from '../styles/authStyles';
 import { register } from '../services/authService';
-import { authStyles } from '../styles/authStyles';
 
 export default function RegisterScreen({ navigation }) {
-  // ... les états (useState) ne changent pas ...
-  const [nom, setNom] = useState('');
+  // CHANGEMENT 1: Remplacer l'état 'username' par 'prenom' et 'nom'
   const [prenom, setPrenom] = useState('');
+  const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // ... les fonctions (handleRegister, openLink) ne changent pas ...
-  const handleRegister = async () => { /* ... */ };
-  const openLink = () => { /* ... */ };
+  const handleRegister = async () => {
+    // CHANGEMENT 2: Mettre à jour la validation
+    if (!prenom || !nom || !email || !password || !confirmPassword) {
+      setError('Veuillez remplir tous les champs.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Les mots de passe ne correspondent pas.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      // CHANGEMENT 3: Envoyer les nouvelles données au service
+      await register(prenom, nom, email, password);
+      Alert.alert(
+        "Inscription réussie !",
+        "Vous pouvez maintenant vous connecter avec votre email et mot de passe.",
+        [{ text: "OK", onPress: () => navigation.navigate('Login') }]
+      );
+    } catch (err) {
+      setError(err.message || "Une erreur est survenue lors de l'inscription.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-        <View style={authStyles.container}>
-          <Text style={authStyles.title}>Création de compte</Text>
-          
-          {error ? <Text style={authStyles.errorText}>{error}</Text> : null}
+    <SafeAreaView style={styles.screen}>
+      <StatusBar barStyle="dark-content" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardAvoidingContainer}
+      >
+        <ScrollView contentContainerStyle={styles.scrollableContainer} showsVerticalScrollIndicator={false}>
+            <Text style={styles.title}>Création de compte</Text>
+            
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          {/* ... Les champs de saisie restent les mêmes ... */}
-          <View style={authStyles.inputContainer}><Text style={authStyles.inputLabel}>Nom</Text><TextInput style={authStyles.input} value={nom} onChangeText={setNom} /></View>
-          <View style={authStyles.inputContainer}><Text style={authStyles.inputLabel}>Prénom</Text><TextInput style={authStyles.input} value={prenom} onChangeText={setPrenom} /></View>
-          <View style={authStyles.inputContainer}><Text style={authStyles.inputLabel}>Adresse mail</Text><TextInput style={authStyles.input} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" /></View>
-          <View style={authStyles.inputContainer}><Text style={authStyles.inputLabel}>Mot de passe</Text><View style={authStyles.passwordWrapper}><TextInput style={authStyles.inputInWrapper} value={password} onChangeText={setPassword} secureTextEntry={!isPasswordVisible} /><TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={authStyles.eyeIcon}><Ionicons name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} size={24} color="#888" /></TouchableOpacity></View></View>
-          <View style={authStyles.inputContainer}><Text style={authStyles.inputLabel}>Confirmer le mot de passe</Text><View style={authStyles.passwordWrapper}><TextInput style={authStyles.inputInWrapper} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={!isConfirmPasswordVisible} /><TouchableOpacity onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)} style={authStyles.eyeIcon}><Ionicons name={isConfirmPasswordVisible ? "eye-off-outline" : "eye-outline"} size={24} color="#888" /></TouchableOpacity></View></View>
-          
-          {/* --- MODIFICATION STRUCTURELLE ICI --- */}
-          <View style={authStyles.legalSectionContainer}>
-            {/* Première ligne */}
-            <View style={authStyles.legalRow}>
-              <Text style={authStyles.legalText}>En poursuivant vous acceptez nos </Text>
-              <TouchableOpacity onPress={openLink}>
-                <Text style={authStyles.legalLink}>Conditions d'utilisation</Text>
-              </TouchableOpacity>
+            {/* CHANGEMENT 4: Remplacer le champ 'Nom d'utilisateur' par 'Prénom' et 'Nom' */}
+            <Text style={styles.label}>Prénom</Text>
+            <TextInput
+              style={styles.input}
+              value={prenom}
+              onChangeText={setPrenom}
+              autoCapitalize="words" // Met une majuscule au début
+            />
+
+            <Text style={styles.label}>Nom</Text>
+            <TextInput
+              style={styles.input}
+              value={nom}
+              onChangeText={setNom}
+              autoCapitalize="words" // Met une majuscule au début
+            />
+            
+            <Text style={styles.label}>Adresse mail</Text>
+            <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+            
+            <Text style={styles.label}>Mot de passe</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput style={styles.passwordInput} value={password} onChangeText={setPassword} secureTextEntry={!isPasswordVisible} />
+              <Pressable onPress={() => setPasswordVisible(!isPasswordVisible)}><Icon name={isPasswordVisible ? 'eye' : 'eye-off'} size={22} color="#888" /></Pressable>
             </View>
 
-            {/* Deuxième ligne */}
-            <View style={authStyles.legalRow}>
-              <Text style={authStyles.legalText}>et notre </Text>
-              <TouchableOpacity onPress={openLink}>
-                <Text style={authStyles.legalLink}>Politique de confidentialité</Text>
-              </TouchableOpacity>
-              <Text style={authStyles.legalText}>.</Text>
+            <Text style={styles.label}>Confirmer le mot de passe</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput style={styles.passwordInput} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
+              <Pressable onPress={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}><Icon name={isConfirmPasswordVisible ? 'eye' : 'eye-off'} size={22} color="#888" /></Pressable>
             </View>
-          </View>
 
-          {/* ... Le reste ne change pas ... */}
-          <TouchableOpacity style={authStyles.registerButton} onPress={handleRegister} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={authStyles.registerButtonText}>Inscription</Text>}
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={authStyles.linkButtonText}>Déjà un compte ? Connectez-vous</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+            <TouchableOpacity style={styles.primaryButton} onPress={handleRegister} disabled={loading}>
+              {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>S'inscrire</Text>}
+            </TouchableOpacity>
+
+            <Pressable style={{ marginTop: 20, alignItems: 'center' }} onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.subtitleText}>Déjà un compte ? <Text style={styles.subtitleLink}>Se connecter</Text></Text>
+            </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

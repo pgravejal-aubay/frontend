@@ -1,59 +1,96 @@
 // frontend/screens/LoginScreen.js
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, Button, Alert, TouchableOpacity } from 'react-native'; // Removed StyleSheet
+import { 
+  View, Text, TextInput, TouchableOpacity, SafeAreaView, 
+  KeyboardAvoidingView, Platform, ActivityIndicator, Pressable, StatusBar
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+
+// Assurez-vous que ces chemins sont corrects
+import { authStyles as styles } from '../styles/authStyles';
 import { login } from '../services/authService';
-import { AuthContext } from '../contexts/AuthContext'; // Add this line
-import { authStyles } from '../styles/authStyles';
+import { AuthContext } from '../contexts/AuthContext';
 
 export default function LoginScreen({ navigation }) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { signIn } = useContext(AuthContext); // Get signIn from context
+  const { signIn } = useContext(AuthContext);
 
   const handleLogin = async () => {
-    if (!username || !password) {
-      setError('Please enter username and password.');
+    if (!email || !password) {
+      setError('Veuillez renseigner votre email et votre mot de passe.');
       return;
     }
     setLoading(true);
     setError('');
     try {
-      await login(username, password); // authService.login performs API call & stores token
-      signIn(); // context.signIn reads the stored token & updates global App state
+      await login(email, password); // Utilise l'email comme identifiant
+      signIn();
     } catch (err) {
-      setError(err.message || 'Could not log in.');
+      setError(err.message || 'La connexion a échoué. Veuillez vérifier vos identifiants.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <View style={authStyles.container}>
-      <Text style={authStyles.title}>Login</Text>
-      {error ? <Text style={authStyles.errorText}>{error}</Text> : null}
-      <TextInput
-        style={authStyles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={authStyles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <View style={authStyles.buttonContainer}>
-        <Button title={loading ? "Logging in..." : "Login"} onPress={handleLogin} disabled={loading} />
-      </View>
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={authStyles.linkButtonText}>Don't have an account? Register</Text>
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView style={styles.screen}>
+      <StatusBar barStyle="dark-content" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardAvoidingContainer}
+      >
+        <View style={styles.centeredContainer}>
+          <Text style={styles.title}>Connexion au compte</Text>
+          
+          <Pressable style={styles.subtitleContainer} onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.subtitleText}>
+              → Pas encore de compte ?{' '}
+              <Text style={styles.subtitleLink}>S'inscrire</Text>
+            </Text>
+          </Pressable>
+
+          <View style={styles.card}>
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            
+            <Text style={styles.label}>Adresse mail</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              placeholder="exemple@mail.com"
+            />
+
+            <Text style={styles.label}>Mot de passe</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!isPasswordVisible}
+                placeholder="Votre mot de passe"
+              />
+              <Pressable onPress={() => setPasswordVisible(!isPasswordVisible)}>
+                <Icon name={isPasswordVisible ? 'eye' : 'eye-off'} size={22} color="#888" />
+              </Pressable>
+            </View>
+            
+            <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} disabled={loading}>
+              {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>Connexion</Text>}
+            </TouchableOpacity>
+
+            <Pressable onPress={() => navigation.navigate('ForgotPassword')}>
+              <Text style={styles.secondaryLink}>Mot de passe oublié ?</Text>
+            </Pressable>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
