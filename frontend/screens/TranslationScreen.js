@@ -1,6 +1,6 @@
 // frontend/screens/TranslationScreen.js
 
-import React, { useState, useEffect } from 'react'; // NOUVEAU: import de useEffect
+import React, { useEffect } from 'react'; // 'useState' n'est plus nécessaire ici
 import { 
   View, 
   Text, 
@@ -15,7 +15,6 @@ import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AppHeader from '../components/AppHeaders';
 
-// NOUVEAU: Import des fonctions du service de stockage
 import { addToHistory, saveTranslation } from '../services/storageService'; 
 import { styles } from '../styles/translationStyles';
 
@@ -24,26 +23,33 @@ export default function TranslationScreen() {
   const navigation = useNavigation();
   const route = useRoute();
 
+  // Les paramètres sont extraits directement de la route.
+  // Les valeurs par défaut sont utiles si on accède à l'écran pour un test.
   const { 
-    originalText = "der winter ist vergangen im norden und schottland", 
-    translatedText = "der winter ist vergangen im norden und schottland", // wait for translation
-    sourceLang = "German",
-    targetLang = "French",
+    originalText = "Texte original en attente...", 
+    translatedText = "Traduction en cours...",
+    sourceLang = "Unknown",
+    targetLang = "Unknown",
   } = route.params || {};
 
-  const [translationEntry] = useState({
-    id: Date.now().toString(), 
+  // BUG CORRIGÉ : L'objet de traduction est maintenant créé à la volée quand on en a besoin,
+  // ou en utilisant les props directement. Le `useState` précédent ne se mettait pas à jour.
+  const getCurrentTranslationEntry = () => ({
+    id: Date.now().toString(), // Un nouvel ID est généré si besoin. On pourrait aussi le passer en paramètre.
     originalText,
     translatedText,
     sourceLang,
     targetLang,
   });
 
+  // BUG CORRIGÉ : Le useEffect dépend maintenant des données de la traduction.
+  // Il s'exécutera à chaque fois qu'une nouvelle traduction est reçue.
   useEffect(() => {
-    if (translationEntry.originalText && translationEntry.translatedText) {
-      addToHistory(translationEntry);
+    // On s'assure que les données ne sont pas les valeurs par défaut avant de sauvegarder.
+    if (originalText && translatedText && originalText !== "Texte original en attente...") {
+      addToHistory(getCurrentTranslationEntry());
     }
-  }, []);
+  }, [originalText, translatedText]); // Dépendances ajoutées
 
   const handleReportError = () => {
     Alert.alert("Signaler une erreur", "Merci d'avoir signalé cette erreur. Nous allons l'examiner.");
@@ -51,14 +57,15 @@ export default function TranslationScreen() {
 
   const handleSpeak = async () => {
     await Speech.stop(); 
-    if (translatedText) {
-      Speech.speak(translatedText, { language: 'fr-FR' });
+    if (translatedText && translatedText !== "Traduction en cours...") {
+      Speech.speak(translatedText, { language: targetLang }); // Note : la langue devrait être dynamique
     }
   };
 
   const handleSave = async () => {
     try {
-      const isNewSave = await saveTranslation(translationEntry);
+      // On utilise les données actuelles pour la sauvegarde
+      const isNewSave = await saveTranslation(getCurrentTranslationEntry());
       if (isNewSave) {
         Alert.alert("Enregistré", "La traduction a été sauvegardée.");
       } else {
@@ -71,11 +78,13 @@ export default function TranslationScreen() {
   };
 
   const handleShare = async () => {
-    const isAvailable = await Sharing.isAvailableAsync();
-    if (isAvailable) {
-      await Sharing.shareAsync(translatedText);
-    } else {
-      Alert.alert("Erreur", "Le partage n'est pas disponible sur cet appareil.");
+    if (translatedText && translatedText !== "Traduction en cours...") {
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (isAvailable) {
+        await Sharing.shareAsync(translatedText);
+      } else {
+        Alert.alert("Erreur", "Le partage n'est pas disponible sur cet appareil.");
+      }
     } 
   };
 
@@ -90,7 +99,6 @@ export default function TranslationScreen() {
         
         <View style={styles.translationBox}>
           <ScrollView>
-            {/* On peut afficher le texte original et le texte traduit */}
             <Text style={styles.translationText}>{originalText}</Text>
             <View style={{height: 20}} />
             <Text style={[styles.translationText, {fontWeight: 'bold'}]}>{translatedText}</Text>

@@ -19,8 +19,8 @@ export const addToHistory = async (translationEntry) => {
   try {
     const history = await getHistory();
     const updatedHistory = [translationEntry, ...history];
-    
-    if (updatedHistory.length > 100) {
+
+    if (updatedHistory.length > 5) {
         updatedHistory.pop();
     }
     const jsonValue = JSON.stringify(updatedHistory);

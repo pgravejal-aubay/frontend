@@ -19,6 +19,12 @@ model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 # Dictionnaire de correspondance des langues (codes ISO NLLB)
 lang_codes = {"fr": "fra_Latn","en": "eng_Latn","de": "deu_Latn","es": "spa_Latn"}
 
+targetLangMapping = {
+    "fr": "Français",
+    "en": "English",
+    "de": "German",
+}
+
 # Dictionary to hold pre-loaded models
 MODELS = {}
 
@@ -33,7 +39,7 @@ def load_models():
     print(f"Keypoint extractor loaded.")
     
     ctc_model_config = {
-        'input_dim': 369, # Mettez une valeur fixe, car elle sera la même pour toutes les vidéos
+        'input_dim': 369,
         'cnn_output_dim': 512, 'lstm_hidden_dim': 384, 'num_encoder_layers': 3,
         'cnn_block_dims': [128, 256, 512], 'cnn_num_blocks': [2, 2, 2],
         'cnn_kernel_size': 5, 'cnn_dropout_rate': 0.2, 'bilstm_dropout': 0.4,
@@ -102,26 +108,22 @@ def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str, targetLa
 
     print("2. Generating gloss predictions (CTC)")
     _, input_dim = np.load(keypoints_output_file).shape
-    # predicted_glosses = generate_ctc_predictions(
-    #     features_path=keypoints_output_file,
-    #     model_path=os.path.join(POC2_DIR, "checkpoints/model.pt"),
-    #     input_dim=input_dim,
-    #     cnn_output_dim=512, lstm_hidden_dim=384, num_encoder_layers=3
-    # )
+
     predicted_glosses = MODELS['ctc_predictor'].predict(features_path=keypoints_output_file)
     print(f"   Predicted glosses: '{predicted_glosses}'")
 
     print("3. Translating glosses to text")
-    # final_text = translate_gloss_to_text(
-    #     gloss_sequence=predicted_glosses,
-    #      model_dir=os.path.join(POC2_DIR, "flan_model"),
-    # )
-    final_text = MODELS['gloss_translator'].translate(gloss_sequence=predicted_glosses)
-    print(f"   Translated text: '{final_text}'")
+    original_text = MODELS['gloss_translator'].translate(gloss_sequence=predicted_glosses)
+    print(f"   Original text: '{original_text}'")
     print("4. Translating to target language")
-    final_text = text_translation(final_text,targetLang)
+    final_text = text_translation(original_text,targetLang)
     print(f"   Final translated text: '{final_text}'")
-    return final_text
+    targetLang = targetLangMapping.get(targetLang, targetLang)
+    return {
+        "original_text": original_text,
+        "translated_text": final_text,
+        "target_lang": targetLang,
+    }
 
 def text_translation(text, target_lang):
     if target_lang not in lang_codes:

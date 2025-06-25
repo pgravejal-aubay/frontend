@@ -37,12 +37,17 @@ const ProcessingScreen = ({ route, navigation }) => {
     const pollStatus = async () => {
         try {
             const response = await checkTaskStatus(taskId);
-
             if (response.status === 'completed') {
                 clearInterval(intervalRef.current);
-                const translatedResult = response.result.translated_text;
+                console.log("DEBUG RESPONSE: ", response);
+                
+                //const translatedResult = response.result.translated_text;
+                const result = response.result; 
                 navigation.replace('Translation', {
-                    translatedText: translatedResult,
+                    originalText: result.original_text,
+                    translatedText: result.translated_text,
+                    sourceLang: "German", // La langue source est fixe
+                    targetLang: result.target_lang,
                 });
             } else if (response.status === 'failed' || response.status === 'cancelled') {
                 clearInterval(intervalRef.current);
