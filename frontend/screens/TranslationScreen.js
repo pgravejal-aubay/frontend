@@ -14,7 +14,7 @@ import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AppHeader from '../components/AppHeaders';
 import { AuthContext } from '../contexts/AuthContext';
-
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { styles } from '../styles/translationStyles';
 
 export default function TranslationScreen() {
@@ -22,6 +22,7 @@ export default function TranslationScreen() {
   const handleClose = () => { navigation.navigate('Home'); };
   const navigation = useNavigation();
   const route = useRoute();
+  const theme = useColorScheme() ?? 'light';
 
   const [translatedText, setTranslatedText] = useState(
     route.params?.translatedText || 'Le texte de la traduction apparaîtra ici.'
@@ -53,35 +54,35 @@ export default function TranslationScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles(theme).container}>
       {/* Header fixe */}
       <AppHeader />
 
-      <View style={styles.mainContent}>
-        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+      <View style={styles(theme).mainContent}>
+        <TouchableOpacity style={styles(theme).closeButton} onPress={handleClose}>
           <Ionicons name="close-circle" size={32} color="#ccc" />
         </TouchableOpacity>
         
-        <View style={styles.translationBox}>
+        <View style={styles(theme).translationBox}>
           <ScrollView>
-            <Text style={[styles.translationText, { fontSize: 24 + textSize }]}>{translatedText}</Text>
+            <Text style={[styles(theme).translationText, { fontSize: 24 + textSize }]}>{translatedText}</Text>
           </ScrollView>
         </View>
       </View>
 
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.iconButton} onPress={handleReportError}>
+      <View style={styles(theme).footer}>
+        <TouchableOpacity style={styles(theme).iconButton} onPress={handleReportError}>
           <Ionicons name="flag-outline" size={28} color="#000" />
         </TouchableOpacity>
         
-        <View style={styles.footerActionsRight}>
-          <TouchableOpacity style={styles.iconButton} onPress={handleSpeak}>
+        <View style={styles(theme).footerActionsRight}>
+          <TouchableOpacity style={styles(theme).iconButton} onPress={handleSpeak}>
             <Ionicons name="volume-medium-outline" size={28} color="#000" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={handleSave}>
+          <TouchableOpacity style={styles(theme).iconButton} onPress={handleSave}>
             <Feather name="download" size={28} color="#000" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
+          <TouchableOpacity style={styles(theme).iconButton} onPress={handleShare}>
             <Ionicons name="share-social-outline" size={28} color="#000" />
           </TouchableOpacity>
         </View>
