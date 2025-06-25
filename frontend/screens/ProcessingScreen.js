@@ -24,7 +24,7 @@ const ProcessingScreen = ({ route, navigation }) => {
         }
 
         // 2. On navigue IMMÉDIATEMENT vers la page vidéo.
-        navigation.navigate('Video');
+        navigation.navigate('Home');
 
         // 3. On tente d'annuler la tâche sur le serveur en arrière-plan,
         //    sans que l'utilisateur ait à attendre ou voir un message.

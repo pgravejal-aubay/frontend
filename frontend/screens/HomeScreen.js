@@ -101,7 +101,7 @@ export default function HomeScreen({ navigation }) {
             }
         
             const asset = video.assets[0];
-            const MAX_FILE_SIZE_MB = 100;
+            const MAX_FILE_SIZE_MB = 1;
             const fileSizeInMB = (asset.size / 1000000).toFixed(2);
 
             if (fileSizeInMB > MAX_FILE_SIZE_MB) {
