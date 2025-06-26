@@ -1,6 +1,6 @@
 // frontend/screens/HomeScreen.js
  
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Button } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Picker } from '@react-native-picker/picker';
@@ -10,12 +10,14 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { Audio } from 'expo-av';
 import { local_video } from '../services/uploadService';
+import { AuthContext } from '../contexts/AuthContext';
 
 // Importe les styles locaux et le composant d'en-tête réutilisable
 import { homeStyles as styles } from '../styles/homeStyles';
 import AppHeader from '../components/AppHeaders';
  
 export default function HomeScreen({ navigation }) {
+    const { textSize } = useContext(AuthContext);
     const [permission, requestPermission] = useCameraPermissions();
     // AJOUT : Hook pour la permission du microphone
     const [microphonePermission, requestMicrophonePermission] = Audio.usePermissions();
@@ -166,7 +168,7 @@ export default function HomeScreen({ navigation }) {
     if (!permission.granted || !microphonePermission.granted) {
         return (
             <View style={styles.permissionContainer}>
-                <Text style={styles.permissionText}>Nous avons besoin de votre permission pour utiliser la caméra ET le microphone.</Text>
+                <Text style={[styles.permissionText, { fontSize: 18 + textSize }]}>Nous avons besoin de votre permission...</Text>
                 <Button
                     onPress={async () => {
                         await requestPermission();
