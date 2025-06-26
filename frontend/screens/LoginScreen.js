@@ -18,7 +18,7 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { signIn } = useContext(AuthContext);
+  const { signIn, textSize } = useContext(AuthContext); // Get signIn from context
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -45,17 +45,17 @@ export default function LoginScreen({ navigation }) {
         style={styles.keyboardAvoidingContainer}
       >
         <View style={styles.centeredContainer}>
-          <Text style={styles.title}>Connexion au compte</Text>
+          <Text style={[styles.title,{ fontSize: 28 + textSize }]}>Connexion au compte</Text>
           
           <Pressable style={styles.subtitleContainer} onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.subtitleText}>
+            <Text style={[styles.subtitleText, { fontSize: 14 + textSize }]}>
               → Pas encore de compte ?{' '}
-              <Text style={styles.subtitleLink}>S'inscrire</Text>
+              <Text style={[styles.subtitleLink,{ fontSize: 14 + textSize }]}>S'inscrire</Text>
             </Text>
           </Pressable>
 
           <View style={styles.card}>
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error ? <Text style={[styles.errorText, { fontSize: 16 + textSize }]}>{error}</Text> : null}
             
             <Text style={styles.label}>Adresse mail</Text>
             <TextInput
@@ -82,11 +82,11 @@ export default function LoginScreen({ navigation }) {
             </View>
             
             <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} disabled={loading}>
-              {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>Connexion</Text>}
+              {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={[styles.primaryButtonText, { fontSize: 14 + textSize }]}>Connexion</Text>}
             </TouchableOpacity>
 
             <Pressable onPress={() => navigation.navigate('ForgotPassword')}>
-              <Text style={styles.secondaryLink}>Mot de passe oublié ?</Text>
+              <Text style={[styles.secondaryLink, { fontSize: 14 + textSize }]}>Mot de passe oublié ?</Text>
             </Pressable>
           </View>
         </View>

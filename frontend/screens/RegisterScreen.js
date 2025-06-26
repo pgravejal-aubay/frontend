@@ -1,5 +1,5 @@
 // frontend/screens/RegisterScreen.js
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { 
   View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView, 
   KeyboardAvoidingView, Platform, ActivityIndicator, Pressable, StatusBar, Alert
@@ -9,9 +9,10 @@ import Icon from 'react-native-vector-icons/Feather';
 // On utilise toujours le même fichier de style, c'est parfait
 import { authStyles as styles } from '../styles/authStyles';
 import { register } from '../services/authService';
+import { AuthContext } from '../contexts/AuthContext';
 
 export default function RegisterScreen({ navigation }) {
-  // CHANGEMENT 1: Remplacer l'état 'username' par 'prenom' et 'nom'
+  const { textSize } = useContext(AuthContext);
   const [prenom, setPrenom] = useState('');
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
@@ -24,7 +25,6 @@ export default function RegisterScreen({ navigation }) {
   const [error, setError] = useState('');
 
   const handleRegister = async () => {
-    // CHANGEMENT 2: Mettre à jour la validation
     if (!prenom || !nom || !email || !password || !confirmPassword) {
       setError('Veuillez remplir tous les champs.');
       return;
@@ -54,12 +54,12 @@ export default function RegisterScreen({ navigation }) {
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollableContainer} showsVerticalScrollIndicator={false}>
-            <Text style={styles.title}>Création de compte</Text>
+            <Text style={[authStyles.title, { fontSize: 28 + textSize}]}>Création de compte</Text>
             
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error ? <Text style={[authStyles.errorText, { fontSize: 16 + textSize}]}>{error}</Text> : null}
 
             {/* CHANGEMENT 4: Remplacer le champ 'Nom d'utilisateur' par 'Prénom' et 'Nom' */}
-            <Text style={styles.label}>Prénom</Text>
+            <Text style={[styles.label, { fontSize: 14 + textSize}]}>Prénom</Text>
             <TextInput
               style={styles.input}
               value={prenom}
@@ -67,7 +67,7 @@ export default function RegisterScreen({ navigation }) {
               autoCapitalize="words" // Met une majuscule au début
             />
 
-            <Text style={styles.label}>Nom</Text>
+            <Text style={[styles.label, { fontSize: 14 + textSize}]}>Nom</Text>
             <TextInput
               style={styles.input}
               value={nom}
@@ -75,19 +75,27 @@ export default function RegisterScreen({ navigation }) {
               autoCapitalize="words" // Met une majuscule au début
             />
             
-            <Text style={styles.label}>Adresse mail</Text>
+            <Text style={[styles.label, { fontSize: 14 + textSize}]}>Adresse mail</Text>
             <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
             
-            <Text style={styles.label}>Mot de passe</Text>
+            <Text style={[styles.label, { fontSize: 14 + textSize}]}>Mot de passe</Text>
             <View style={styles.passwordContainer}>
               <TextInput style={styles.passwordInput} value={password} onChangeText={setPassword} secureTextEntry={!isPasswordVisible} />
               <Pressable onPress={() => setPasswordVisible(!isPasswordVisible)}><Icon name={isPasswordVisible ? 'eye' : 'eye-off'} size={22} color="#888" /></Pressable>
             </View>
 
-            <Text style={styles.label}>Confirmer le mot de passe</Text>
+            <Text style={[styles.label, { fontSize: 14 + textSize}]}>Confirmer le mot de passe</Text>
             <View style={styles.passwordContainer}>
               <TextInput style={styles.passwordInput} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
               <Pressable onPress={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}><Icon name={isConfirmPasswordVisible ? 'eye' : 'eye-off'} size={22} color="#888" /></Pressable>
+            </View>
+
+            <View style={authStyles.legalRow}>
+              <Text style={[authStyles.legalText, { fontSize: 12 + textSize}]}>et notre </Text>
+              <TouchableOpacity onPress={openLink}>
+                <Text style={[authStyles.legalLink, { fontSize: 12 + textSize}]}>Politique de confidentialité</Text>
+              </TouchableOpacity>
+              <Text style={[authStyles.legalText, { fontSize: 12 + textSize}]}>.</Text>
             </View>
 
             <TouchableOpacity style={styles.primaryButton} onPress={handleRegister} disabled={loading}>
@@ -95,7 +103,7 @@ export default function RegisterScreen({ navigation }) {
             </TouchableOpacity>
 
             <Pressable style={{ marginTop: 20, alignItems: 'center' }} onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.subtitleText}>Déjà un compte ? <Text style={styles.subtitleLink}>Se connecter</Text></Text>
+              <Text style={[styles.subtitleText, { fontSize: 14 + textSize }]}>Déjà un compte ? <Text style={[styles.subtitleLink, { fontSize: 14 + textSize }]}>Se connecter</Text></Text>
             </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
