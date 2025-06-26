@@ -24,6 +24,11 @@ export const register = async (name, surname, email, password, confirmPassword) 
 };
 
 
+export const isLoggedIn = async () => {
+  const token = await AsyncStorage.getItem('userToken');
+  return !!token; // retourne true si le token existe, false sinon
+};
+
 export const login = async (email, password) => {
   try {
     const response = await axios.post(`${API_URL}/login`, {

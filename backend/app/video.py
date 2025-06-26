@@ -12,9 +12,9 @@ bp = Blueprint('video', __name__)
 UPLOAD_FOLDER = 'uploads'
     
 @bp.route('/upload', methods=['POST'])
-@token_required
-def upload_video(current_user):
+def upload_video(current_user = None):
     try:
+        name = current_user.name if current_user != None else "Guest"
         file = request.files['video']
         target_lang = request.form.get('targetLang') 
 
@@ -29,10 +29,10 @@ def upload_video(current_user):
             file_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(file_path)
 
-            print(f"File '{file.filename}' received from user {current_user.name}. Target language: {target_lang}")
+            print(f"File '{file.filename}' received from user {name}. Target language: {target_lang}")
 
             task_id = str(uuid.uuid4())
-            tasks[task_id] = {'status': 'pending', 'name': current_user.name}
+            tasks[task_id] = {'status': 'pending', 'name': name}
 
             # ✅ Passer la langue cible à la tâche
             thread = threading.Thread(target=translate_video_task, args=(task_id, file_path, target_lang))

@@ -6,13 +6,14 @@ import {
   ScrollView, 
   SafeAreaView, 
   Alert,
-  Modal
+  Modal,
 } from 'react-native';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AppHeader from '../components/AppHeaders';
+import {isLoggedIn } from '../services/authService'
 
 import { styles } from '../styles/translationStyles';
 
@@ -36,7 +37,12 @@ export default function TranslationScreen() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    const logged = await isLoggedIn();
+    if (!logged){
+      showLoginAlert();
+      return;
+    }
     // Cette fonction correspond au bouton "télécharger" qui enregistre la traduction
     Alert.alert("Enregistré", "La traduction a été sauvegardée.");
   };
@@ -49,6 +55,24 @@ export default function TranslationScreen() {
       Alert.alert("Erreur", "Le partage n'est pas disponible sur cet appareil.");
     } 
   };
+
+  const showLoginAlert = () => {
+      Alert.alert(
+          'Connexion requise',
+          'Veuillez vous connecter pour continuer',
+          [
+          {
+              text: 'Annuler',
+              style: 'cancel',
+          },
+          {
+              text: 'Se connecter',
+              onPress: () => navigation.navigate('Login'),
+          },
+          ],
+          { cancelable: true }
+      );
+      };
 
   return (
     <SafeAreaView style={styles.container}>
