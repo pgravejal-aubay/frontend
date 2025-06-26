@@ -16,6 +16,9 @@ model_name = "facebook/nllb-200-distilled-600M"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
+class TaskCancelledError(Exception):
+    pass
+
 # Dictionnaire de correspondance des langues (codes ISO NLLB)
 lang_codes = {"fr": "fra_Latn","en": "eng_Latn","de": "deu_Latn","es": "spa_Latn"}
 
@@ -56,7 +59,7 @@ def load_models():
     print(f"Gloss Translator loaded.")
 
 
-def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str, targetLang: str) -> str:
+def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str, targetLang: str, cancellation_check: callable) -> dict:
     """
     Runs the complete pipeline on a sequence of frames.
     Args:
@@ -76,6 +79,8 @@ def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str, targetLa
     keypoints_sequence = []
     model = MODELS['keypoint_extractor']
     for img_path in image_paths:
+        if cancellation_check():
+            raise TaskCancelledError("Cancellation detected before gloss prediction.")
         batch_results = inference_topdown(model, img_path)
         results = merge_data_samples(batch_results)
         if hasattr(results, 'pred_instances') and results.pred_instances is not None:
@@ -105,13 +110,13 @@ def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str, targetLa
     features = normalized_tensor.cpu().numpy()
     np.save(keypoints_output_file, features.reshape(T, -1))
     print(f"   Keypoints saved to {keypoints_output_file}")
-
+    if cancellation_check():
+        raise TaskCancelledError("Cancellation detected before gloss prediction.")
     print("2. Generating gloss predictions (CTC)")
     _, input_dim = np.load(keypoints_output_file).shape
 
     predicted_glosses = MODELS['ctc_predictor'].predict(features_path=keypoints_output_file)
     print(f"   Predicted glosses: '{predicted_glosses}'")
-
     print("3. Translating glosses to text")
     original_text = MODELS['gloss_translator'].translate(gloss_sequence=predicted_glosses)
     print(f"   Original text: '{original_text}'")
