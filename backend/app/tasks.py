@@ -41,7 +41,6 @@ def translate_video_task(task_id: str, video_path: str,targetLang: str):
     # Frames for Pipeline V1 will be stored in a 'frames' subdirectory within the task_temp_dir
     frames_dir_v1 = os.path.join(task_temp_dir, 'frames_v1') # Make it explicit for V1
     os.makedirs(frames_dir_v1, exist_ok=True)
-
     try:
         print(f"Task {task_id} (V1): Starting frame extraction from {video_path} into {frames_dir_v1}")
         vidcap = cv2.VideoCapture(video_path)

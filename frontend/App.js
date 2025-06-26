@@ -82,34 +82,36 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={authContext}>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {state.userToken == null ? (
-            // Ecrans si l'utilisateur N'EST PAS connecté
-            <>
-              <Stack.Screen name="Cover" component={CoverScreen} />
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="Register" component={RegisterScreen} />
-              
-              {/* --- MODIFICATION ICI --- */}
-              {/* On rend la page Vidéo accessible même si on n'est pas connecté */}
-              <Stack.Screen name="Video" component={HomeScreen} />
-            </>
-          ) : (
-            // Ecrans si l'utilisateur EST connecté
-            <>
-              {/* Le flux normal commencera sur la page Vidéo */}
-              <Stack.Screen name="Home" component={HomeScreen} />
-              
-              {/* Toutes les autres pages de l'application sont déclarées ici */}
-              <Stack.Screen name="Processing" component={ProcessingScreen} />
-              <Stack.Screen name="Translation" component={TranslationScreen} />
-              <Stack.Screen name="Settings" component={SettingsScreen} />
-              <Stack.Screen name="History" component={HistoryScreen} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
+      <SettingsProvider>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {state.userToken == null ? (
+              // Ecrans si l'utilisateur N'EST PAS connecté
+              <>
+                <Stack.Screen name="Cover" component={CoverScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Register" component={RegisterScreen} />
+                
+                {/* --- MODIFICATION ICI --- */}
+                {/* On rend la page Vidéo accessible même si on n'est pas connecté */}
+                <Stack.Screen name="Video" component={HomeScreen} />
+              </>
+            ) : (
+              // Ecrans si l'utilisateur EST connecté
+              <>
+                {/* Le flux normal commencera sur la page Vidéo */}
+                <Stack.Screen name="Home" component={HomeScreen} />
+                
+                {/* Toutes les autres pages de l'application sont déclarées ici */}
+                <Stack.Screen name="Processing" component={ProcessingScreen} />
+                <Stack.Screen name="Translation" component={TranslationScreen} />
+                <Stack.Screen name="Settings" component={SettingsScreen} />
+                <Stack.Screen name="History" component={HistoryScreen} />
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SettingsProvider>
     </AuthContext.Provider>
   );
 
