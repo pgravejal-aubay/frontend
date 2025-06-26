@@ -89,6 +89,7 @@ export const styles = (theme = 'light') => StyleSheet.create({
     borderColor: Colors[theme].border, // #6d0d61
     borderRadius: 4,
     width: 168,
+    backgroundColor: Colors[theme].buttonBackground,
   },
   picker: {
     height: 50,
