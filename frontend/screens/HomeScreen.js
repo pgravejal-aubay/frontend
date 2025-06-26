@@ -1,8 +1,7 @@
 // frontend/screens/HomeScreen.js
  
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Button } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Button, Image } from 'react-native';import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as ImagePicker from 'expo-image-picker';
@@ -10,12 +9,14 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { Audio } from 'expo-av';
 import { local_video } from '../services/uploadService';
+import { AuthContext } from '../contexts/AuthContext';
 
 // Importe les styles locaux et le composant d'en-tête réutilisable
 import { homeStyles as styles } from '../styles/homeStyles';
 import AppHeader from '../components/AppHeaders';
  
 export default function HomeScreen({ navigation }) {
+    const { textSize } = useContext(AuthContext);
     const [permission, requestPermission] = useCameraPermissions();
     // AJOUT : Hook pour la permission du microphone
     const [microphonePermission, requestMicrophonePermission] = Audio.usePermissions();
@@ -31,6 +32,7 @@ export default function HomeScreen({ navigation }) {
     const [targetLanguage, setTargetLanguage] = useState('fr');
     const [isImporting, setIsImporting] = useState(false);
     const [isDelayting, setIsDelaying] = useState(false);
+    const [selectedPipeline, setSelectedPipeline] = useState('v1'); // 'v1' or 'v2'
 
  
     useEffect(() => {
@@ -61,28 +63,41 @@ export default function HomeScreen({ navigation }) {
         if (!cameraRef.current) return;
         if (isRecording) {
             setIsRecording(false);
-            cameraRef.current.stopRecording();
+            cameraRef.current.stopRecording(); 
         } else {
             setIsRecording(true);
-            cameraRef.current.recordAsync({ quality: '1080p' })
-                .then(async (video) => {
-                    console.log('Vidéo enregistrée dans le cache :', video.uri);
+            try {
+                const video = await cameraRef.current.recordAsync({ quality: '1080p' });
+                setIsRecording(false);
+                if (video && video.uri) {
+                    const videoAsset = {
+                        uri: video.uri,
+                        name: `recording-${Date.now()}.mp4`,
+                        mimeType: 'video/mp4',
+                    };
+                    const data = await local_video(videoAsset, selectedPipeline);
+                    if (data.task_id) {
+                        navigation.navigate('Processing', { taskId: data.task_id });
+                    } else {
+                        Alert.alert('Error', data.message || "Upload failed after recording, no task ID received.");
+                    }
                     try {
                         const { status } = await MediaLibrary.requestPermissionsAsync();
                         if (status === 'granted') {
                             await MediaLibrary.createAssetAsync(video.uri);
-                            Alert.alert('Vidéo enregistrée !', 'Votre vidéo a bien été sauvegardée dans la galerie.');
-                        } else {
-                            Alert.alert('Permission refusée', "Impossible de sauvegarder la vidéo sans l'accès à la galerie.");
+                            console.log("Video saved to gallery.");
                         }
                     } catch (error) {
                         console.error("Erreur lors de la sauvegarde de la vidéo :", error);
-                        Alert.alert('Erreur', "Une erreur est survenue lors de la sauvegarde.");
                     }
-                    navigation.navigate('Waiting', { videoUri: video.uri });
-                })
-                .catch(error => console.error("Erreur d'enregistrement:", error))
-                .finally(() => setIsRecording(false));
+                } else {
+                     Alert.alert('Erreur', "L'enregistrement a échoué ou n'a pas retourné de vidéo.");
+                }
+            } catch (error) {
+                console.error("Erreur d'enregistrement:", error);
+                Alert.alert('Erreur', "Une erreur est survenue pendant l'enregistrement.");
+                setIsRecording(false);
+            }
         }
     };
    
@@ -90,14 +105,14 @@ export default function HomeScreen({ navigation }) {
         setIsImporting(true);
         try {
             const video = await DocumentPicker.getDocumentAsync({
-            type: 'video/*',
-            copyToCacheDirectory: true, // Recommended for reliability
-            multiple: false,
+                type: 'video/*',
+                copyToCacheDirectory: true,
+                multiple: false,
             });
 
             if (video.canceled) { 
-            console.log("Stop importing video");
-            return;
+                console.log("Stop importing video");
+                return;
             }
         
             const asset = video.assets[0];
@@ -105,40 +120,37 @@ export default function HomeScreen({ navigation }) {
             const fileSizeInMB = (asset.size / 1000000).toFixed(2);
 
             if (fileSizeInMB > MAX_FILE_SIZE_MB) {
-            Alert.alert('File too large',
-                `The selected video is ${fileSizeInMB} MB. Please select a video smaller than ${MAX_FILE_SIZE_MB} MB.`
-            );
-            return;
+                Alert.alert('File too large',
+                    `The selected video is ${fileSizeInMB} MB. Please select a video smaller than ${MAX_FILE_SIZE_MB} MB.`
+                );
+                return;
             }
 
-            const data = await local_video(asset); 
+            const data = await local_video(asset, selectedPipeline); 
             
             if (data.task_id) {
                 navigation.navigate('Processing', { taskId: data.task_id });
             } else {
                 Alert.alert('Error', data.message || "Upload failed, no task ID received.");
             }
-
         } catch (error) {
             console.error('Error importing video:', error);
-            Alert.alert('Import Error', `An issue occurred: ${error.message}`);
+            Alert.alert('Import Error', `An issue occurred: ${error.message || 'Unknown error'}`);
         } finally {
             setIsImporting(false);
         }
     };
 
-    const handleInfoPress = () => Alert.alert("À propos de Hands Up", "...");
+    const handleInfoPress = () => Alert.alert("À propos de Hands Up", "Bonjour, cette application à pour objectif de traduire la langue des signes. Filmez le signeur ou uploadez une vidéo de celui-ci pour générer une traduction.");
  
-    // MODIFIÉ : On attend que les DEUX permissions soient chargées
     if (!permission || !microphonePermission) {
         return <View />;
     }
  
-    // MODIFIÉ : On vérifie si l'UNE ou l'AUTRE des permissions est manquante
     if (!permission.granted || !microphonePermission.granted) {
         return (
             <View style={styles.permissionContainer}>
-                <Text style={styles.permissionText}>Nous avons besoin de votre permission pour utiliser la caméra ET le microphone.</Text>
+                <Text style={[styles.permissionText, { fontSize: 18 + textSize }]}>Nous avons besoin de votre permission...</Text>
                 <Button
                     onPress={async () => {
                         await requestPermission();
@@ -150,11 +162,22 @@ export default function HomeScreen({ navigation }) {
         );
     }
  
-    // Rendu principal de la page
+     // Rendu principal de la page
     return (
         <View style={styles.container}>
             <AppHeader />
-            {/* Le reste de votre JSX reste identique... */}
+            <View style={styles.pickerRow}>
+                <View style={[styles.pickerContainer, {width: '90%', marginBottom: 10}]}>
+                    <Picker
+                        selectedValue={selectedPipeline}
+                        onValueChange={(itemValue) => setSelectedPipeline(itemValue)}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="Modèle V1 (POC2/MMPose)" value="v1" />
+                        <Picker.Item label="Modèle V2 (MediaPipe/TwoStream)" value="v2" />
+                    </Picker>
+                </View>
+            </View>
             <View style={styles.pickerRow}>
                 <View style={styles.pickerContainer}>
                     <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles.picker}>
@@ -175,6 +198,14 @@ export default function HomeScreen({ navigation }) {
  
             <View style={styles.cameraPreview}>
                 <CameraView style={StyleSheet.absoluteFill} ref={cameraRef} facing={facing} mode="video" />
+
+                {/* --- MODIFICATION 2 : Ajouter l'image en surimpression --- */}
+                <Image 
+                    source={require('../assets/images/silouhette.png')}
+                    style={styles.cameraOverlayImage}
+                    pointerEvents="none" // Permet aux clics de "passer à travers" l'image
+                />
+                
                 {timer > 0 && <View style={styles.timerOverlay}><Text style={styles.timerText}>{timer}</Text></View>}
             </View>
             <View style={styles.controlsContainer}>

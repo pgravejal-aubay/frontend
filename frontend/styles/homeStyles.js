@@ -39,6 +39,15 @@ export const homeStyles = StyleSheet.create({
         overflow: 'hidden',
         backgroundColor: '#E0E0E0',
     },
+    cameraOverlayImage: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        resizeMode: 'contain', // 'contain' ou 'stretch' selon le rendu voulu
+        opacity: 0.7, // Opacité de l'image (ajustez selon vos préférences)
+    },
     timerOverlay: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'rgba(0,0,0,0.4)',
