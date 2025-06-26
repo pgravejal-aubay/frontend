@@ -23,7 +23,7 @@ export default function RegisterScreen({ navigation }) {
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const openLink = () => { /* ... */ };
   const handleRegister = async () => {
     if (!prenom || !nom || !email || !password || !confirmPassword) {
       setError('Veuillez remplir tous les champs.');
@@ -54,9 +54,9 @@ export default function RegisterScreen({ navigation }) {
         style={styles.keyboardAvoidingContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollableContainer} showsVerticalScrollIndicator={false}>
-            <Text style={[authStyles.title, { fontSize: 28 + textSize}]}>Création de compte</Text>
+            <Text style={[styles.title, { fontSize: 28 + textSize}]}>Création de compte</Text>
             
-            {error ? <Text style={[authStyles.errorText, { fontSize: 16 + textSize}]}>{error}</Text> : null}
+            {error ? <Text style={[styles.errorText, { fontSize: 16 + textSize}]}>{error}</Text> : null}
 
             {/* CHANGEMENT 4: Remplacer le champ 'Nom d'utilisateur' par 'Prénom' et 'Nom' */}
             <Text style={[styles.label, { fontSize: 14 + textSize}]}>Prénom</Text>
@@ -90,12 +90,12 @@ export default function RegisterScreen({ navigation }) {
               <Pressable onPress={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}><Icon name={isConfirmPasswordVisible ? 'eye' : 'eye-off'} size={22} color="#888" /></Pressable>
             </View>
 
-            <View style={authStyles.legalRow}>
-              <Text style={[authStyles.legalText, { fontSize: 12 + textSize}]}>et notre </Text>
+            <View style={styles.legalRow}>
+              <Text style={[styles.legalText, { fontSize: 12 + textSize}]}>et notre </Text>
               <TouchableOpacity onPress={openLink}>
-                <Text style={[authStyles.legalLink, { fontSize: 12 + textSize}]}>Politique de confidentialité</Text>
+                <Text style={[styles.legalLink, { fontSize: 12 + textSize}]}>Politique de confidentialité</Text>
               </TouchableOpacity>
-              <Text style={[authStyles.legalText, { fontSize: 12 + textSize}]}>.</Text>
+              <Text style={[styles.legalText, { fontSize: 12 + textSize}]}>.</Text>
             </View>
 
             <TouchableOpacity style={styles.primaryButton} onPress={handleRegister} disabled={loading}>
