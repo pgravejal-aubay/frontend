@@ -32,10 +32,8 @@ export const local_video = async (videoAsset, targetLanguage, pipelineChoice = '
     name: videoAsset.name || `video-${Date.now()}.${fileUri.split('.').pop()}`,
     type: videoAsset.mimeType || 'video/mp4', // Ensure mimeType is passed or default
   });
-  formData.append('targetLang', targetLanguage);
-  // Axios automatically handles Content-Type for FormData
   formData.append('pipeline_choice', pipelineChoice); // Send the choice
-
+  formData.append('targetLang', targetLanguage);
   console.log(`Uploading video for pipeline: ${pipelineChoice}`);
   console.log(`Video asset name: ${videoAsset.name}, uri: ${fileUri}, type: ${videoAsset.mimeType || 'video/mp4'}`);
   

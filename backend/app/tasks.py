@@ -8,21 +8,20 @@ from flask import current_app # Used for logging or accessing app config if need
 
 # Import for Pipeline V1
 from .ai_pipeline import run_translation_pipeline
+from .pipeline_v2.pipeline_v2_orchestrator import run_translation_pipeline_v2
+import shutil
+
+tasks = {}
+UPLOAD_FOLDER = 'uploads'
+def translate_video_task(task_id: str, video_path: str,targetLang: str):
 
 # Import for Pipeline V2
-from .pipeline_v2.pipeline_v2_orchestrator import run_translation_pipeline_v2
-
-tasks = {} # This dictionary will store the status of ongoing tasks
 
 # The UPLOAD_FOLDER is configured in app/__init__.py and used by video.py
 # to create task-specific subdirectories. The 'video_path' passed to
 # these task functions will already be a path like:
 # instance/uploads/<task_id>/video.mp4
 # So, os.path.dirname(video_path) will give the task-specific temp directory.
-
-tasks = {}
-UPLOAD_FOLDER = 'uploads'
-def translate_video_task(task_id: str, video_path: str,targetLang: str):
     """
     Runs the complete Pipeline V1: frame extraction THEN translation.
     """
@@ -89,7 +88,7 @@ def translate_video_task(task_id: str, video_path: str,targetLang: str):
             # current_app.logger.error(f"Error during V1 cleanup for task {task_id}: {e_clean}")
 
 
-def translate_video_task_v2(task_id: str, video_path: str):
+def translate_video_task_v2(task_id: str, video_path: str,targetLang: str):
     """
     Runs the complete Pipeline V2: frame extraction THEN translation.
     """
@@ -124,7 +123,7 @@ def translate_video_task_v2(task_id: str, video_path: str):
         print(f"Task {task_id} (V2): Successfully extracted {count} frames to {frames_dir_v2}")
 
         # Call Pipeline V2's translation function
-        translated_text = run_translation_pipeline_v2(frames_dir_v2, task_temp_dir)
+        translated_text = run_translation_pipeline_v2(frames_dir_v2, task_temp_dir,targetLang)
 
         task['status'] = 'completed'
         task['result'] = {

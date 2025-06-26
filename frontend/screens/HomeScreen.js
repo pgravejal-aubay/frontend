@@ -5,7 +5,6 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Button } fro
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { Audio } from 'expo-av';

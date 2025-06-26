@@ -12,8 +12,8 @@ bp = Blueprint('video', __name__)
 # UPLOAD_FOLDER will be taken from app.config['UPLOAD_FOLDER']
     
 @bp.route('/upload', methods=['POST'])
-@token_required
-def upload_video(current_user):
+def upload_video(current_user = None):
+    name = current_user.name if current_user != None else "Guest"
     upload_folder_base = current_app.config['UPLOAD_FOLDER'] # Get from app config
     os.makedirs(upload_folder_base, exist_ok=True)
 
@@ -21,8 +21,8 @@ def upload_video(current_user):
         if 'video' not in request.files:
             return jsonify({'message': 'No video file part in the request'}), 400
         
+        target_lang = request.form.get('targetLang')
         file = request.files['video']
-        target_lang = request.form.get('targetLang') 
         pipeline_choice = request.form.get('pipeline_choice', 'v1') # Default to v1
 
         if file.filename == '':
@@ -45,14 +45,15 @@ def upload_video(current_user):
             file_path = os.path.join(task_specific_dir, filename)
             file.save(file_path)
             
-            print(f"File '{file.filename}' received from user {current_user.username}, saved to {file_path}.")
+            print(f"File '{file.filename}' received from user {name}, saved to {file_path}.")
 
-            tasks[task_id] = {'status': 'pending', 'user': current_user.username, 'pipeline': pipeline_choice}
+            tasks[task_id] = {'status': 'pending', 'name': name, 'pipeline': pipeline_choice}
 
             if pipeline_choice == 'v2':
-                thread = threading.Thread(target=translate_video_task_v2, args=(task_id, file_path))
+                thread = threading.Thread(target=translate_video_task_v2, args=(task_id, file_path, target_lang))
                 print(f"Starting Pipeline V2 for task {task_id}")
             else: # Default or 'v1'
+                thread = threading.Thread(target=translate_video_task, args=(task_id, file_path, target_lang))
                 thread = threading.Thread(target=translate_video_task, args=(task_id, file_path, target_lang))
                 print(f"Starting Pipeline V1 for task {task_id}")
             thread.start()
