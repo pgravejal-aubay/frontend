@@ -157,7 +157,7 @@ export default function HomeScreen({ navigation }) {
         }
     };
 
-    const handleInfoPress = () => Alert.alert("À propos de Hands Up", "...");
+    const handleInfoPress = () => Alert.alert("À propos de Hands Up", "Bonjour, cette application à pour objectif de traduire la langue des signes. Filmez le signeur ou uploadez une vidéo de celui-ci pour générer une traduction");
  
     // MODIFIÉ : On attend que les DEUX permissions soient chargées
     if (!permission || !microphonePermission) {
