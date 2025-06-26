@@ -22,6 +22,7 @@ export const homeStyles = (theme = 'light') => StyleSheet.create({
     borderColor: Colors[theme].border, // #6d0d61
     borderRadius: 8,
     justifyContent: 'center',
+    backgroundColor: Colors[theme].buttonBackground,
   },
   picker: {
     width: '100%',
@@ -70,14 +71,16 @@ export const homeStyles = (theme = 'light') => StyleSheet.create({
     backgroundColor: Colors[theme].buttonBackground, // #6d0d61
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
-    borderColor: Colors[theme].border, // #6d0d61
+    borderWidth: 2, // Cercle extérieur noir
+    borderColor: 'black', // Noir pour le cercle extérieur
   },
   recordInnerWhite: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: Colors[theme].buttonBackground, // #6d0d61
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: '#d3d3d3', // Gris pour le cercle intérieur
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   recordInnerRed: {
     width: 30,
