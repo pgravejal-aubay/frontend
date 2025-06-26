@@ -14,9 +14,9 @@ export const Colors = {
     icon: '#687076', // Conserver
     tabIconDefault: '#687076', // Conserver
     tabIconSelected: '#007AFF', // Conserver
-    buttonBackground: '#eb76c7', // Violet foncé pour boutons
-    border: '#eb76c7', // Violet foncé pour bordures
-    cardBackground: '#eb76c7', // Violet foncé pour encadrés
+    buttonBackground: '#ed9bd4', // Violet foncé pour boutons
+    border: '#ed9bd4', // Violet foncé pour bordures
+    cardBackground: '#ed9bd4', // Violet foncé pour encadrés
   },
   dark: {
     text: '#6d0d61', // Rose pour textes
@@ -25,8 +25,8 @@ export const Colors = {
     icon: '#98a0a6', // Conserver
     tabIconDefault: '#98a0a6', // Conserver
     tabIconSelected: '#007AFF', // Conserver
-    buttonBackground: '#eb76c7', // Violet foncé pour boutons
-    border: '#eb76c7', // Violet foncé pour bordures
-    cardBackground: '#eb76c7', // Violet foncé pour encadrés
+    buttonBackground: '#ed9bd4', // Violet foncé pour boutons
+    border: '#ed9bd4', // Violet foncé pour bordures
+    cardBackground: '#ed9bd4', // Violet foncé pour encadrés
   },
 };
