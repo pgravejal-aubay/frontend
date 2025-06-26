@@ -6,7 +6,7 @@ import {
   Text, 
   TouchableOpacity, 
   SafeAreaView,
-  Alert // On le garde au cas où, mais on ne l'utilise plus pour ce bouton
+  Alert
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -19,9 +19,7 @@ export default function CoverScreen() {
     navigation.navigate('Login');
   };
 
-  // --- MODIFICATION ICI ---
   const handleContinueWithoutAccount = () => {
-    // On remplace l'alerte par la navigation directe vers la page Vidéo
     navigation.navigate('HomeScreen');
   };
 
