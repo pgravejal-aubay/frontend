@@ -11,7 +11,7 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { signIn } = useContext(AuthContext); // Get signIn from context
+  const { signIn, textSize } = useContext(AuthContext); // Get signIn from context
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -32,8 +32,8 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={authStyles.container}>
-      <Text style={authStyles.title}>Login</Text>
-      {error ? <Text style={authStyles.errorText}>{error}</Text> : null}
+      <Text style={[authStyles.title, { fontSize: 28 + textSize }]}>Login</Text>
+      {error ? <Text style={[authStyles.errorText, { fontSize: 16 + textSize }]}>{error}</Text> : null}
       <TextInput
         style={authStyles.input}
         placeholder="Username"
@@ -52,7 +52,7 @@ export default function LoginScreen({ navigation }) {
         <Button title={loading ? "Logging in..." : "Login"} onPress={handleLogin} disabled={loading} />
       </View>
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={authStyles.linkButtonText}>Don't have an account? Register</Text>
+        <Text style={[authStyles.linkButtonText, { fontSize: 14 + textSize }]}>Don't have an account? Register</Text>
       </TouchableOpacity>
     </View>
   );

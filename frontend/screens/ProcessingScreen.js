@@ -1,16 +1,18 @@
 // screens/ProcessingScreen.js
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useContext } from 'react';
 import { View, Text, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { checkTaskStatus, cancelTask } from '../services/uploadService';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
+import { AuthContext } from '../contexts/AuthContext';
 
 import { processingStyles as styles } from '../styles/processingStyles';
 
 const ProcessingScreen = ({ route, navigation }) => {
     const { taskId } = route.params;
     const intervalRef = useRef(null);
+    const { textSize } = useContext(AuthContext);
 
     const [fontsLoaded] = useFonts({
         'SpaceMono-Regular': require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -87,7 +89,7 @@ const ProcessingScreen = ({ route, navigation }) => {
 
             <View style={styles.content}>
                 <ActivityIndicator size="large" color="#555" style={{ marginBottom: 40 }} />
-                <Text style={styles.titleText}>
+                <Text style={[styles.titleText, { fontSize: 32 + textSize }]}>
                     Génération de la{'\n'}
                     traduction en cours...
                 </Text>
