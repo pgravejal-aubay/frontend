@@ -24,7 +24,7 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    CORS(app) # Enable CORS for all routes, or specify origins
+    CORS(app) 
 
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -37,7 +37,15 @@ def create_app(config_class=Config):
 
     with app.app_context():
         from . import ai_pipeline
+        from .pipeline_v2 import pipeline_v2_orchestrator # New import
+        
+        print("Loading Pipeline V1 models...")
         ai_pipeline.load_models()
+        print("Pipeline V1 models loaded.")
+
+        print("Loading Pipeline V2 models...")
+        pipeline_v2_orchestrator.load_v2_models() # Load V2 models
+        print("Pipeline V2 models loaded.")
 
     @app.route('/hello')
     def hello():
