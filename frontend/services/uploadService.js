@@ -20,8 +20,7 @@ const copyToCache = async (video) => {
   return destPath;
 };
 
-// Modified to include pipelineChoice
-export const local_video = async (videoAsset, pipelineChoice = 'v1') => {
+export const local_video = async (videoAsset, targetLanguage, pipelineChoice = 'v1') => {
   const apiUrl = getApiUrl('/video/upload');
   const headers = await getAuthHeaders(); // Ensure this correctly gets the token
 
@@ -33,6 +32,8 @@ export const local_video = async (videoAsset, pipelineChoice = 'v1') => {
     name: videoAsset.name || `video-${Date.now()}.${fileUri.split('.').pop()}`,
     type: videoAsset.mimeType || 'video/mp4', // Ensure mimeType is passed or default
   });
+  formData.append('targetLang', targetLanguage);
+  // Axios automatically handles Content-Type for FormData
   formData.append('pipeline_choice', pipelineChoice); // Send the choice
 
   console.log(`Uploading video for pipeline: ${pipelineChoice}`);

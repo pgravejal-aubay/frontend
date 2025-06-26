@@ -1,6 +1,8 @@
 # backend/app/tasks.py
 import os
 import cv2
+from .ai_pipeline import run_translation_pipeline, TaskCancelledError
+from flask import current_app
 import shutil
 from flask import current_app # Used for logging or accessing app config if needed, not strictly for paths here
 
@@ -18,7 +20,9 @@ tasks = {} # This dictionary will store the status of ongoing tasks
 # instance/uploads/<task_id>/video.mp4
 # So, os.path.dirname(video_path) will give the task-specific temp directory.
 
-def translate_video_task(task_id: str, video_path: str):
+tasks = {}
+UPLOAD_FOLDER = 'uploads'
+def translate_video_task(task_id: str, video_path: str,targetLang: str):
     """
     Runs the complete Pipeline V1: frame extraction THEN translation.
     """
@@ -32,8 +36,8 @@ def translate_video_task(task_id: str, video_path: str):
     task['status'] = 'processing'
     
     # task_temp_dir is the unique directory for this specific task's files
-    # e.g., instance/uploads/<task_id>/
     task_temp_dir = os.path.dirname(video_path)
+    cancellation_checker = lambda: task.get('cancel_requested', False)
     
     # Frames for Pipeline V1 will be stored in a 'frames' subdirectory within the task_temp_dir
     frames_dir_v1 = os.path.join(task_temp_dir, 'frames_v1') # Make it explicit for V1
@@ -45,6 +49,9 @@ def translate_video_task(task_id: str, video_path: str):
         success, image = vidcap.read()
         count = 0
         while success:
+            if cancellation_checker():
+                raise TaskCancelledError("Cancelled during frame extraction.")
+            
             cv2.imwrite(os.path.join(frames_dir_v1, f"frame{count:05d}.jpg"), image)
             success, image = vidcap.read()
             count += 1
@@ -54,14 +61,17 @@ def translate_video_task(task_id: str, video_path: str):
         
         print(f"Task {task_id} (V1): Successfully extracted {count} frames to {frames_dir_v1}")
 
-        # Call Pipeline V1's translation function
-        translated_text = run_translation_pipeline(frames_dir_v1, task_temp_dir)
+        result = run_translation_pipeline(frames_dir_v1, task_temp_dir, targetLang, cancellation_checker)
 
         task['status'] = 'completed'
-        task['result'] = {
-            'translated_text': translated_text
-        }
-        print(f"✅ Pipeline V1 Processing completed for task {task_id}. Result: '{translated_text}'")
+        task['result'] = result
+        print(f"✅ Pipeline V1 Processing completed for task {task_id}. Result: '{result}'")
+
+    except TaskCancelledError:
+        task['status'] = 'cancelled'
+        print(f"🛑 Task {task_id} was cancelled by the user.")
+        # Call Pipeline V1's translation function
+
 
     except Exception as e:
         task['status'] = 'failed'
@@ -70,7 +80,6 @@ def translate_video_task(task_id: str, video_path: str):
         # current_app.logger.error(f"Pipeline V1 Processing FAILED for task {task_id}: {e}", exc_info=True)
         
     finally:
-        # Clean up the specific temporary directory for this task
         try:
             if os.path.exists(task_temp_dir):
                  shutil.rmtree(task_temp_dir)

@@ -5,6 +5,7 @@ import threading
 import uuid
 from app.tasks import tasks, translate_video_task, translate_video_task_v2 # Import both tasks
 from app.auth import token_required
+import shutil
 
 bp = Blueprint('video', __name__)
 
@@ -21,10 +22,14 @@ def upload_video(current_user):
             return jsonify({'message': 'No video file part in the request'}), 400
         
         file = request.files['video']
+        target_lang = request.form.get('targetLang') 
         pipeline_choice = request.form.get('pipeline_choice', 'v1') # Default to v1
 
         if file.filename == '':
             return jsonify({'message': 'No selected file'}), 400
+        
+        if target_lang == '':
+            return jsonify({'message': 'No target language'}),400
 
         if file:
             task_id = str(uuid.uuid4())
@@ -48,7 +53,7 @@ def upload_video(current_user):
                 thread = threading.Thread(target=translate_video_task_v2, args=(task_id, file_path))
                 print(f"Starting Pipeline V2 for task {task_id}")
             else: # Default or 'v1'
-                thread = threading.Thread(target=translate_video_task, args=(task_id, file_path))
+                thread = threading.Thread(target=translate_video_task, args=(task_id, file_path, target_lang))
                 print(f"Starting Pipeline V1 for task {task_id}")
             thread.start()
 
