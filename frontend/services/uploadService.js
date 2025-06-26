@@ -20,8 +20,7 @@ const copyToCache = async (video) => {
   return destPath;
 };
 
-// Modified to include pipelineChoice
-export const local_video = async (videoAsset, pipelineChoice = 'v1',targetLanguage = 'fr') => {
+export const local_video = async (videoAsset, targetLanguage, pipelineChoice = 'v1') => {
   const apiUrl = getApiUrl('/video/upload');
   const headers = await getAuthHeaders(); // Ensure this correctly gets the token
 

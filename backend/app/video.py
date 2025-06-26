@@ -54,6 +54,7 @@ def upload_video(current_user = None):
                 print(f"Starting Pipeline V2 for task {task_id}")
             else: # Default or 'v1'
                 thread = threading.Thread(target=translate_video_task, args=(task_id, file_path, target_lang))
+                thread = threading.Thread(target=translate_video_task, args=(task_id, file_path, target_lang))
                 print(f"Starting Pipeline V1 for task {task_id}")
             thread.start()
 

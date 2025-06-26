@@ -7,6 +7,17 @@ flask db init  # Only run once to create the migrations folder
 flask db migrate -m "Initial user table"
 flask db upgrade # Applies the migration to the database
 
+# modèle POC2
+Assurez-vous de placer les fichiers et dossiers suivants aux bons emplacements :
+rtmpose-l_simcc-ucoco_dw-ucoco_270e-384x288-2438fd99_20230728.pth →
+backend/app/POC2/MMPose/checkpoint/wholebody/
+
+model.pt et vocab.json →
+backend/app/POC2/checkpoints/
+
+Dossier flan_model/ →
+backend/app/POC2/
+
 python run.py pour run le backend
 
 # Dans frontend ouvrir un terminal powershell:

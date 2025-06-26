@@ -18,19 +18,13 @@ const ProcessingScreen = ({ route, navigation }) => {
         'SpaceMono-Regular': require('../assets/fonts/SpaceMono-Regular.ttf'),
     });
 
-    // --- C'EST LA SEULE FONCTION QUI A ÉTÉ MODIFIÉE ---
     const handleCancel = () => {
-        // 1. On arrête de contacter le serveur pour vérifier le statut.
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
         }
 
-        // 2. On navigue IMMÉDIATEMENT vers la page vidéo.
         navigation.navigate('Home');
 
-        // 3. On tente d'annuler la tâche sur le serveur en arrière-plan,
-        //    sans que l'utilisateur ait à attendre ou voir un message.
-        //    C'est une action de type "tire et oublie".
         cancelTask(taskId).catch(error => {
             console.error("Échec de l'annulation de la tâche en arrière-plan :", error);
         });
@@ -39,12 +33,16 @@ const ProcessingScreen = ({ route, navigation }) => {
     const pollStatus = async () => {
         try {
             const response = await checkTaskStatus(taskId);
-
             if (response.status === 'completed') {
                 clearInterval(intervalRef.current);
-                const translatedResult = response.result.translated_text;
+                console.log("DEBUG RESPONSE: ", response);
+                
+                const result = response.result; 
                 navigation.replace('Translation', {
-                    translatedText: translatedResult,
+                    originalText: result.original_text,
+                    translatedText: result.translated_text,
+                    sourceLang: "German", // La langue source est fixe
+                    targetLang: result.target_lang,
                 });
             } else if (response.status === 'failed' || response.status === 'cancelled') {
                 clearInterval(intervalRef.current);
