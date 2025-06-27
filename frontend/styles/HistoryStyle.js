@@ -19,6 +19,7 @@ export const styles = (theme = 'light') => StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 20,
+    backgroundColor: '#ffffff',
   },
   activeTab: {
     backgroundColor: Colors[theme].buttonBackground, // #6d0d61
@@ -37,10 +38,16 @@ export const styles = (theme = 'light') => StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     borderRadius: 8,
+    elevation: 2,
   },
   languageText: {
     fontSize: 14,
     color: Colors[theme].text, // #eb76c7
+  },
+  originalText: {
+    fontSize: 16,
+    color: Colors[theme].text, // #6d0d61 (violet)
+    marginBottom: 5,
   },
   translationText: {
     fontSize: 18,
