@@ -3,6 +3,7 @@ import os
 import glob
 import numpy as np
 import torch
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from mmpose.apis import inference_topdown, init_model
 from mmpose.structures import merge_data_samples
 
@@ -11,6 +12,21 @@ from .POC2.translate_glosses import GlossTranslator
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__)) 
 POC2_DIR = os.path.join(APP_DIR, 'POC2')
+model_name = "facebook/nllb-200-distilled-600M"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+class TaskCancelledError(Exception):
+    pass
+
+# Dictionnaire de correspondance des langues (codes ISO NLLB)
+lang_codes = {"fr": "fra_Latn","en": "eng_Latn","de": "deu_Latn","es": "spa_Latn"}
+
+targetLangMapping = {
+    "fr": "Français",
+    "en": "English",
+    "de": "German",
+}
 
 # Dictionary to hold pre-loaded models
 MODELS = {}
@@ -26,7 +42,7 @@ def load_models():
     print(f"Keypoint extractor loaded.")
     
     ctc_model_config = {
-        'input_dim': 369, # Mettez une valeur fixe, car elle sera la même pour toutes les vidéos
+        'input_dim': 369,
         'cnn_output_dim': 512, 'lstm_hidden_dim': 384, 'num_encoder_layers': 3,
         'cnn_block_dims': [128, 256, 512], 'cnn_num_blocks': [2, 2, 2],
         'cnn_kernel_size': 5, 'cnn_dropout_rate': 0.2, 'bilstm_dropout': 0.4,
@@ -43,7 +59,7 @@ def load_models():
     print(f"Gloss Translator loaded.")
 
 
-def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str) -> str:
+def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str, targetLang: str, cancellation_check: callable) -> dict:
     """
     Runs the complete pipeline on a sequence of frames.
     Args:
@@ -63,6 +79,8 @@ def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str) -> str:
     keypoints_sequence = []
     model = MODELS['keypoint_extractor']
     for img_path in image_paths:
+        if cancellation_check():
+            raise TaskCancelledError("Cancellation detected before gloss prediction.")
         batch_results = inference_topdown(model, img_path)
         results = merge_data_samples(batch_results)
         if hasattr(results, 'pred_instances') and results.pred_instances is not None:
@@ -92,23 +110,38 @@ def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str) -> str:
     features = normalized_tensor.cpu().numpy()
     np.save(keypoints_output_file, features.reshape(T, -1))
     print(f"   Keypoints saved to {keypoints_output_file}")
-
+    if cancellation_check():
+        raise TaskCancelledError("Cancellation detected before gloss prediction.")
     print("2. Generating gloss predictions (CTC)")
     _, input_dim = np.load(keypoints_output_file).shape
-    # predicted_glosses = generate_ctc_predictions(
-    #     features_path=keypoints_output_file,
-    #     model_path=os.path.join(POC2_DIR, "checkpoints/model.pt"),
-    #     input_dim=input_dim,
-    #     cnn_output_dim=512, lstm_hidden_dim=384, num_encoder_layers=3
-    # )
+
     predicted_glosses = MODELS['ctc_predictor'].predict(features_path=keypoints_output_file)
     print(f"   Predicted glosses: '{predicted_glosses}'")
-
     print("3. Translating glosses to text")
-    # final_text = translate_gloss_to_text(
-    #     gloss_sequence=predicted_glosses,
-    #      model_dir=os.path.join(POC2_DIR, "flan_model"),
-    # )
-    final_text = MODELS['gloss_translator'].translate(gloss_sequence=predicted_glosses)
+    original_text = MODELS['gloss_translator'].translate(gloss_sequence=predicted_glosses)
+    print(f"   Original text: '{original_text}'")
+    print("4. Translating to target language")
+    final_text = text_translation(original_text,targetLang)
     print(f"   Final translated text: '{final_text}'")
-    return final_text
+    targetLang = targetLangMapping.get(targetLang, targetLang)
+    return {
+        "original_text": original_text,
+        "translated_text": final_text,
+        "target_lang": targetLang,
+    }
+
+def text_translation(text, target_lang):
+    if target_lang not in lang_codes:
+        raise ValueError("Language not support.")
+    if target_lang == "de":
+        return text
+    source_lang = "deu_Latn"  # Texte source en allemand
+    target_lang_code = lang_codes[target_lang]
+    tokenizer.src_lang = source_lang
+    encoded = tokenizer(text, return_tensors="pt")
+    generated_tokens = model.generate(
+        **encoded,
+        forced_bos_token_id=tokenizer.convert_tokens_to_ids(target_lang_code)
+    )
+    translated = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
+    return translated[0]

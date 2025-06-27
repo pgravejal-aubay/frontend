@@ -1,19 +1,21 @@
 // frontend/services/authService.js
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { counterEvent } from 'react-native/Libraries/Performance/Systrace';
 
 
 // frontend/services/authService.js
 const API_URL = 'http://10.0.2.2:5000/auth';
 const API_GENERAL_URL = 'http://10.0.2.2:5000/api';
 
-export const register = async (prenom, nom, email, password) => {
+export const register = async (name, surname, email, password, confirmPassword) => {
   try {
     const response = await axios.post(`${API_URL}/register`, {
-      prenom,
-      nom,
+      name,
+      surname,
       email,
       password,
+      confirmPassword,
     });
     return response.data;
   } catch (error) {
@@ -21,15 +23,21 @@ export const register = async (prenom, nom, email, password) => {
   }
 };
 
-export const login = async (username, password) => {
+
+export const isLoggedIn = async () => {
+  const token = await AsyncStorage.getItem('userToken');
+  return !!token; // retourne true si le token existe, false sinon
+};
+
+export const login = async (email, password) => {
   try {
     const response = await axios.post(`${API_URL}/login`, {
-      username,
+      email,
       password,
     });
     if (response.data.token) {
       await AsyncStorage.setItem('userToken', response.data.token);
-      await AsyncStorage.setItem('userData', JSON.stringify({username: response.data.username, email: response.data.email}));
+      await AsyncStorage.setItem('userData', JSON.stringify({name: response.data.name, email: response.data.email}));
     }
     return response.data;
   } catch (error)
@@ -42,6 +50,29 @@ export const logout = async () => {
   await AsyncStorage.removeItem('userToken');
   await AsyncStorage.removeItem('userData');
 };
+
+export const supression = async () => {
+  try{
+
+    const userDataString = await AsyncStorage.getItem('userData');
+    if (!userDataString) {
+      console.error("userData est vide ou non trouvé");
+      throw new Error("Données utilisateur manquantes");
+    }
+
+    const userData = JSON.parse(userDataString);
+    const email = userData.email;
+    console.log(email)
+    const response = await axios.post(`${API_URL}/delete`, {
+      email,
+    });
+    console.log("sdfgh")
+    return response.data;
+  } catch (error)
+   {
+    throw error.response?.data || { message: 'Account deletion failed'};
+   }
+}
 
 export const getToken = async () => {
   return await AsyncStorage.getItem('userToken');

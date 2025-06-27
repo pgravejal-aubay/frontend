@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, ActivityIndicator, Text } from 'react-native';
 
-// --- Import de tous les écrans (sans doublons) ---
+// --- Import de tous les écrans ---
 import CoverScreen from './screens/CoverScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
@@ -14,11 +14,12 @@ import ProcessingScreen from './screens/ProcessingScreen';
 import TranslationScreen from './screens/TranslationScreen'; 
 import SettingsScreen from './screens/SettingsScreen';
 import HistoryScreen from './screens/HistoryScreen';
+
+// --- Import des services et contextes ---
 import { getToken, logout } from './services/authService';
 import { AuthContext } from './contexts/AuthContext';
-
-// --- Ecrans temporaires (placeholders) ---
-//const HistoryScreen = () => <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}><Text>Page Historique</Text></View>;
+// <<< AJOUT : Importer le nouveau SettingsProvider >>>
+import { SettingsProvider } from './contexts/SettingsContext';
 
 const Stack = createStackNavigator();
 
@@ -32,11 +33,13 @@ export default function App() {
           return { ...prevState, isSignout: false, userToken: action.token, isLoading: false };
         case 'SIGN_OUT':
           return { ...prevState, isSignout: true, userToken: null, isLoading: false };
+        case 'SET_TEXT_SIZE_OFFSET':
+          return { ...prevState, textSize : action.offset };
         default:
           return prevState;
       }
     },
-    { isLoading: true, isSignout: false, userToken: null }
+    { isLoading: true, isSignout: false, userToken: null, textSize : 0 }
   );
 
   useEffect(() => {
@@ -63,8 +66,10 @@ export default function App() {
         dispatch({ type: 'SIGN_OUT' });
       },
       signUp: async (data) => { /* Placeholder */ },
+      setTextSize: (offset) => dispatch({ type: 'SET_TEXT_SIZE_OFFSET', offset }),
+      textSize: state.textSize, // Expose l'offset de taille
     }),
-    []
+    [state.textSize]
   );
 
   if (state.isLoading) {
@@ -77,34 +82,39 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={authContext}>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {state.userToken == null ? (
-            // Ecrans si l'utilisateur N'EST PAS connecté
-            <>
-              <Stack.Screen name="Cover" component={CoverScreen} />
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="Register" component={RegisterScreen} />
-              
-              {/* --- MODIFICATION ICI --- */}
-              {/* On rend la page Vidéo accessible même si on n'est pas connecté */}
-              <Stack.Screen name="Video" component={HomeScreen} />
-            </>
-          ) : (
-            // Ecrans si l'utilisateur EST connecté
-            <>
-              {/* Le flux normal commencera sur la page Vidéo */}
-              <Stack.Screen name="Home" component={HomeScreen} />
-              
-              {/* Toutes les autres pages de l'application sont déclarées ici */}
-              <Stack.Screen name="Processing" component={ProcessingScreen} />
-              <Stack.Screen name="Translation" component={TranslationScreen} />
-              <Stack.Screen name="Settings" component={SettingsScreen} />
-              <Stack.Screen name="History" component={HistoryScreen} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
+      <SettingsProvider>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {state.userToken == null ? (
+              // Ecrans si l'utilisateur N'EST PAS connecté
+              <>
+                <Stack.Screen name="Cover" component={CoverScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Register" component={RegisterScreen} />
+                <Stack.Screen name="Processing" component={ProcessingScreen} />
+                <Stack.Screen name="Translation" component={TranslationScreen} />
+                
+                {/* --- MODIFICATION ICI --- */}
+                {/* On rend la page Vidéo accessible même si on n'est pas connecté */}
+                <Stack.Screen name="Home" component={HomeScreen} />
+              </>
+            ) : (
+              // Ecrans si l'utilisateur EST connecté
+              <>
+                {/* Le flux normal commencera sur la page Vidéo */}
+                <Stack.Screen name="Home" component={HomeScreen} />
+                
+                {/* Toutes les autres pages de l'application sont déclarées ici */}
+                <Stack.Screen name="Processing" component={ProcessingScreen} />
+                <Stack.Screen name="Translation" component={TranslationScreen} />
+                <Stack.Screen name="Settings" component={SettingsScreen} />
+                <Stack.Screen name="History" component={HistoryScreen} />
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SettingsProvider>
     </AuthContext.Provider>
   );
+
 }
