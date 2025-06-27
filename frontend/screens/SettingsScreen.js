@@ -83,6 +83,14 @@ const SettingsScreen = () => {
                   thumbColor={'#f4f3f4'}
                 />
               )}
+              {item.type === 'switch' && item.label === 'Historique' && (
+                <Switch
+                  defaultChecked={item.defaultChecked}
+                  trackColor={{ false: '#767577', true: '#6750a4' }}
+                  thumbColor={item.defaultChecked ? '#f4f3f4' : '#f4f3f4'}
+                />
+              )}
+
                   {item.type === 'size-control' && (
                   <View style={styles(theme).sizeControl}>
                     <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
