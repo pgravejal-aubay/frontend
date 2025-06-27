@@ -5,11 +5,25 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform,Alert } from 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { supression,isLoggedIn } from '../services/authService'
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
+import { SettingsContext } from '../contexts/SettingsContext';
+
+
 
 
 export default function AppHeader() {
     const navigation = useNavigation();
     const [isProfileModalVisible, setProfileModalVisible] = useState(false);
+    const {
+        voice, setVoice,
+        speechRate, setSpeechRate,
+        availableVoices,
+        theme, setTheme
+      } = useContext(SettingsContext);
+    
+      const currentTheme = theme ?? useColorScheme();
+      const themedStyles = styles(currentTheme);
 
     const { signOut } = useContext(AuthContext);
     const handleLogout = async () => {
@@ -78,7 +92,7 @@ export default function AppHeader() {
             {/* La modale reste inchangée */}
             <Modal animationType="fade" transparent={true} visible={isProfileModalVisible} onRequestClose={() => setProfileModalVisible(false)}>
                 <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={() => setProfileModalVisible(false)}>
-                    <View style={styles.modalView}>
+                    <View style={themedStyles.modalView}>
                         <TouchableOpacity style={styles.modalButton} onPress={handleLogout}><Text style={styles.modalButtonText}>Déconnexion</Text></TouchableOpacity>
                         <View style={styles.modalSeparator} />
                         <TouchableOpacity style={styles.modalButton} onPress={handleDeleteAccount}><Text style={[styles.modalButtonText, { color: 'red' }]}>Supprimer le compte</Text></TouchableOpacity>
@@ -87,27 +101,27 @@ export default function AppHeader() {
             </Modal>
 
             {/* L'en-tête JSX mis à jour */}
-            <View style={styles.header}>
+            <View style={themedStyles.header}>
                 {/* ===== CHANGEMENT ICI : NOUVEAU GROUPE POUR LES ICÔNES DE GAUCHE ===== */}
-                <View style={styles.headerLeft}>
+                <View style={themedStyles.headerLeft}>
                     <TouchableOpacity onPress={() => setProfileModalVisible(true)}>
-                        <Icon name="person-outline" size={32} color="black" />
+                        <Icon name="person-outline" size={32} color={Colors[currentTheme].text} /> 
                     </TouchableOpacity>
 
                     {/* ===== AJOUT DU BOUTON HOME ===== */}
                     <TouchableOpacity style={{ marginLeft: 16 }} onPress={() => navigation.navigate('Home')}>
                         {/* L'icône pour la maison dans MaterialIcons est "home" ou "home-outline" */}
-                        <Icon name="home" size={32} color="black" />
+                        <Icon name="home" size={32} color={Colors[currentTheme].text} />
                     </TouchableOpacity>
                 </View>
 
                 {/* La partie droite de l'en-tête reste inchangée */}
-                <View style={styles.headerRight}>
+                <View style={themedStyles.headerRight}>
                     <TouchableOpacity onPress={goHistory}>
-                        <Icon name="bookmark-border" size={32} color="black" />
+                        <Icon name="bookmark-border" size={32} color={Colors[currentTheme].text} />
                     </TouchableOpacity>
                     <TouchableOpacity style={{ marginLeft: 16 }} onPress={goSettings}>
-                        <Icon name="settings" size={32} color="black" />
+                        <Icon name="settings" size={32} color={Colors[currentTheme].text} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -116,7 +130,7 @@ export default function AppHeader() {
 }
 
 // Les styles mis à jour
-const styles = StyleSheet.create({
+const styles = (theme = 'light') => StyleSheet.create({
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -124,9 +138,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: Platform.OS === 'android' ? 50 : 60,
         paddingBottom: 10,
-        backgroundColor: '#fff',
+        backgroundColor: Colors[theme].background,
     },
-    // ===== CHANGEMENT ICI : AJOUT D'UN STYLE POUR LE GROUPE DE GAUCHE =====
     headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -135,7 +148,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    // Le reste des styles de la modale reste inchangé
     modalBackdrop: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.3)',
@@ -155,3 +167,4 @@ const styles = StyleSheet.create({
     modalButtonText: { fontSize: 16 },
     modalSeparator: { height: 1, backgroundColor: '#E0E0E0', marginVertical: 4 },
 });
+

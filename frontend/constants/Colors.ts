@@ -14,13 +14,21 @@ export const Colors = {
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+    buttonBackground: '#ed9bd4', // Violet foncé pour boutons
+    border: '#ed9bd4', // Violet foncé pour bordures
+    cardBackground: '#ed9bd4', // Violet foncé pour encadrés
+
   },
   dark: {
-    text: '#ECEDEE',
+    text: '#FFFFFF',
     background: '#151718',
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    buttonBackground: '#ed9bd4', // Violet foncé pour boutons
+    border: '#ed9bd4', // Violet foncé pour bordures
+    cardBackground: '#ed9bd4', // Violet foncé pour encadrés
+
   },
 };

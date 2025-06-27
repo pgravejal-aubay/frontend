@@ -1,9 +1,11 @@
 // frontend/screens/HistoryScreen.js
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AppHeader from '../components/AppHeaders';
 import { styles } from '../styles/HistoryStyle';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { SettingsContext } from '../contexts/SettingsContext';
 
 import { getHistory, getSavedTranslations } from '../services/storageService';
 
@@ -13,6 +15,15 @@ const capitalize = (s) => {
 }
 
 const HistoryScreen = ({ navigation }) => {
+  const {
+          voice, setVoice,
+          speechRate, setSpeechRate,
+          availableVoices,
+          theme, setTheme
+        } = useContext(SettingsContext);
+      
+  const currentTheme = theme ?? useColorScheme();
+  const themedStyles = styles(currentTheme);
   const [activeTab, setActiveTab] = useState('Historique');
   
   const [historyItems, setHistoryItems] = useState([]);
@@ -34,8 +45,8 @@ const HistoryScreen = ({ navigation }) => {
   const renderList = (items) => {
     if (items.length === 0) {
       return (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>
+        <View style={themedStyles.emptyState}>
+          <Text style={themedStyles.emptyText}>
             {activeTab === 'Historique' 
               ? 'Votre historique est vide.' 
               : "Aucun enregistrement pour l'instant."}
@@ -45,35 +56,35 @@ const HistoryScreen = ({ navigation }) => {
     }
 
     return items.map((item) => (
-      <View key={item.id} style={styles.itemContainer}>
-        <Text style={styles.languageText}>
+      <View key={item.id} style={themedStyles.itemContainer}>
+        <Text style={themedStyles.languageText}>
           {capitalize(item.sourceLang)} {'->'} {capitalize(item.targetLang)}
         </Text>
-        <Text style={styles.originalText}>{item.originalText}</Text>
-        <Text style={styles.translationText}>{item.translatedText}</Text>
+        <Text style={themedStyles.originalText}>{item.originalText}</Text>
+        <Text style={themedStyles.translationText}>{item.translatedText}</Text>
       </View>
     ));
   };
 
 
   return (
-    <View style={styles.container}>
+    <View style={themedStyles.container}>
       <AppHeader />
-      <View style={styles.tabContainer}>
+      <View style={themedStyles.tabContainer}>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'Historique' && styles.activeTab]}
+          style={[themedStyles.tab, activeTab === 'Historique' && themedStyles.activeTab]}
           onPress={() => setActiveTab('Historique')}
         >
-          <Text style={styles.tabText}>Historique</Text>
+          <Text style={themedStyles.tabText}>Historique</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'Enregistrés' && styles.activeTab]}
+          style={[themedStyles.tab, activeTab === 'Enregistrés' && themedStyles.activeTab]}
           onPress={() => setActiveTab('Enregistrés')}
         >
-          <Text style={styles.tabText}>Enregistrés</Text>
+          <Text style={themedStyles.tabText}>Enregistrés</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.content}>
+      <ScrollView style={themedStyles.content}>
         {activeTab === 'Historique' && renderList(historyItems)}
         {activeTab === 'Enregistrés' && renderList(savedItems)}
       </ScrollView>

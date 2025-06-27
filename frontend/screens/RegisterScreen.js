@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView, Platform, ActivityIndicator, Pressable, StatusBar, Alert
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-
 // On utilise toujours le même fichier de style, c'est parfait
 import { authStyles as styles } from '../styles/authStyles';
 import { register } from '../services/authService';
@@ -18,7 +17,7 @@ export default function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
+  const themedStyles = styles('light');
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,63 +46,63 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={themedStyles.screen}>
       <StatusBar barStyle="dark-content" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardAvoidingContainer}
+        style={themedStyles.keyboardAvoidingContainer}
       >
-        <ScrollView contentContainerStyle={styles.scrollableContainer} showsVerticalScrollIndicator={false}>
-            <Text style={[styles.title, { fontSize: 28 + textSize}]}>Création de compte</Text>
+        <ScrollView contentContainerStyle={themedStyles.scrollableContainer} showsVerticalScrollIndicator={false}>
+            <Text style={[themedStyles.title, { fontSize: 28 + textSize}]}>Création de compte</Text>
             
-            {error ? <Text style={[styles.errorText, { fontSize: 16 + textSize}]}>{error}</Text> : null}
+            {error ? <Text style={[themedStyles.errorText, { fontSize: 16 + textSize}]}>{error}</Text> : null}
 
             {/* CHANGEMENT 4: Remplacer le champ 'Nom d'utilisateur' par 'Prénom' et 'Nom' */}
-            <Text style={[styles.label, { fontSize: 14 + textSize}]}>Prénom</Text>
+            <Text style={[themedStyles.label, { fontSize: 14 + textSize}]}>Prénom</Text>
             <TextInput
-              style={styles.input}
+              style={themedStyles.input}
               value={prenom}
               onChangeText={setPrenom}
               autoCapitalize="words" // Met une majuscule au début
             />
 
-            <Text style={[styles.label, { fontSize: 14 + textSize}]}>Nom</Text>
+            <Text style={[themedStyles.label, { fontSize: 14 + textSize}]}>Nom</Text>
             <TextInput
-              style={styles.input}
+              style={themedStyles.input}
               value={nom}
               onChangeText={setNom}
               autoCapitalize="words" // Met une majuscule au début
             />
             
-            <Text style={[styles.label, { fontSize: 14 + textSize}]}>Adresse mail</Text>
-            <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+            <Text style={[themedStyles.label, { fontSize: 14 + textSize}]}>Adresse mail</Text>
+            <TextInput style={themedStyles.input} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
             
-            <Text style={[styles.label, { fontSize: 14 + textSize}]}>Mot de passe</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput style={styles.passwordInput} value={password} onChangeText={setPassword} secureTextEntry={!isPasswordVisible} />
+            <Text style={[themedStyles.label, { fontSize: 14 + textSize}]}>Mot de passe</Text>
+            <View style={themedStyles.passwordContainer}>
+              <TextInput style={themedStyles.passwordInput} value={password} onChangeText={setPassword} secureTextEntry={!isPasswordVisible} />
               <Pressable onPress={() => setPasswordVisible(!isPasswordVisible)}><Icon name={isPasswordVisible ? 'eye' : 'eye-off'} size={22} color="#888" /></Pressable>
             </View>
 
-            <Text style={[styles.label, { fontSize: 14 + textSize}]}>Confirmer le mot de passe</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput style={styles.passwordInput} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
+            <Text style={[themedStyles.label, { fontSize: 14 + textSize}]}>Confirmer le mot de passe</Text>
+            <View style={themedStyles.passwordContainer}>
+              <TextInput style={themedStyles.passwordInput} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={!isConfirmPasswordVisible} />
               <Pressable onPress={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}><Icon name={isConfirmPasswordVisible ? 'eye' : 'eye-off'} size={22} color="#888" /></Pressable>
             </View>
 
-            <View style={styles.legalRow}>
-              <Text style={[styles.legalText, { fontSize: 12 + textSize}]}>et notre </Text>
+            <View style={themedStyles.legalRow}>
+              <Text style={[themedStyles.legalText, { fontSize: 12 + textSize}]}>et notre </Text>
               <TouchableOpacity onPress={openLink}>
-                <Text style={[styles.legalLink, { fontSize: 12 + textSize}]}>Politique de confidentialité</Text>
+                <Text style={[themedStyles.legalLink, { fontSize: 12 + textSize}]}>Politique de confidentialité</Text>
               </TouchableOpacity>
-              <Text style={[styles.legalText, { fontSize: 12 + textSize}]}>.</Text>
+              <Text style={[themedStyles.legalText, { fontSize: 12 + textSize}]}>.</Text>
             </View>
 
-            <TouchableOpacity style={styles.primaryButton} onPress={handleRegister} disabled={loading}>
-              {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.primaryButtonText}>S'inscrire</Text>}
+            <TouchableOpacity style={themedStyles.primaryButton} onPress={handleRegister} disabled={loading}>
+              {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={themedStyles.primaryButtonText}>S'inscrire</Text>}
             </TouchableOpacity>
 
             <Pressable style={{ marginTop: 20, alignItems: 'center' }} onPress={() => navigation.navigate('Login')}>
-              <Text style={[styles.subtitleText, { fontSize: 14 + textSize }]}>Déjà un compte ? <Text style={[styles.subtitleLink, { fontSize: 14 + textSize }]}>Se connecter</Text></Text>
+              <Text style={[themedStyles.subtitleText, { fontSize: 14 + textSize }]}>Déjà un compte ? <Text style={[themedStyles.subtitleLink, { fontSize: 14 + textSize }]}>Se connecter</Text></Text>
             </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>

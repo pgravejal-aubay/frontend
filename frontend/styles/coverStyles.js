@@ -1,26 +1,25 @@
-// styles/coverStyles.js
-
 import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
-export const styles = StyleSheet.create({
+export const coverStyles = (theme = 'light') => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors[theme].background,
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
   buttonContainer: {
     alignItems: 'center',
-    paddingBottom: 200, 
+    paddingBottom: 200,
   },
   loginButton: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors[theme].background,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: Colors[theme].border,
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 40,
-    marginBottom: 40, 
+    marginBottom: 40,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -31,7 +30,7 @@ export const styles = StyleSheet.create({
     elevation: 3,
   },
   loginButtonText: {
-    color: '#333',
+    color: Colors[theme].text,
     fontSize: 16,
     fontWeight: '500',
   },
@@ -39,17 +38,15 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  // --- MODIFICATION ICI ---
   arrowText: {
-    color: '#666',
-    fontSize: 22, // Encore plus grosse ! (de 18 à 22)
+    color: Colors[theme].icon,
+    fontSize: 22,
     fontWeight: 'bold',
     marginRight: 5,
-    // On ajuste la correction verticale car la flèche est plus grande
-    transform: [{ translateY: -2 }], 
+    transform: [{ translateY: -2 }],
   },
   linkText: {
-    color: '#666',
+    color: Colors[theme].icon,
     fontSize: 14,
   },
 });

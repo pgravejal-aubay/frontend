@@ -1,18 +1,18 @@
-// frontend/styles/HistoryStyle.js
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
-export const styles = StyleSheet.create({
+export const styles = (theme = 'light') => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors[theme].background,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 10,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: Colors[theme].cardBackground,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: Colors[theme].border,
   },
   tab: {
     paddingVertical: 8,
@@ -20,29 +20,31 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
   },
   activeTab: {
-    backgroundColor: '#d1c4e9',
+    backgroundColor: Colors[theme].buttonBackground,
   },
   tabText: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: Colors[theme].text,
   },
   content: {
     flex: 1,
     padding: 10,
   },
   itemContainer: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: Colors[theme].cardBackground,
     padding: 10,
     marginBottom: 10,
     borderRadius: 8,
   },
   languageText: {
     fontSize: 14,
-    color: '#757575',
+    color: Colors[theme].icon,
   },
   translationText: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: Colors[theme].text,
   },
   emptyState: {
     flex: 1,
@@ -51,6 +53,6 @@ export const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#757575',
+    color: Colors[theme].icon,
   },
 });

@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView, Platform, ActivityIndicator, Pressable, StatusBar
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-
 // Assurez-vous que ces chemins sont corrects
 import { authStyles as styles } from '../styles/authStyles';
 import { login } from '../services/authService';
@@ -17,7 +16,7 @@ export default function LoginScreen({ navigation }) {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const themedStyles = styles('light');
   const { signIn, textSize } = useContext(AuthContext); // Get signIn from context
 
   const handleLogin = async () => {
@@ -38,28 +37,28 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={themedStyles.screen}>
       <StatusBar barStyle="dark-content" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardAvoidingContainer}
+        style={themedStyles.keyboardAvoidingContainer}
       >
-        <View style={styles.centeredContainer}>
-          <Text style={[styles.title,{ fontSize: 28 + textSize }]}>Connexion au compte</Text>
+        <View style={themedStyles.centeredContainer}>
+          <Text style={[themedStyles.title,{ fontSize: 28 + textSize }]}>Connexion au compte</Text>
           
-          <Pressable style={styles.subtitleContainer} onPress={() => navigation.navigate('Register')}>
-            <Text style={[styles.subtitleText, { fontSize: 14 + textSize }]}>
+          <Pressable style={themedStyles.subtitleContainer} onPress={() => navigation.navigate('Register')}>
+            <Text style={[themedStyles.subtitleText, { fontSize: 14 + textSize }]}>
               → Pas encore de compte ?{' '}
-              <Text style={[styles.subtitleLink,{ fontSize: 14 + textSize }]}>S'inscrire</Text>
+              <Text style={[themedStyles.subtitleLink,{ fontSize: 14 + textSize }]}>S'inscrire</Text>
             </Text>
           </Pressable>
 
-          <View style={styles.card}>
-            {error ? <Text style={[styles.errorText, { fontSize: 16 + textSize }]}>{error}</Text> : null}
+          <View style={themedStyles.card}>
+            {error ? <Text style={[themedStyles.errorText, { fontSize: 16 + textSize }]}>{error}</Text> : null}
             
-            <Text style={styles.label}>Adresse mail</Text>
+            <Text style={themedStyles.label}>Adresse mail</Text>
             <TextInput
-              style={styles.input}
+              style={themedStyles.input}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -67,10 +66,10 @@ export default function LoginScreen({ navigation }) {
               placeholder="exemple@mail.com"
             />
 
-            <Text style={styles.label}>Mot de passe</Text>
-            <View style={styles.passwordContainer}>
+            <Text style={themedStyles.label}>Mot de passe</Text>
+            <View style={themedStyles.passwordContainer}>
               <TextInput
-                style={styles.passwordInput}
+                style={themedStyles.passwordInput}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!isPasswordVisible}
@@ -81,12 +80,12 @@ export default function LoginScreen({ navigation }) {
               </Pressable>
             </View>
             
-            <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} disabled={loading}>
-              {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={[styles.primaryButtonText, { fontSize: 14 + textSize }]}>Connexion</Text>}
+            <TouchableOpacity style={themedStyles.primaryButton} onPress={handleLogin} disabled={loading}>
+              {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={[themedStyles.primaryButtonText, { fontSize: 14 + textSize }]}>Connexion</Text>}
             </TouchableOpacity>
 
             <Pressable onPress={() => navigation.navigate('ForgotPassword')}>
-              <Text style={[styles.secondaryLink, { fontSize: 14 + textSize }]}>Mot de passe oublié ?</Text>
+              <Text style={[themedStyles.secondaryLink, { fontSize: 14 + textSize }]}>Mot de passe oublié ?</Text>
             </Pressable>
           </View>
         </View>

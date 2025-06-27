@@ -1,39 +1,27 @@
-// frontend/styles/authStyles.js
 import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
-const COLORS = {
-  primary: '#2D2D2D',
-  white: '#FFFFFF',
-  lightGray: '#F7F7F7',
-  mediumGray: '#E0E0E0',
-  darkGray: '#666',
-  textPrimary: '#1F1F1F',
-  textSecondary: '#555',
-  error: '#D93025',
-};
-
-export const authStyles = StyleSheet.create({
-  // --- Conteneurs & Layout (LA PARTIE LA PLUS IMPORTANTE) ---
+export const authStyles = (theme = 'light') => StyleSheet.create({
   screen: {
-    flex: 1, // Essentiel : pour que l'écran prenne toute la hauteur
-    backgroundColor: COLORS.lightGray,
+    flex: 1,
+    backgroundColor: Colors[theme].background,
   },
   keyboardAvoidingContainer: {
-    flex: 1, // Essentiel : pour que le conteneur prenne toute la place disponible
+    flex: 1,
   },
   centeredContainer: {
-    flex: 1, // Essentiel : prend toute la hauteur
-    justifyContent: 'center', // Essentiel : Centre le contenu verticalement
+    flex: 1,
+    justifyContent: 'center',
     paddingHorizontal: 20,
   },
   scrollableContainer: {
-    flexGrow: 1, // Permet au contenu de grandir
-    justifyContent: 'center', // Centre le contenu si la page n'est pas assez remplie pour scroller
+    flexGrow: 1,
+    justifyContent: 'center',
     padding: 20,
   },
   card: {
     width: '100%',
-    backgroundColor: COLORS.white,
+    backgroundColor: Colors[theme].cardBackground,
     borderRadius: 12,
     padding: 24,
     shadowColor: '#000',
@@ -43,11 +31,10 @@ export const authStyles = StyleSheet.create({
     elevation: 8,
   },
 
-  // --- Titres & Textes ---
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: Colors[theme].text,
     textAlign: 'center',
     marginBottom: 12,
   },
@@ -57,37 +44,36 @@ export const authStyles = StyleSheet.create({
   },
   subtitleText: {
     fontSize: 16,
-    color: COLORS.darkGray,
+    color: Colors[theme].icon,
   },
   subtitleLink: {
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: Colors[theme].text,
   },
 
-  // --- Formulaire ---
   label: {
     fontSize: 14,
-    color: COLORS.textPrimary,
+    color: Colors[theme].text,
     marginBottom: 8,
     fontWeight: '500',
   },
   input: {
-    backgroundColor: COLORS.white,
+    backgroundColor: Colors[theme].background,
     borderWidth: 1,
-    borderColor: COLORS.mediumGray,
+    borderColor: Colors[theme].border,
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
     marginBottom: 20,
-    color: '#000', // Assure que le texte saisi est noir
+    color: Colors[theme].text,
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: Colors[theme].background,
     borderWidth: 1,
-    borderColor: COLORS.mediumGray,
+    borderColor: Colors[theme].border,
     borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 20,
@@ -96,32 +82,30 @@ export const authStyles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: COLORS.textPrimary,
+    color: Colors[theme].text,
   },
 
-  // --- Boutons & Liens ---
   primaryButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: Colors[theme].text,
     paddingVertical: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 20,
   },
   primaryButtonText: {
-    color: COLORS.white,
+    color: Colors[theme].background,
     fontSize: 16,
     fontWeight: 'bold',
   },
   secondaryLink: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: Colors[theme].icon,
     textAlign: 'center',
     textDecorationLine: 'underline',
   },
 
-  // --- Messages & Indicateurs ---
   errorText: {
-    color: COLORS.error,
+    color: Colors.dark.error ?? '#D93025',
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 15,
