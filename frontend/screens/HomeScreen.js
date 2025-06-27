@@ -186,21 +186,18 @@ export default function HomeScreen({ navigation }) {
         <View style={styles(theme).container}>
             <AppHeader />
             {/* Le reste de votre JSX reste identique... */}
-            <View style={styles.pickerRow}>
-                <View style={[styles.pickerContainer, {width: '90%', marginBottom: 10}]}>
+            <View style={styles(theme).pickerRow}>
+                <View style={[styles(theme).pickerContainer, {width: '90%', marginBottom: 10}]}>
                     <Picker
                         selectedValue={selectedPipeline}
                         onValueChange={(itemValue) => setSelectedPipeline(itemValue)}
-                        style={styles.picker}
+                        style={styles(theme).picker}
                     >
                         <Picker.Item label="Modèle V1 (POC2/MMPose)" value="v1" />
                         <Picker.Item label="Modèle V2 (MediaPipe/TwoStream)" value="v2" />
                     </Picker>
                 </View>
             </View>
-            <View style={styles.pickerRow}>
-                <View style={styles.pickerContainer}>
-                    <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles.picker}>
             <View style={styles(theme).pickerRow}>
                 <View style={styles(theme).pickerContainer}>
                     <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles(theme).picker}>
