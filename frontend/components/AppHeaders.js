@@ -23,6 +23,11 @@ export default function AppHeader() {
         }
         setProfileModalVisible(false);
         await signOut();
+        await signOut();
+        navigation.reset({
+        index: 0,
+        routes: [{ name: 'Cover' }],
+        });
         console.log("Déconnexion demandée");
         // Logique de déconnexion
     };
@@ -36,6 +41,10 @@ export default function AppHeader() {
         setProfileModalVisible(false);
         await supression();
         await signOut();
+        navigation.reset({
+        index: 0,
+        routes: [{ name: 'Cover' }],
+        });
         console.log("Suppresion demandée");
         // Logique de suppression
     };
