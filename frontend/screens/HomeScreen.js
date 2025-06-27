@@ -10,28 +10,19 @@ import * as MediaLibrary from 'expo-media-library';
 import { Audio } from 'expo-av';
 import { local_video } from '../services/uploadService';
 import { AuthContext } from '../contexts/AuthContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { SettingsContext } from '../contexts/SettingsContext';
-
+import { SettingsContext } from '../contexts/SettingsContext'
 // Importe les styles locaux et le composant d'en-tête réutilisable
 import { homeStyles as styles } from '../styles/homeStyles';
 import AppHeader from '../components/AppHeaders';
- 
+
 export default function HomeScreen({ navigation }) {
     const { textSize } = useContext(AuthContext);
     const [permission, requestPermission] = useCameraPermissions();
     // AJOUT : Hook pour la permission du microphone
     const [microphonePermission, requestMicrophonePermission] = Audio.usePermissions();
-    const {
-        voice, setVoice,
-        speechRate, setSpeechRate,
-        availableVoices,
-        theme, setTheme
-      } = useContext(SettingsContext);
-    
-    const currentTheme = theme ?? useColorScheme();
-    const themedStyles = styles(currentTheme);
+   
     const cameraRef = useRef(null);
+    const { theme, setTheme } = useContext(SettingsContext);
  
     // États spécifiques à cet écran
     const [facing, setFacing] = useState('front');
@@ -176,8 +167,8 @@ export default function HomeScreen({ navigation }) {
     // MODIFIÉ : On vérifie si l'UNE ou l'AUTRE des permissions est manquante
     if (!permission.granted || !microphonePermission.granted) {
         return (
-            <View style={styles.permissionContainer}>
-                <Text style={[styles.permissionText, { fontSize: 18 + textSize }]}>Nous avons besoin de votre permission...</Text>
+            <View style={styles(theme).permissionContainer}>
+                <Text style={[styles(theme).permissionText, { fontSize: 18 + textSize }]}>Nous avons besoin de votre permission...</Text>
                 <Button
                     onPress={async () => {
                         await requestPermission();
@@ -191,32 +182,32 @@ export default function HomeScreen({ navigation }) {
  
     // Rendu principal de la page
     return (
-        <View style={themedStyles.container}>
+        <View style={styles(theme).container}>
             <AppHeader />
             {/* Le reste de votre JSX reste identique... */}
-            <View style={themedStyles.pickerRow}>
-                <View style={[themedStyles.pickerContainer, {width: '90%', marginBottom: 10}]}>
+            <View style={styles(theme).pickerRow}>
+                <View style={[styles(theme).pickerContainer, {width: '90%', marginBottom: 10}]}>
                     <Picker
                         selectedValue={selectedPipeline}
                         onValueChange={(itemValue) => setSelectedPipeline(itemValue)}
-                        style={themedStyles.picker}
+                        style={styles(theme).picker}
                     >
                         <Picker.Item label="Modèle V1 (POC2/MMPose)" value="v1" />
                         <Picker.Item label="Modèle V2 (MediaPipe/TwoStream)" value="v2" />
                     </Picker>
                 </View>
             </View>
-            <View style={themedStyles.pickerRow}>
-                <View style={themedStyles.pickerContainer}>
-                    <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={themedStyles.picker}>
+            <View style={styles(theme).pickerRow}>
+                <View style={styles(theme).pickerContainer}>
+                    <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles(theme).picker}>
                         <Picker.Item label="Détection Auto" value="auto" />
                         <Picker.Item label="ASL" value="asl" />
                         <Picker.Item label="GSL" value="gsl" />
                     </Picker>
                 </View>
                 <Icon name="arrow-forward" size={24} color="black" style={{ marginHorizontal: 10 }} />
-                <View style={themedStyles.pickerContainer}>
-                    <Picker selectedValue={targetLanguage} onValueChange={setTargetLanguage} style={themedStyles.picker}>
+                <View style={styles(theme).pickerContainer}>
+                    <Picker selectedValue={targetLanguage} onValueChange={setTargetLanguage} style={styles(theme).picker}>
                         <Picker.Item label="Français" value="fr" />
                         <Picker.Item label="English" value="en" />
                         <Picker.Item label="German" value="de" />
@@ -224,21 +215,21 @@ export default function HomeScreen({ navigation }) {
                 </View>
             </View>
  
-            <View style={themedStyles.cameraPreview}>
+            <View style={styles(theme).cameraPreview}>
                 <CameraView style={StyleSheet.absoluteFill} ref={cameraRef} facing={facing} mode="video" />
-                {timer > 0 && <View style={themedStyles.timerOverlay}><Text style={themedStyles.timerText}>{timer}</Text></View>}
+                {timer > 0 && <View style={styles(theme).timerOverlay}><Text style={styles(theme).timerText}>{timer}</Text></View>}
             </View>
-            <View style={themedStyles.controlsContainer}>
-                <View style={themedStyles.sideControls}>
-                    <TouchableOpacity style={themedStyles.controlButton} onPress={handleFlipCamera} disabled={isImporting || isRecording || isDelayting}><Icon name="flip-camera-ios" size={28} color="black" /></TouchableOpacity>
-                    <TouchableOpacity style={themedStyles.controlButton} onPress={handleTimerPress} disabled={isImporting || isRecording || isDelayting}><Icon name="timer" size={28} color="black" /></TouchableOpacity>
+            <View style={styles(theme).controlsContainer}>
+                <View style={styles(theme).sideControls}>
+                    <TouchableOpacity style={styles(theme).controlButton} onPress={handleFlipCamera} disabled={isImporting || isRecording || isDelayting}><Icon name="flip-camera-ios" size={28} color="black" /></TouchableOpacity>
+                    <TouchableOpacity style={styles(theme).controlButton} onPress={handleTimerPress} disabled={isImporting || isRecording || isDelayting}><Icon name="timer" size={28} color="black" /></TouchableOpacity>
                 </View>
-                <TouchableOpacity style={themedStyles.recordButton} onPress={handleRecordPress}  disabled={isImporting || isDelayting}>
-                    <View style={isRecording ? themedStyles.recordInnerRed : themedStyles.recordInnerWhite} />
+                <TouchableOpacity style={styles(theme).recordButton} onPress={handleRecordPress}  disabled={isImporting || isDelayting}>
+                    <View style={isRecording ? styles(theme).recordInnerRed : styles(theme).recordInnerWhite} />
                 </TouchableOpacity>
-                <View style={themedStyles.sideControls}>
-                    <TouchableOpacity style={themedStyles.controlButton} onPress={importVideo} disabled={isImporting || isRecording || isDelayting}><Icon name="file-upload" size={28} color="black" /></TouchableOpacity>
-                    <TouchableOpacity style={themedStyles.controlButton} onPress={handleInfoPress}  disabled={isImporting || isRecording || isDelayting}><Icon name="info-outline" size={28} color="black" /></TouchableOpacity>
+                <View style={styles(theme).sideControls}>
+                    <TouchableOpacity style={styles(theme).controlButton} onPress={importVideo} disabled={isImporting || isRecording || isDelayting}><Icon name="file-upload" size={28} color="black" /></TouchableOpacity>
+                    <TouchableOpacity style={styles(theme).controlButton} onPress={handleInfoPress}  disabled={isImporting || isRecording || isDelayting}><Icon name="info-outline" size={28} color="black" /></TouchableOpacity>
                 </View>
             </View>
         </View>

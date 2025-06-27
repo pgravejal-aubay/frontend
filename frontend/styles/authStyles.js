@@ -1,42 +1,24 @@
+// frontend/styles/authStyles.js
 import { StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
 
 export const authStyles = (theme = 'light') => StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: Colors[theme].background,
+    backgroundColor: Colors[theme].background, // #40e0d0 (clair) ou #27b2a4 (sombre)
   },
-  keyboardAvoidingContainer: {
+  container: {
     flex: 1,
+    paddingHorizontal: 30,
+    paddingTop: 60,
+    paddingBottom: 40,
   },
-  centeredContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  scrollableContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
-    width: '100%',
-    backgroundColor: Colors[theme].cardBackground,
-    borderRadius: 12,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-
   title: {
     fontSize: 28,
+    color: Colors[theme].text, // #6d0d61
     fontWeight: 'bold',
-    color: Colors[theme].text,
+    marginBottom: 40,
     textAlign: 'center',
-    marginBottom: 12,
   },
   subtitleContainer: {
     marginBottom: 30,
@@ -44,36 +26,36 @@ export const authStyles = (theme = 'light') => StyleSheet.create({
   },
   subtitleText: {
     fontSize: 16,
-    color: Colors[theme].icon,
+    color: Colors[theme].text, // #6d0d61
   },
   subtitleLink: {
     fontWeight: 'bold',
-    color: Colors[theme].text,
+    color: Colors[theme].text, // #6d0d61
   },
-
   label: {
     fontSize: 14,
-    color: Colors[theme].text,
+    color: Colors[theme].text, // #6d0d61
     marginBottom: 8,
     fontWeight: '500',
   },
   input: {
-    backgroundColor: Colors[theme].background,
+    height: 48,
+    backgroundColor: Colors[theme].cardBackground, // #ed9bd4
     borderWidth: 1,
-    borderColor: Colors[theme].border,
+    borderColor: Colors[theme].border, // #ed9bd4
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
-    marginBottom: 20,
-    color: Colors[theme].text,
+    color: Colors[theme].text, // #6d0d61
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors[theme].background,
+    height: 48,
+    backgroundColor: Colors[theme].cardBackground, // #ed9bd4
     borderWidth: 1,
-    borderColor: Colors[theme].border,
+    borderColor: Colors[theme].border, // #ed9bd4
     borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 20,
@@ -82,32 +64,54 @@ export const authStyles = (theme = 'light') => StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: Colors[theme].text,
+    color: Colors[theme].text, // #6d0d61
   },
-
   primaryButton: {
-    backgroundColor: Colors[theme].text,
+    backgroundColor: Colors[theme].buttonBackground, // #ed9bd4
     paddingVertical: 15,
+    paddingHorizontal: 20, // Ajout de marge horizontale
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 20,
   },
   primaryButtonText: {
-    color: Colors[theme].background,
+    color: Colors[theme].text, // #6d0d61
     fontSize: 16,
     fontWeight: 'bold',
   },
   secondaryLink: {
     fontSize: 14,
-    color: Colors[theme].icon,
+    color: Colors[theme].text, // #6d0d61
     textAlign: 'center',
     textDecorationLine: 'underline',
   },
-
   errorText: {
-    color: Colors.dark.error ?? '#D93025',
+    color: 'red',
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 15,
+  },
+  legalSectionContainer: {
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 25,
+    maxWidth: '90%', // Limite la largeur pour éviter le débordement
+  },
+  legalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap', // Permet le retour à la ligne
+    textAlign: 'center',
+  },
+  legalText: {
+    fontSize: 12,
+    color: Colors[theme].text, // #6d0d61
+    lineHeight: 18,
+  },
+  legalLink: {
+    fontSize: 12,
+    color: Colors[theme].text, // #6d0d61
+    textDecorationLine: 'underline',
+    lineHeight: 18,
   },
 });

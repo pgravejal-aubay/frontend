@@ -6,13 +6,14 @@ import { checkTaskStatus, cancelTask } from '../services/uploadService';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { AuthContext } from '../contexts/AuthContext';
-
+import { SettingsContext } from '../contexts/SettingsContext'
 import { processingStyles as styles } from '../styles/processingStyles';
 
 const ProcessingScreen = ({ route, navigation }) => {
     const { taskId } = route.params;
     const intervalRef = useRef(null);
     const { textSize } = useContext(AuthContext);
+    const { theme, setTheme } = useContext(SettingsContext);
 
     const [fontsLoaded] = useFonts({
         'SpaceMono-Regular': require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -68,21 +69,21 @@ const ProcessingScreen = ({ route, navigation }) => {
 
     if (!fontsLoaded) {
         return (
-            <View style={styles.container}>
+            <View style={styles(theme).container}>
                 <ActivityIndicator size="large" color="#555" />
             </View>
         );
     }
 
     return (
-        <View style={styles.container}>
-            <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+        <View style={styles(theme).container}>
+            <TouchableOpacity style={styles(theme).cancelButton} onPress={handleCancel}>
                 <Ionicons name="close-circle" size={40} color="#cccccc" /> 
             </TouchableOpacity>
 
-            <View style={styles.content}>
+            <View style={styles(theme).content}>
                 <ActivityIndicator size="large" color="#555" style={{ marginBottom: 40 }} />
-                <Text style={[styles.titleText, { fontSize: 32 + textSize }]}>
+                <Text style={[styles(theme).titleText, { fontSize: 32 + textSize }]}>
                     Génération de la{'\n'}
                     traduction en cours...
                 </Text>

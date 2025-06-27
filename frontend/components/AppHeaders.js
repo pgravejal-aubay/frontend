@@ -1,29 +1,18 @@
 // frontend/components/AppHeader.js
 import React, { useState, useContext } from 'react';
 import {AuthContext  } from "../contexts/AuthContext";
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform,Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, TouchableWithoutFeedback, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
-import { supression,isLoggedIn } from '../services/authService'
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
-import { SettingsContext } from '../contexts/SettingsContext';
-
-
+import { supression,isLoggedIn } from '../services/authService'
+import { SettingsContext } from '../contexts/SettingsContext'
 
 
 export default function AppHeader() {
     const navigation = useNavigation();
     const [isProfileModalVisible, setProfileModalVisible] = useState(false);
-    const {
-        voice, setVoice,
-        speechRate, setSpeechRate,
-        availableVoices,
-        theme, setTheme
-      } = useContext(SettingsContext);
-    
-      const currentTheme = theme ?? useColorScheme();
-      const themedStyles = styles(currentTheme);
+    const { theme, setTheme } = useContext(SettingsContext);
 
     const { signOut } = useContext(AuthContext);
     const handleLogout = async () => {
@@ -90,38 +79,46 @@ export default function AppHeader() {
     return (
         <>
             {/* La modale reste inchangée */}
-            <Modal animationType="fade" transparent={true} visible={isProfileModalVisible} onRequestClose={() => setProfileModalVisible(false)}>
-                <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={() => setProfileModalVisible(false)}>
-                    <View style={themedStyles.modalView}>
-                        <TouchableOpacity style={styles.modalButton} onPress={handleLogout}><Text style={styles.modalButtonText}>Déconnexion</Text></TouchableOpacity>
-                        <View style={styles.modalSeparator} />
-                        <TouchableOpacity style={styles.modalButton} onPress={handleDeleteAccount}><Text style={[styles.modalButtonText, { color: 'red' }]}>Supprimer le compte</Text></TouchableOpacity>
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={isProfileModalVisible}
+                onRequestClose={() => setProfileModalVisible(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setProfileModalVisible(false)}>
+                    <View style={styles.modalBackdrop}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles(theme).modalView}>
+                                <TouchableOpacity style={styles.modalButton} onPress={handleLogout}>
+                                    <Text style={styles.modalButtonText}>Déconnexion</Text>
+                                </TouchableOpacity>
+                                <View style={styles.modalSeparator} />
+                                <TouchableOpacity style={styles.modalButton} onPress={handleDeleteAccount}>
+                                    <Text style={[styles.modalButtonText, { color: 'red' }]}>Supprimer le compte</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </TouchableWithoutFeedback>
                     </View>
-                </TouchableOpacity>
+                </TouchableWithoutFeedback>
             </Modal>
 
             {/* L'en-tête JSX mis à jour */}
-            <View style={themedStyles.header}>
+            <View style={styles(theme).header}>
                 {/* ===== CHANGEMENT ICI : NOUVEAU GROUPE POUR LES ICÔNES DE GAUCHE ===== */}
-                <View style={themedStyles.headerLeft}>
+                <View style={styles(theme).headerLeft}>
                     <TouchableOpacity onPress={() => setProfileModalVisible(true)}>
-                        <Icon name="person-outline" size={32} color={Colors[currentTheme].text} /> 
+                        <Icon name="person-outline" size={32} color={Colors[theme].text} />
                     </TouchableOpacity>
-
-                    {/* ===== AJOUT DU BOUTON HOME ===== */}
                     <TouchableOpacity style={{ marginLeft: 16 }} onPress={() => navigation.navigate('Home')}>
-                        {/* L'icône pour la maison dans MaterialIcons est "home" ou "home-outline" */}
-                        <Icon name="home" size={32} color={Colors[currentTheme].text} />
+                        <Icon name="home" size={32} color={Colors[theme].text} />
                     </TouchableOpacity>
                 </View>
-
-                {/* La partie droite de l'en-tête reste inchangée */}
-                <View style={themedStyles.headerRight}>
+                <View style={styles(theme).headerRight}>
                     <TouchableOpacity onPress={goHistory}>
-                        <Icon name="bookmark-border" size={32} color={Colors[currentTheme].text} />
+                        <Icon name="bookmark-border" size={32} color={Colors[theme].text} />
                     </TouchableOpacity>
                     <TouchableOpacity style={{ marginLeft: 16 }} onPress={goSettings}>
-                        <Icon name="settings" size={32} color={Colors[currentTheme].text} />
+                        <Icon name="settings" size={32} color={Colors[theme].text} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -167,4 +164,3 @@ const styles = (theme = 'light') => StyleSheet.create({
     modalButtonText: { fontSize: 16 },
     modalSeparator: { height: 1, backgroundColor: '#E0E0E0', marginVertical: 4 },
 });
-
