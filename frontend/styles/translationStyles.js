@@ -26,6 +26,10 @@ export const styles = (theme = 'light') => StyleSheet.create({
   iconButton: {
     padding: 8,
     marginHorizontal: 4,
+    backgroundColor: Colors[theme].buttonBackground, // #ed9bd4 pour les boutons du bas
+    borderRadius: 20, // Pour un look arrondi
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   userMenu: {
     position: 'absolute',
@@ -57,6 +61,11 @@ export const styles = (theme = 'light') => StyleSheet.create({
   closeButton: {
     alignSelf: 'flex-end',
     marginBottom: 10,
+    backgroundColor: Colors[theme].buttonBackground, // #ed9bd4 pour le bouton close
+    borderRadius: 20, // Pour un look arrondi
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   translationBox: {
     flex: 1,
