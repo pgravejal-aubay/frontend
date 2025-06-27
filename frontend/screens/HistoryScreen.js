@@ -1,13 +1,11 @@
 // frontend/screens/HistoryScreen.js
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AppHeader from '../components/AppHeaders';
 import { styles } from '../styles/HistoryStyle';
 import { AuthContext } from '../contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
 import { getHistory, getSavedTranslations } from '../services/storageService';
 
 const capitalize = (s) => {
@@ -16,6 +14,7 @@ const capitalize = (s) => {
 }
 
 const HistoryScreen = ({ navigation }) => {
+  const { textSize } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('Historique');
   const theme = useColorScheme() ?? 'light';
 
@@ -38,8 +37,8 @@ const HistoryScreen = ({ navigation }) => {
   const renderList = (items) => {
     if (items.length === 0) {
       return (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>
+        <View style={styles(theme).emptyState}>
+          <Text style={styles(theme).emptyText}>
             {activeTab === 'Historique' 
               ? 'Votre historique est vide.' 
               : "Aucun enregistrement pour l'instant."}
@@ -49,12 +48,12 @@ const HistoryScreen = ({ navigation }) => {
     }
 
     return items.map((item) => (
-      <View key={item.id} style={styles.itemContainer}>
-        <Text style={styles.languageText}>
+      <View key={item.id} style={styles(theme).itemContainer}>
+        <Text style={styles(theme).languageText}>
           {capitalize(item.sourceLang)} {'->'} {capitalize(item.targetLang)}
         </Text>
-        <Text style={styles.originalText}>{item.originalText}</Text>
-        <Text style={styles.translationText}>{item.translatedText}</Text>
+        <Text style={styles(theme).originalText}>{item.originalText}</Text>
+        <Text style={styles(theme).translationText}>{item.translatedText}</Text>
       </View>
     ));
   };
@@ -68,29 +67,18 @@ const HistoryScreen = ({ navigation }) => {
           style={[styles(theme).tab, activeTab === 'Historique' && styles(theme).activeTab]}
           onPress={() => setActiveTab('Historique')}
         >
-          <Text style={[styles(theme).tabText, { fontSize: 16 + textSize }]}>Historique</Text>
+          <Text style={styles(theme).tabText}>Historique</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles(theme).tab, activeTab === 'Enregistrés' && styles(theme).activeTab]}
           onPress={() => setActiveTab('Enregistrés')}
         >
-          <Text style={[styles(theme).tabText, { fontSize: 16 + textSize }]}>Enregistrés</Text>
+          <Text style={styles(theme).tabText}>Enregistrés</Text>
         </TouchableOpacity>
       </View>
       <ScrollView style={styles(theme).content}>
-        {activeTab === 'Historique' &&  renderList(historyItems) &&
-          historyItems.map((item) => (
-            <View key={item.id} style={styles(theme).itemContainer}>
-              <Text style={[styles(theme).languageText, { fontSize: 14 + textSize }]}>Anglais {'->'} Français</Text>
-              <Text style={[styles(theme).translationText, { fontSize: 18 + textSize }]}>{item.french}</Text>
-            </View>
-          ))}
-        {activeTab === 'Enregistrés' && renderList(savedItems) &&
-          savedItems.map((item) => (
-            <View style={styles(theme).emptyState}>
-              <Text style={[styles(theme).emptyText, { fontSize: 16 + textSize }]}>Aucun enregistrement...</Text>
-            </View>
-        ))}
+        {activeTab === 'Historique' && renderList(historyItems)}
+        {activeTab === 'Enregistrés' && renderList(savedItems)}
       </ScrollView>
     </View>
   );
