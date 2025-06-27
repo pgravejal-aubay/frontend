@@ -7,12 +7,14 @@ import {
   ScrollView, 
   SafeAreaView, 
   Alert,
+  Modal,
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import * as Sharing from 'expo-sharing';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AppHeader from '../components/AppHeaders';
+import {isLoggedIn } from '../services/authService'
 import { AuthContext } from '../contexts/AuthContext';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { addToHistory, saveTranslation } from '../services/storageService'; 
@@ -78,6 +80,11 @@ export default function TranslationScreen() {
 
   const handleSave = async () => {
     try {
+      const logged = await isLoggedIn();
+      if (!logged){
+        showLoginAlert();
+        return;
+      }
       // On utilise les données actuelles pour la sauvegarde
       const isNewSave = await saveTranslation(getCurrentTranslationEntry());
       if (isNewSave) {
@@ -101,6 +108,24 @@ export default function TranslationScreen() {
       }
     } 
   };
+
+  const showLoginAlert = () => {
+      Alert.alert(
+          'Connexion requise',
+          'Veuillez vous connecter pour continuer',
+          [
+          {
+              text: 'Annuler',
+              style: 'cancel',
+          },
+          {
+              text: 'Se connecter',
+              onPress: () => navigation.navigate('Login'),
+          },
+          ],
+          { cancelable: true }
+      );
+      };
 
   return (
     <SafeAreaView style={styles(theme).container}>

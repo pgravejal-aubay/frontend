@@ -1,6 +1,6 @@
 // screens/CoverScreen.js
 
-import React from 'react';
+import React, {useContext } from 'react';
 import { 
   View, 
   Text, 
@@ -23,7 +23,8 @@ export default function CoverScreen() {
   };
 
   const handleContinueWithoutAccount = () => {
-    navigation.navigate('HomeScreen');
+    // On remplace l'alerte par la navigation directe vers la page Vidéo
+    navigation.navigate('Home');
   };
 
   return (

@@ -1,12 +1,13 @@
 // frontend/components/AppHeader.js
-
 import React, { useState, useContext } from 'react';
 import {AuthContext  } from "../contexts/AuthContext";
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, TouchableWithoutFeedback, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
+import { supression,isLoggedIn } from '../services/authService'
+
 
 export default function AppHeader() {
     const navigation = useNavigation();
@@ -15,15 +16,64 @@ export default function AppHeader() {
 
     const { signOut } = useContext(AuthContext);
     const handleLogout = async () => {
+        const logged = await isLoggedIn();
+        if (!logged){
+            showLoginAlert();
+            return;
+        }
         setProfileModalVisible(false);
         await signOut();
         console.log("Déconnexion demandée");
         // Logique de déconnexion
     };
 
-    const handleDeleteAccount = () => {
+    const handleDeleteAccount = async () => {
+        const logged = await isLoggedIn();
+        if (!logged){
+            showLoginAlert();
+            return;
+        }
         setProfileModalVisible(false);
+        await supression();
+        await signOut();
+        console.log("Suppresion demandée");
         // Logique de suppression
+    };
+
+    const goHistory = async () => {
+        const logged = await isLoggedIn();
+        if (!logged){
+            showLoginAlert();
+            return;
+        }
+        navigation.navigate('History')
+    }
+
+    const goSettings = async () => {
+        const logged = await isLoggedIn();
+        if (!logged){
+            showLoginAlert();
+            return;
+        }
+        navigation.navigate('Settings')
+    }
+
+    const showLoginAlert = () => {
+    Alert.alert(
+        'Connexion requise',
+        'Veuillez vous connecter pour continuer',
+        [
+        {
+            text: 'Annuler',
+            style: 'cancel',
+        },
+        {
+            text: 'Se connecter',
+            onPress: () => navigation.navigate('Login'),
+        },
+        ],
+        { cancelable: true }
+    );
     };
 
     return (
@@ -64,10 +114,10 @@ export default function AppHeader() {
                     </TouchableOpacity>
                 </View>
                 <View style={styles(theme).headerRight}>
-                    <TouchableOpacity onPress={() => navigation.navigate('History')}>
+                    <TouchableOpacity onPress={goHistory}>
                         <Icon name="bookmark-border" size={32} color={Colors[theme].text} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ marginLeft: 16 }} onPress={() => navigation.navigate('Settings')}>
+                    <TouchableOpacity style={{ marginLeft: 16 }} onPress={goSettings}>
                         <Icon name="settings" size={32} color={Colors[theme].text} />
                     </TouchableOpacity>
                 </View>

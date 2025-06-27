@@ -12,6 +12,7 @@ from .model import TwoStreamSLRModel
 from .model_translator import GlossToTextTranslatorT5
 from .vocabulary import Vocabulary as GlossVocabularyV2
 from .utils import ctc_decode_greedy, load_checkpoint as load_checkpoint_v2
+from app.ai_pipeline import text_translation
 
 # For keypoint extraction (logic adapted from pipeline_v2.extract_keypoints.py)
 import mediapipe as mp
@@ -128,7 +129,7 @@ def extract_keypoints_v2_mediapipe(video_frames_dir: str, task_temp_dir: str) ->
     return keypoints_output_file
 
 @torch.no_grad()
-def run_translation_pipeline_v2(video_frames_dir: str, task_temp_dir: str) -> str:
+def run_translation_pipeline_v2(video_frames_dir: str, task_temp_dir: str,targetLang: str) -> str:
     """Runs the complete Pipeline V2."""
     device = MODELS_V2['device']
     
@@ -247,7 +248,8 @@ def run_translation_pipeline_v2(video_frames_dir: str, task_temp_dir: str) -> st
         num_beams=v2_config.TRANSLATOR_BEAM_SIZE,
         early_stopping=True
     )
-    final_text_v2 = text_tokenizer_v2.decode(generated_ids[0], skip_special_tokens=True)
-    print(f"Pipeline V2: Final translated text: '{final_text_v2}'")
-    
+    predicted_text_v2 = text_tokenizer_v2.decode(generated_ids[0], skip_special_tokens=True)
+    print(f"Pipeline V2: Predicted text: '{predicted_text_v2}'")
+    final_text_v2 = text_translation(predicted_text_v2,targetLang)
+    print(f" Pipeline V2: Translated text: '{final_text_v2}'")
     return final_text_v2

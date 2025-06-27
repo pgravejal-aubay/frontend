@@ -65,13 +65,14 @@ const HistoryScreen = ({ navigation }) => {
       <View style={styles(theme).tabContainer}>
         <TouchableOpacity
           style={[styles(theme).tab, activeTab === 'Historique' && styles(theme).activeTab]}
-          onPress={() => setActiveTab('Historique')}
+          onPress={() => setActiveTab('Enregistrés')}
         >
           <Text style={styles(theme).tabText}>Historique</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles(theme).tab, activeTab === 'Enregistrés' && styles(theme).activeTab]}
-          onPress={() => setActiveTab('Enregistrés')}
+
+          onPress={() => setActiveTab('Historique')}
         >
           <Text style={styles(theme).tabText}>Enregistrés</Text>
         </TouchableOpacity>
