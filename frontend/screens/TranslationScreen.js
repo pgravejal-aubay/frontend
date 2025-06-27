@@ -25,6 +25,7 @@ export default function TranslationScreen() {
 
   const navigation = useNavigation();
   const route = useRoute();
+  const theme = useColorScheme() ?? 'light';
 
   const { 
     originalText = "Texte original en attente...", 
