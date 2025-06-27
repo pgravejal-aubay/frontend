@@ -1,40 +1,18 @@
-// Dans styles/translationStyles.ts
-
+// styles/translationStyles.ts
 import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
-// Supposition des couleurs. Remplace-les par tes couleurs de constants/Colors.ts
-const Colors = {
-  light: {
-    text: '#000',
-    background: '#fff',
-    tint: '#007AFF', // Une couleur d'accentuation
-    icon: '#687076',
-    cardBackground: '#f0f0f0',
-  },
-  dark: {
-    text: '#fff',
-    background: '#000',
-    tint: '#007AFF',
-    icon: '#98a0a6',
-    cardBackground: '#1c1c1e',
-  },
-};
-
-// Pour cet exemple, j'utilise le thème clair.
-const theme = Colors.light;
-
-export const styles = StyleSheet.create({
+export const styles = (theme = 'light') => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.background,
+    backgroundColor: Colors[theme].background, // #40e0d0 (clair) ou #27b2a4 (sombre)
   },
-  // --- Header ---
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 50, // Ajuster pour la barre de statut (SafeAreaView est mieux)
+    paddingTop: 50,
     paddingBottom: 10,
   },
   headerLeft: {
@@ -48,13 +26,16 @@ export const styles = StyleSheet.create({
   iconButton: {
     padding: 8,
     marginHorizontal: 4,
+    backgroundColor: Colors[theme].buttonBackground, // #ed9bd4 pour les boutons du bas
+    borderRadius: 20, // Pour un look arrondi
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  // --- Menu utilisateur (Modal/Dropdown) ---
   userMenu: {
     position: 'absolute',
-    top: 95, // Positionner sous l'icône utilisateur
+    top: 95,
     left: 20,
-    backgroundColor: theme.background,
+    backgroundColor: Colors[theme].cardBackground, // #6d0d61
     borderRadius: 8,
     padding: 10,
     shadowColor: '#000',
@@ -70,9 +51,8 @@ export const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: 16,
-    color: theme.text,
+    color: Colors[theme].text, // #eb76c7
   },
-  // --- Main Content ---
   mainContent: {
     flex: 1,
     paddingHorizontal: 20,
@@ -81,19 +61,23 @@ export const styles = StyleSheet.create({
   closeButton: {
     alignSelf: 'flex-end',
     marginBottom: 10,
+    backgroundColor: Colors[theme].buttonBackground, // #ed9bd4 pour le bouton close
+    borderRadius: 20, // Pour un look arrondi
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   translationBox: {
     flex: 1,
-    backgroundColor: theme.cardBackground,
+    backgroundColor: Colors[theme].cardBackground, // #6d0d61
     borderRadius: 20,
     padding: 20,
   },
   translationText: {
     fontSize: 24,
-    color: theme.text,
+    color: Colors[theme].text, // #eb76c7
     lineHeight: 34,
   },
-  // --- Footer ---
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -101,10 +85,10 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 25,
     paddingVertical: 20,
     borderTopWidth: 1,
-    borderTopColor: theme.cardBackground,
+    borderTopColor: Colors[theme].border, // #6d0d61
   },
   footerActionsRight: {
     flexDirection: 'row',
     alignItems: 'center',
-  }
+  },
 });
