@@ -41,6 +41,7 @@ export default function AppHeader() {
         setProfileModalVisible(false);
         await supression();
         await signOut();
+        await signOut();
         navigation.reset({
         index: 0,
         routes: [{ name: 'Cover' }],
