@@ -1,6 +1,6 @@
 // frontend/screens/SettingsScreen.js
-import React, { useState, useContext } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Picker } from '@react-native-picker/picker';
@@ -12,6 +12,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { styles } from '../styles/SettingsStyle';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { clearHistory,getHistoryEnabledStatus, setHistoryEnabledStatus } from '../services/storageService'; 
 
 const policyButtons = [
   { id: 1, label: 'Politique de confidentialité' },
@@ -46,6 +47,7 @@ const SettingsScreen = () => {
   const [localPickerValues, setLocalPickerValues] = useState({
       3: 'fr',
   });
+  
   const theme = useColorScheme() ?? 'light';
 
   const handleLogout = async () => {
@@ -59,6 +61,49 @@ const SettingsScreen = () => {
     const newOffset = textSize + (increment ? 2 : -2);
     if (newOffset >= -6 && newOffset <= 6) {
       setTextSize(newOffset);
+    }
+  };
+
+  const [isHistoryEnabled, setIsHistoryEnabled] = useState(true);
+
+  // Load the history enabled status when the component mounts
+  // This ensures we respect the user's previous choice
+  useEffect(() => {
+    const loadStatus = async () => {
+      const status = await getHistoryEnabledStatus();
+      setIsHistoryEnabled(status);
+    };
+    loadStatus();
+  }, []);
+
+  const handleHistoryToggle = (newValue) => {
+    // If the user is turning off the history, show confirmation
+    if (!newValue) {
+      Alert.alert(
+        "Vider l'historique",
+        "Êtes-vous sûr de vouloir supprimer définitivement tout l'historique des traductions ?",
+        [
+          { 
+            text: "Annuler", 
+            style: "cancel",
+            // Turn on the switch back if user cancels
+            onPress: () => setIsHistoryEnabled(true)
+          },
+          { 
+            text: "Supprimer", 
+            style: "destructive",
+            onPress: async () => {
+              await clearHistory();
+              await setHistoryEnabledStatus(false); // Save the new status
+              setIsHistoryEnabled(false); // Update the UI
+              Alert.alert("Succès", "L'historique a été vidé.");
+            }
+          }
+        ]
+      );
+    } else {
+      setHistoryEnabledStatus(true); // Save the new status
+      setIsHistoryEnabled(true); // Update the UI
     }
   };
 
@@ -76,13 +121,22 @@ const SettingsScreen = () => {
           {preferenceItems.map((item) => (
             <View key={item.id} style={styles(theme).preferenceItem}>
               <Text style={[styles(theme).preferenceLabel, { fontSize: 22 + textSize }]}>{item.label}</Text>
+              
               {item.type === 'switch' && (
-                <Switch
-                  defaultChecked={item.defaultChecked}
-                  trackColor={{ false: '#767577', true: '#6750a4' }}
-                  thumbColor={item.defaultChecked ? '#f4f3f4' : '#f4f3f4'}
-                />
+                item.label === 'Historique' ? (
+                  <Switch
+                    value={isHistoryEnabled}
+                    onValueChange={handleHistoryToggle}
+                    trackColor={{ false: '#767577', true: '#6750a4' }}
+                    thumbColor={'#f4f3f4'}
+                  />
+                ) : (
+                  <Switch
+                  // TODO: add theme switch logic
+                  />
+                )
               )}
+
               {item.type === 'size-control' && (
                 <View style={styles(theme).sizeControl}>
                   <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
