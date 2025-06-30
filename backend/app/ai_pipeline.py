@@ -131,6 +131,7 @@ def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str, targetLa
     }
 
 def text_translation(text, target_lang):
+    print(target_lang)
     if target_lang not in lang_codes:
         raise ValueError("Language not support.")
     if target_lang == "de":
