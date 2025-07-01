@@ -1,8 +1,7 @@
 // frontend/screens/HomeScreen.js
  
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Button } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Button, Image } from 'react-native';import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -10,6 +9,8 @@ import * as MediaLibrary from 'expo-media-library';
 import { Audio } from 'expo-av';
 import { local_video } from '../services/uploadService';
 import { AuthContext } from '../contexts/AuthContext';
+import { useColorScheme } from '@/hooks/useColorScheme';
+
 import { SettingsContext } from '../contexts/SettingsContext'
 // Importe les styles locaux et le composant d'en-tête réutilisable
 import { homeStyles as styles } from '../styles/homeStyles';
@@ -66,45 +67,32 @@ export default function HomeScreen({ navigation }) {
         if (isRecording) {
             setIsRecording(false);
             cameraRef.current.stopRecording(); 
-            // Note: stopRecording() itself doesn't return the video object directly in all expo-camera versions
-            // The video object is usually available in the onRecordingFinished callback or promise resolution.
-            // The existing code relied on `recordAsync` promise.
         } else {
             setIsRecording(true);
             try {
                 const video = await cameraRef.current.recordAsync({ quality: '1080p' });
-                setIsRecording(false); // Set recording to false once recording is done
+                setIsRecording(false);
                 if (video && video.uri) {
-                    console.log('Vidéo enregistrée dans le cache :', video.uri);
-                    // Create an asset-like object for local_video
                     const videoAsset = {
                         uri: video.uri,
                         name: `recording-${Date.now()}.mp4`,
-                        mimeType: 'video/mp4', // Assuming mp4
-                        // size: not directly available, but could be estimated or fetched if needed
+                        mimeType: 'video/mp4',
                     };
-                    
-                    // --- Process with selected pipeline ---
                     const data = await local_video(videoAsset, selectedPipeline);
                     if (data.task_id) {
                         navigation.navigate('Processing', { taskId: data.task_id });
                     } else {
                         Alert.alert('Error', data.message || "Upload failed after recording, no task ID received.");
                     }
-                    // --- End process with selected pipeline ---
-
-                    // Optional: Save to MediaLibrary (can be done in parallel or after upload starts)
                     try {
                         const { status } = await MediaLibrary.requestPermissionsAsync();
                         if (status === 'granted') {
                             await MediaLibrary.createAssetAsync(video.uri);
-                            // Alert.alert('Vidéo enregistrée !', 'Votre vidéo a bien été sauvegardée dans la galerie.');
                             console.log("Video saved to gallery.");
                         }
                     } catch (error) {
                         console.error("Erreur lors de la sauvegarde de la vidéo :", error);
                     }
-
                 } else {
                      Alert.alert('Erreur', "L'enregistrement a échoué ou n'a pas retourné de vidéo.");
                 }
@@ -120,14 +108,14 @@ export default function HomeScreen({ navigation }) {
         setIsImporting(true);
         try {
             const video = await DocumentPicker.getDocumentAsync({
-            type: 'video/*',
-            copyToCacheDirectory: true, // Recommended for reliability
-            multiple: false,
+                type: 'video/*',
+                copyToCacheDirectory: true,
+                multiple: false,
             });
 
             if (video.canceled) { 
-            console.log("Stop importing video");
-            return;
+                console.log("Stop importing video");
+                return;
             }
         
             const asset = video.assets[0];
@@ -135,20 +123,19 @@ export default function HomeScreen({ navigation }) {
             const fileSizeInMB = (asset.size / 1000000).toFixed(2);
 
             if (fileSizeInMB > MAX_FILE_SIZE_MB) {
-            Alert.alert('File too large',
-                `The selected video is ${fileSizeInMB} MB. Please select a video smaller than ${MAX_FILE_SIZE_MB} MB.`
-            );
-            return;
+                Alert.alert('File too large',
+                    `The selected video is ${fileSizeInMB} MB. Please select a video smaller than ${MAX_FILE_SIZE_MB} MB.`
+                );
+                return;
             }
 
-            const data = await local_video(asset, targetLanguage, selectedPipeline);
+            const data = await local_video(asset, selectedPipeline, targetLanguage, selectedPipeline);
 
             if (data.task_id) {
                 navigation.navigate('Processing', { taskId: data.task_id });
             } else {
                 Alert.alert('Error', data.message || "Upload failed, no task ID received.");
             }
-
         } catch (error) {
             console.error('Error importing video:', error);
             Alert.alert('Import Error', `An issue occurred: ${error.message || 'Unknown error'}`);
@@ -159,12 +146,10 @@ export default function HomeScreen({ navigation }) {
 
     const handleInfoPress = () => Alert.alert("À propos de Hands Up", "Bonjour, cette application à pour objectif de traduire la langue des signes. Filmez le signeur ou uploadez une vidéo de celui-ci pour générer une traduction.");
  
-    // MODIFIÉ : On attend que les DEUX permissions soient chargées
     if (!permission || !microphonePermission) {
         return <View />;
     }
  
-    // MODIFIÉ : On vérifie si l'UNE ou l'AUTRE des permissions est manquante
     if (!permission.granted || !microphonePermission.granted) {
         return (
             <View style={styles(theme).permissionContainer}>
@@ -180,58 +165,94 @@ export default function HomeScreen({ navigation }) {
         );
     }
  
-    // Rendu principal de la page
     return (
-        <View style={styles(theme).container}>
-            <AppHeader />
-            {/* Le reste de votre JSX reste identique... */}
-            <View style={styles(theme).pickerRow}>
-                <View style={[styles(theme).pickerContainer, {width: '90%', marginBottom: 10}]}>
-                    <Picker
-                        selectedValue={selectedPipeline}
-                        onValueChange={(itemValue) => setSelectedPipeline(itemValue)}
-                        style={styles(theme).picker}
-                    >
-                        <Picker.Item label="Modèle V1 (POC2/MMPose)" value="v1" />
-                        <Picker.Item label="Modèle V2 (MediaPipe/TwoStream)" value="v2" />
-                    </Picker>
-                </View>
-            </View>
-            <View style={styles(theme).pickerRow}>
-                <View style={styles(theme).pickerContainer}>
-                    <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles(theme).picker}>
-                        <Picker.Item label="Détection Auto" value="auto" />
-                        <Picker.Item label="ASL" value="asl" />
-                        <Picker.Item label="GSL" value="gsl" />
-                    </Picker>
-                </View>
-                <Icon name="arrow-forward" size={24} color="black" style={{ marginHorizontal: 10 }} />
-                <View style={styles(theme).pickerContainer}>
-                    <Picker selectedValue={targetLanguage} onValueChange={setTargetLanguage} style={styles(theme).picker}>
-                        <Picker.Item label="Français" value="fr" />
-                        <Picker.Item label="English" value="en" />
-                        <Picker.Item label="German" value="de" />
-                    </Picker>
-                </View>
-            </View>
- 
-            <View style={styles(theme).cameraPreview}>
-                <CameraView style={StyleSheet.absoluteFill} ref={cameraRef} facing={facing} mode="video" />
-                {timer > 0 && <View style={styles(theme).timerOverlay}><Text style={styles(theme).timerText}>{timer}</Text></View>}
-            </View>
-            <View style={styles(theme).controlsContainer}>
-                <View style={styles(theme).sideControls}>
-                    <TouchableOpacity style={styles(theme).controlButton} onPress={handleFlipCamera} disabled={isImporting || isRecording || isDelayting}><Icon name="flip-camera-ios" size={28} color="black" /></TouchableOpacity>
-                    <TouchableOpacity style={styles(theme).controlButton} onPress={handleTimerPress} disabled={isImporting || isRecording || isDelayting}><Icon name="timer" size={28} color="black" /></TouchableOpacity>
-                </View>
-                <TouchableOpacity style={styles(theme).recordButton} onPress={handleRecordPress}  disabled={isImporting || isDelayting}>
-                    <View style={isRecording ? styles(theme).recordInnerRed : styles(theme).recordInnerWhite} />
-                </TouchableOpacity>
-                <View style={styles(theme).sideControls}>
-                    <TouchableOpacity style={styles(theme).controlButton} onPress={importVideo} disabled={isImporting || isRecording || isDelayting}><Icon name="file-upload" size={28} color="black" /></TouchableOpacity>
-                    <TouchableOpacity style={styles(theme).controlButton} onPress={handleInfoPress}  disabled={isImporting || isRecording || isDelayting}><Icon name="info-outline" size={28} color="black" /></TouchableOpacity>
-                </View>
+    <View style={styles(theme).container}>
+        <AppHeader />
+        
+        {/* Section des sélecteurs de modèle */}
+        <View style={styles(theme).pickerRow}>
+            <View style={[styles(theme).pickerContainer, {width: '90%', marginBottom: 10}]}>
+                <Picker
+                    selectedValue={selectedPipeline}
+                    onValueChange={(itemValue) => setSelectedPipeline(itemValue)}
+                    style={styles(theme).picker}
+                >
+                    <Picker.Item label="Modèle V1 (POC2/MMPose)" value="v1" />
+                    <Picker.Item label="Modèle V2 (MediaPipe/TwoStream)" value="v2" />
+                </Picker>
             </View>
         </View>
-    );
+
+        {/* Section des sélecteurs de langue */}
+        <View style={styles(theme).pickerRow}>
+            <View style={styles(theme).pickerContainer}>
+                <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles(theme).picker}>
+                    <Picker.Item label="Détection Auto" value="auto" />
+                    <Picker.Item label="ASL" value="asl" />
+                    <Picker.Item label="GSL" value="gsl" />
+                </Picker>
+            </View>
+            <Icon name="arrow-forward" size={24} color="black" style={{ marginHorizontal: 10 }} />
+            <View style={styles(theme).pickerContainer}>
+                <Picker selectedValue={targetLanguage} onValueChange={setTargetLanguage} style={styles(theme).picker}>
+                    <Picker.Item label="Français" value="fr" />
+                    <Picker.Item label="English" value="en" />
+                    <Picker.Item label="German" value="de" />
+                </Picker>
+            </View>
+        </View>
+
+        {/* --- BLOC CAMÉRA ENTIÈREMENT CORRIGÉ --- */}
+        <View style={styles(theme).cameraPreview}>
+            {/* Couche 0 : La caméra, tout en bas */}
+            <CameraView 
+                style={[StyleSheet.absoluteFill, { zIndex: 0 }]} 
+                ref={cameraRef} 
+                facing={facing} 
+                mode="video" 
+            />
+
+            {/* Couche 1 : La silhouette de cadrage, par-dessus la caméra */}
+            <View 
+                style={[styles(theme).cameraOverlayContainer, { zIndex: 1 }]}
+                pointerEvents="none" // Permet aux clics de "passer à travers"
+            >
+                <Image 
+                    source={require('../assets/images/silouhette.png')}
+                    style={styles(theme).cameraOverlayImage}
+                />
+            </View>
+            
+            {/* Couche 2 : Le minuteur, par-dessus tout le reste */}
+            {timer > 0 && 
+                <View style={[styles(theme).timerOverlay, { zIndex: 2 }]}>
+                    <Text style={styles(theme).timerText}>{timer}</Text>
+                </View>
+            }
+        </View>
+        
+        {/* Section des contrôles */}
+        <View style={styles(theme).controlsContainer}>
+            <View style={styles(theme).sideControls}>
+                <TouchableOpacity style={styles(theme).controlButton} onPress={handleFlipCamera} disabled={isImporting || isRecording || isDelayting}>
+                    <Icon name="flip-camera-ios" size={28} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles(theme).controlButton} onPress={handleTimerPress} disabled={isImporting || isRecording || isDelayting}>
+                    <Icon name="timer" size={28} color="black" />
+                </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles(theme).recordButton} onPress={handleRecordPress}  disabled={isImporting || isDelayting}>
+                <View style={isRecording ? styles(theme).recordInnerRed : styles(theme).recordInnerWhite} />
+            </TouchableOpacity>
+            <View style={styles(theme).sideControls}>
+                <TouchableOpacity style={styles(theme).controlButton} onPress={importVideo} disabled={isImporting || isRecording || isDelayting}>
+                    <Icon name="file-upload" size={28} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles(theme).controlButton} onPress={handleInfoPress}  disabled={isImporting || isRecording || isDelayting}>
+                    <Icon name="info-outline" size={28} color="black" />
+                </TouchableOpacity>
+            </View>
+        </View>
+    </View>
+);
 }

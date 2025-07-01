@@ -1,3 +1,5 @@
+
+
 // frontend/App.js
 
 import React, { useEffect, useMemo } from 'react';
@@ -9,16 +11,16 @@ import { View, ActivityIndicator, Text } from 'react-native';
 import CoverScreen from './screens/CoverScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
-import HomeScreen from './screens/HomeScreen'; 
-import ProcessingScreen from './screens/ProcessingScreen'; 
-import TranslationScreen from './screens/TranslationScreen'; 
+import HomeScreen from './screens/HomeScreen';
+import ProcessingScreen from './screens/ProcessingScreen';
+import TranslationScreen from './screens/TranslationScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import HistoryScreen from './screens/HistoryScreen';
+import PolicyScreen from './screens/PolicyScreen'; // Importer le nouvel écran
 
 // --- Import des services et contextes ---
 import { getToken, logout } from './services/authService';
 import { AuthContext } from './contexts/AuthContext';
-// <<< AJOUT : Importer le nouveau SettingsProvider >>>
 import { SettingsProvider } from './contexts/SettingsContext';
 
 const Stack = createStackNavigator();
@@ -91,7 +93,6 @@ export default function App() {
                 <Stack.Screen name="Cover" component={CoverScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Register" component={RegisterScreen} />
-                <Stack.Screen name="Video" component={HomeScreen} />
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Processing" component={ProcessingScreen} />
                 <Stack.Screen name="Translation" component={TranslationScreen} />
