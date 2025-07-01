@@ -101,7 +101,6 @@ const SettingsScreen = () => {
     }
   };
 
-
    const handleHistoryToggle = (newValue) => {
     // Si l'utilisateur veut désactiver
     if (!newValue) {
