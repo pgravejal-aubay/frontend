@@ -26,6 +26,7 @@ const policyButtons = [
 const assistanceButtons = [
   { id: 1, label: 'Guide utilisateur' },
   { id: 2, label: 'Centre d\'assistance' },
+  { id: 3, label: 'À propos de l\'équipe' },
 ];
 
 const preferenceItems = [
@@ -54,6 +55,14 @@ const SettingsScreen = () => {
 
   const handleLogout = async () => {
     await signOut();
+  };
+
+  const handleNavigation = (label) => {
+    if (label === 'À propos de l\'équipe') {
+      navigation.navigate('AboutTeam');
+    } else if (['Politique de confidentialité', 'Conditions générales', 'Mentions légales'].includes(label)) {
+      navigation.navigate('Policy', { policy: label }); // Ajuste selon ta logique de navigation pour Policy
+    }
   };
 
   const maleVoice = availableVoices.find(v => v.gender === 'male' || v.identifier.includes('-frb-') || v.identifier.includes('-frd-'));
@@ -157,7 +166,7 @@ const SettingsScreen = () => {
               key={button.id} 
               variant="outline" 
               style={styles(theme).policyButton}
-              onPress={() => handlePolicyNavigation(button.label)}
+              onPress={() => handleNavigation(button.label)}
             >
               <Text style={[styles(theme).policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>
