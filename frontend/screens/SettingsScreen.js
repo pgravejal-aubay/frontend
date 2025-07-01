@@ -60,6 +60,7 @@ Si votre problème n'est pas résolu, contactez notre support par email à : sup
 
 Merci de nous aider à améliorer l'application !`
   },
+  { id: 3, label: 'À propos de l\'équipe', alertTitle: 'À propos de l\'Équipe', alertMessage: 'Découvrez l\'équipe derrière l\'application dans la section dédiée.' },
 ];
 
 const preferenceItems = [
@@ -89,6 +90,22 @@ const SettingsScreen = () => {
 
   const handleLogout = async () => {
     await signOut();
+  };
+
+  const handleNavigation = (label) => {
+    if (label === 'À propos de l\'équipe') {
+      navigation.navigate('AboutTeam');
+    } else if (['Politique de confidentialité', 'Conditions générales', 'Mentions légales'].includes(label)) {
+      navigation.navigate('Policy', { policy: label }); // Ajuste selon ta logique de navigation pour Policy
+    }
+  };
+
+  const handleAssistancePress = (button) => {
+    if (button.label === 'À propos de l\'équipe') {
+      handleNavigation(button.label);
+    } else {
+      Alert.alert(button.alertTitle, button.alertMessage);
+    }
   };
 
   const maleVoice = availableVoices.find(v => v.gender === 'male' || v.identifier.includes('-frb-') || v.identifier.includes('-frd-'));
@@ -132,6 +149,17 @@ const SettingsScreen = () => {
     } else {
       // Si l'utilisateur veut réactiver, on appelle la fonction du contexte
       setHistoryEnabled(true);
+    }
+  };
+
+  const handlePolicyNavigation = (label) => {
+    // --- MODIFICATION ICI : On utilise la bonne variable ---
+    const data = policyContent[label];
+    
+    if (data) {
+      navigation.navigate('Policy', { title: data.title, content: data.content });
+    } else {
+      console.log(`Pas de contenu trouvé pour le bouton: ${label}`);
     }
   };
 
@@ -231,9 +259,9 @@ const SettingsScreen = () => {
               key={button.id}
               variant="outline"
               style={styles(theme).policyButton}
-              onPress={() => Alert.alert(button.alertTitle, button.alertMessage)}
+              onPress={() => handleAssistancePress(button)}
             >
-              <Text style={[styles.policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
+              <Text style={[styles(theme).policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>
           ))}
         </View>
