@@ -18,25 +18,24 @@ def protected_route(current_user): # current_user is passed by the decorator
 
     
 @bp.route('/api/task/status/<task_id>', methods=['GET'])
-@token_required
-def get_task_status(current_user, task_id):
+def get_task_status(current_user = None, task_id = 0):
+    name = current_user.name if current_user != None else "Guest"
     task = tasks.get(task_id)
     if not task:
         return jsonify({'message': 'Task not found'}), 404
-    
-    if task.get('user') != current_user.username:
+    if task.get('name') != name:
         return jsonify({'message': 'Unauthorized to view this task'}), 403
 
     return jsonify(task), 200
 
 @bp.route('/api/task/cancel/<task_id>', methods=['POST'])
-@token_required
-def cancel_task(current_user, task_id):
+def cancel_task(current_user = None, task_id = 0):
+    name = current_user.name if current_user != None else "Guest"
     task = tasks.get(task_id)
     if not task:
         return jsonify({'message': 'Task not found'}), 404
 
-    if task.get('user') != current_user.username:
+    if task.get('name') != name:
         return jsonify({'message': 'Unauthorized to cancel this task'}), 403
 
     if task['status'] == 'processing':

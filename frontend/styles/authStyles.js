@@ -1,109 +1,116 @@
 // frontend/styles/authStyles.js
 import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
-export const authStyles = StyleSheet.create({
+export const authStyles = (theme = 'light') => StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: Colors[theme].background, // #40e0d0 (clair) ou #27b2a4 (sombre)
+  },
   container: {
     flex: 1,
     paddingHorizontal: 30,
     paddingTop: 60,
     paddingBottom: 40,
-    backgroundColor: '#fff', 
   },
   title: {
     fontSize: 28,
+    color: Colors[theme].text, // #6d0d61
     fontWeight: 'bold',
     marginBottom: 40,
-    color: '#1c1e21',
     textAlign: 'center',
   },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 20,
+  subtitleContainer: {
+    marginBottom: 30,
+    alignItems: 'center',
   },
-  inputLabel: {
+  subtitleText: {
+    fontSize: 16,
+    color: Colors[theme].text, // #6d0d61
+  },
+  subtitleLink: {
+    fontWeight: 'bold',
+    color: Colors[theme].text, // #6d0d61
+  },
+  label: {
     fontSize: 14,
-    color: '#606770',
+    color: Colors[theme].text, // #6d0d61
     marginBottom: 8,
+    fontWeight: '500',
   },
-  // Style pour les champs SIMPLES (Nom, Prénom, Email)
   input: {
     height: 48,
-    backgroundColor: '#f5f6f7',
+    backgroundColor: Colors[theme].cardBackground, // #ed9bd4
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: Colors[theme].border, // #ed9bd4
     borderRadius: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
     fontSize: 16,
+    color: Colors[theme].text, // #6d0d61
   },
-  // Style pour la "boîte" qui contient le champ de mot de passe ET l'icône
-  passwordWrapper: {
+  passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     height: 48,
-    backgroundColor: '#f5f6f7',
+    backgroundColor: Colors[theme].cardBackground, // #ed9bd4
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: Colors[theme].border, // #ed9bd4
     borderRadius: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 15,
+    marginBottom: 20,
   },
-  // Style pour le champ de texte À L'INTÉRIEUR du passwordWrapper
-  inputInWrapper: {
+  passwordInput: {
     flex: 1,
-    height: '100%',
+    paddingVertical: 12,
     fontSize: 16,
-    color: '#000',
+    color: Colors[theme].text, // #6d0d61
   },
-  eyeIcon: {
-    // Ce style peut rester vide, il sert juste de cible
-  },
-  registerButton: {
-    backgroundColor: '#1c1e21',
-    height: 50,
+  primaryButton: {
+    backgroundColor: Colors[theme].buttonBackground, // #ed9bd4
+    paddingVertical: 15,
+    paddingHorizontal: 20, // Ajout de marge horizontale
     borderRadius: 8,
-    justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
+    marginBottom: 20,
   },
-  registerButtonText: {
-    color: '#fff',
+  primaryButtonText: {
+    color: Colors[theme].text, // #6d0d61
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  secondaryLink: {
+    fontSize: 14,
+    color: Colors[theme].text, // #6d0d61
+    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
   errorText: {
     color: 'red',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  linkButtonText: {
-    color: '#606770',
-    marginTop: 20,
-    textAlign: 'center',
     fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 15,
   },
-  
-  // --- STYLES POUR LE TEXTE LÉGAL ---
-
-  // Le conteneur principal pour la section légale
   legalSectionContainer: {
-    alignItems: 'center', // Centre les lignes horizontalement
+    alignItems: 'center',
     marginTop: 10,
     marginBottom: 25,
+    maxWidth: '90%', // Limite la largeur pour éviter le débordement
   },
-  // Style pour chaque ligne (ex: "et notre" + "Politique...")
   legalRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap', // Permet le retour à la ligne
+    textAlign: 'center',
   },
-  // Style pour le texte non-cliquable
   legalText: {
     fontSize: 12,
-    color: '#606770',
+    color: Colors[theme].text, // #6d0d61
     lineHeight: 18,
   },
-  // Style pour les liens cliquables
   legalLink: {
-    fontSize: 12, // Même taille de police pour un alignement parfait
-    color: '#00A4A6',
+    fontSize: 12,
+    color: Colors[theme].text, // #6d0d61
     textDecorationLine: 'underline',
     lineHeight: 18,
   },

@@ -20,8 +20,7 @@ const copyToCache = async (video) => {
   return destPath;
 };
 
-// Modified to include pipelineChoice
-export const local_video = async (videoAsset, pipelineChoice = 'v1') => {
+export const local_video = async (videoAsset, pipelineChoice = 'v1', targetLanguage = 'fr') => {
   const apiUrl = getApiUrl('/video/upload');
   const headers = await getAuthHeaders(); // Ensure this correctly gets the token
 
@@ -34,7 +33,8 @@ export const local_video = async (videoAsset, pipelineChoice = 'v1') => {
     type: videoAsset.mimeType || 'video/mp4', // Ensure mimeType is passed or default
   });
   formData.append('pipeline_choice', pipelineChoice); // Send the choice
-
+  formData.append('targetLang', targetLanguage);
+  console.log("FormData prepared for upload:", formData);
   console.log(`Uploading video for pipeline: ${pipelineChoice}`);
   console.log(`Video asset name: ${videoAsset.name}, uri: ${fileUri}, type: ${videoAsset.mimeType || 'video/mp4'}`);
   
