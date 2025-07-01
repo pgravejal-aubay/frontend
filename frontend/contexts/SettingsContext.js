@@ -1,6 +1,9 @@
 // frontend/contexts/SettingsContext.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useState, useEffect } from 'react';
 import * as Speech from 'expo-speech';
+import { getHistoryEnabledStatus, setHistoryEnabledStatus as saveHistoryStatus } from '../services/storageService';
+
 
 // 1. Création du contexte
 export const SettingsContext = createContext();
@@ -11,24 +14,21 @@ export const SettingsProvider = ({ children }) => {
   const [availableVoices, setAvailableVoices] = useState([]);
   const [voice, setVoice] = useState(null); // Stocke l'identifiant de la voix
   const [speechRate, setSpeechRate] = useState(1.0); // Vitesse de lecture (1.0 = normale)
+  const [theme, setThemeState] = useState('light');
+  const [isHistoryEnabled, setIsHistoryEnabled] = useState(true);
 
   // Au premier chargement de l'app, on récupère les voix disponibles
   useEffect(() => {
     const loadVoices = async () => {
       try {
         const voices = await Speech.getAvailableVoicesAsync();
-        // On ne garde que les voix françaises pour notre application
         const frenchVoices = voices.filter(v => v.language === 'fr-FR');
         setAvailableVoices(frenchVoices);
-
-        // Si des voix françaises sont disponibles, on en définit une par défaut
         if (frenchVoices.length > 0) {
-          // On essaie de trouver une voix masculine comme premier choix
           const defaultMaleVoice = frenchVoices.find(v => v.gender === 'male');
           if (defaultMaleVoice) {
             setVoice(defaultMaleVoice.identifier);
           } else {
-            // Sinon, on prend la première de la liste
             setVoice(frenchVoices[0].identifier);
           }
         }
@@ -36,17 +36,40 @@ export const SettingsProvider = ({ children }) => {
         console.error("Failed to load speech voices:", error);
       }
     };
-
     loadVoices();
-  }, []); // Le tableau vide [] signifie que cet effet ne s'exécute qu'une seule fois
 
-  // On rassemble les valeurs et fonctions à partager dans l'application
+    const loadTheme = async () => {
+      try {
+        const savedTheme = await AsyncStorage.getItem('theme');
+        if (savedTheme) setThemeState(savedTheme);
+      } catch (error) {
+        console.error("Failed to load theme:", error);
+      }
+    };
+    loadTheme();
+  }, []);
+
+  // Valeurs partagées dans le contexte
   const value = {
     voice,
     setVoice,
     speechRate,
     setSpeechRate,
     availableVoices,
+    theme,
+    setTheme: async (newTheme) => {
+      setThemeState(newTheme);
+      try {
+        await AsyncStorage.setItem('theme', newTheme);
+      } catch (error) {
+        console.error("Failed to save theme:", error);
+      }
+    },
+    isHistoryEnabled,
+    setHistoryEnabled: async (newStatus) => {
+      setIsHistoryEnabled(newStatus); // Met à jour l'état dans l'app
+      await saveHistoryStatus(newStatus); // Sauvegarde l'état dans le stockage
+    },
   };
 
   return (

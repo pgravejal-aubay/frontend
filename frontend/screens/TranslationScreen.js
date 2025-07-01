@@ -18,7 +18,6 @@ import {isLoggedIn } from '../services/authService'
 import { AuthContext } from '../contexts/AuthContext';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { addToHistory, saveTranslation } from '../services/storageService'; 
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { styles } from '../styles/translationStyles';
 
 export default function TranslationScreen() {
@@ -27,7 +26,7 @@ export default function TranslationScreen() {
 
   const navigation = useNavigation();
   const route = useRoute();
-  const theme = useColorScheme() ?? 'light';
+  const { theme, setTheme } = useContext(SettingsContext);
 
   const { 
     originalText = "Texte original en attente...", 

@@ -11,6 +11,7 @@ import { local_video } from '../services/uploadService';
 import { AuthContext } from '../contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
+import { SettingsContext } from '../contexts/SettingsContext'
 // Importe les styles locaux et le composant d'en-tête réutilisable
 import { homeStyles as styles } from '../styles/homeStyles';
 import AppHeader from '../components/AppHeaders';
@@ -22,7 +23,7 @@ export default function HomeScreen({ navigation }) {
     const [microphonePermission, requestMicrophonePermission] = Audio.usePermissions();
    
     const cameraRef = useRef(null);
-    const theme = useColorScheme() ?? 'light';
+    const { theme, setTheme } = useContext(SettingsContext);
  
     // États spécifiques à cet écran
     const [facing, setFacing] = useState('front');

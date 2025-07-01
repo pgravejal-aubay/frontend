@@ -1,5 +1,5 @@
 // frontend/screens/SettingsScreen.js
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -9,7 +9,6 @@ import AppHeader from '../components/AppHeaders';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../contexts/AuthContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { styles } from '../styles/SettingsStyle';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { clearHistory,getHistoryEnabledStatus, setHistoryEnabledStatus } from '../services/storageService'; 
@@ -80,12 +79,13 @@ const preferenceItems = [
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const { signOut, setTextSize, textSize } = useContext(AuthContext);
-  const { voice, setVoice, speechRate, setSpeechRate, availableVoices } = useContext(SettingsContext);
+  const { voice, setVoice, speechRate, setSpeechRate, availableVoices, isHistoryEnabled, setHistoryEnabled } = useContext(SettingsContext);
   
   const [localPickerValues, setLocalPickerValues] = useState({
       3: 'fr',
   });
-  const theme = useColorScheme() ?? 'light';
+  const { theme, setTheme } = useContext(SettingsContext);
+
 
   const handleLogout = async () => {
     await signOut();
@@ -101,71 +101,46 @@ const SettingsScreen = () => {
     }
   };
 
-  const [isHistoryEnabled, setIsHistoryEnabled] = useState(true);
 
-  // Load the history enabled status when the component mounts
-  // This ensures we respect the user's previous choice
-  useEffect(() => {
-    const loadStatus = async () => {
-      const status = await getHistoryEnabledStatus();
-      setIsHistoryEnabled(status);
-    };
-    loadStatus();
-  }, []);
-
-  const handleHistoryToggle = (newValue) => {
-    // Cas 1 : L'utilisateur veut ACTIVER l'historique.
-    if (newValue) {
-      // Action simple : on met à jour l'UI et on sauvegarde.
-      setIsHistoryEnabled(true);
-      setHistoryEnabledStatus(true);
-    } 
-    // Cas 2 : L'utilisateur veut DÉSACTIVER l'historique.
-    else {
-      // On affiche l'alerte SANS CHANGER L'ÉTAT de l'UI pour le moment.
-      // Le switch reste visuellement "activé" pendant que l'alerte est affichée.
+   const handleHistoryToggle = (newValue) => {
+    // Si l'utilisateur veut désactiver
+    if (!newValue) {
       Alert.alert(
         "Désactiver l'historique",
         "Voulez-vous aussi vider l'historique et les favoris ?",
         [
-          { 
-            text: "Annuler", 
-            style: "cancel",
-            // Si l'utilisateur annule, on ne fait absolument rien. L'état `isHistoryEnabled`
-            // est toujours `true`, donc le switch reste bien activé.
-          },
+          { text: "Annuler", style: "cancel" },
           { 
             text: "Juste Désactiver",
-            onPress: async () => {
-              // Action : Désactiver sans vider.
-              await setHistoryEnabledStatus(false);
-              setIsHistoryEnabled(false);
+            onPress: () => {
+              // On appelle simplement la fonction du contexte
+              setHistoryEnabled(false);
             }
           },
           { 
             text: "Vider et Désactiver", 
             style: "destructive",
             onPress: async () => {
-              // Action : Vider ET désactiver.
               await clearHistory();
-              await setHistoryEnabledStatus(false);
-              setIsHistoryEnabled(false);
+              // On appelle la fonction du contexte après avoir vidé
+              setHistoryEnabled(false);
               Alert.alert("Succès", "L'historique et les favoris ont été vidés.");
             }
           }
         ]
       );
+    } else {
+      // Si l'utilisateur veut réactiver, on appelle la fonction du contexte
+      setHistoryEnabled(true);
     }
   };
 
-  return (
+   return (
     <View style={styles(theme).container}>
       {/* Header fixe */}
       <AppHeader />
-
       {/* Contenu défilant */}
       <ScrollView>
-
         {/* Preferences Section */}
         <View style={styles(theme).section}>
           <Text style={[styles(theme).sectionTitle, { fontSize: 28 + textSize }]}>Préférences</Text>
@@ -173,12 +148,19 @@ const SettingsScreen = () => {
             <View key={item.id} style={styles(theme).preferenceItem}>
               <Text style={[styles(theme).preferenceLabel, { fontSize: 22 + textSize }]}>{item.label}</Text>
 
-              {item.type === 'switch' && (
+              {item.type === 'switch' && item.label === 'Clair/Sombre' && (
+                <Switch
+                  value={theme === 'dark'}
+                  onValueChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  trackColor={{ false: '#767577', true: '#6750a4' }}
+                  thumbColor={'#f4f3f4'}
+                />
+              )}
+              {item.type === 'switch' && item.label === 'Historique' && (
                 item.label === 'Historique' ? (
-                  // Si le label est "Historique", on utilise la logique dédiée
                   <Switch
-                    value={isHistoryEnabled}
-                    onValueChange={handleHistoryToggle}
+                    value={isHistoryEnabled} // Valeur lue depuis le contexte
+                    onValueChange={handleHistoryToggle} // Fonction qui appelle le contexte
                     trackColor={{ false: '#767577', true: '#6750a4' }}
                     thumbColor={'#f4f3f4'}
                   />
@@ -190,16 +172,17 @@ const SettingsScreen = () => {
                   />
                 )
               )}
-              {item.type === 'size-control' && (
-                <View style={styles(theme).sizeControl}>
-                  <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
-                    <Ionicons name="remove" size={16} color="black" style={styles(theme).icon} />
-                  </Button>
-                  <Separator style={styles(theme).separator} />
-                  <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(true)}>
-                    <Ionicons name="add" size={16} color="black" style={styles(theme).icon} />
-                  </Button>
-              </View> )}
+
+                  {item.type === 'size-control' && (
+                  <View style={styles(theme).sizeControl}>
+                    <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
+                      <Ionicons name="remove" size={16} color="black" style={styles(theme).icon} />
+                    </Button>
+                    <Separator style={styles(theme).separator} />
+                    <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(true)}>
+                      <Ionicons name="add" size={16} color="black" style={styles(theme).icon} />
+                    </Button>
+                </View> )}
 
               {item.type === 'picker' && (
                 <View style={styles(theme).pickerContainer}>
