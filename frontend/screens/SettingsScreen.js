@@ -77,33 +77,47 @@ const SettingsScreen = () => {
   }, []);
 
   const handleHistoryToggle = (newValue) => {
-    // If the user is turning off the history, show confirmation
-    if (!newValue) {
+    // Cas 1 : L'utilisateur veut ACTIVER l'historique.
+    if (newValue) {
+      // Action simple : on met à jour l'UI et on sauvegarde.
+      setIsHistoryEnabled(true);
+      setHistoryEnabledStatus(true);
+    } 
+    // Cas 2 : L'utilisateur veut DÉSACTIVER l'historique.
+    else {
+      // On affiche l'alerte SANS CHANGER L'ÉTAT de l'UI pour le moment.
+      // Le switch reste visuellement "activé" pendant que l'alerte est affichée.
       Alert.alert(
-        "Vider l'historique",
-        "Êtes-vous sûr de vouloir supprimer définitivement tout l'historique des traductions ?",
+        "Désactiver l'historique",
+        "Voulez-vous aussi vider l'historique et les favoris ?",
         [
           { 
             text: "Annuler", 
             style: "cancel",
-            // Turn on the switch back if user cancels
-            onPress: () => setIsHistoryEnabled(true)
+            // Si l'utilisateur annule, on ne fait absolument rien. L'état `isHistoryEnabled`
+            // est toujours `true`, donc le switch reste bien activé.
           },
           { 
-            text: "Supprimer", 
+            text: "Juste Désactiver",
+            onPress: async () => {
+              // Action : Désactiver sans vider.
+              await setHistoryEnabledStatus(false);
+              setIsHistoryEnabled(false);
+            }
+          },
+          { 
+            text: "Vider et Désactiver", 
             style: "destructive",
             onPress: async () => {
+              // Action : Vider ET désactiver.
               await clearHistory();
-              await setHistoryEnabledStatus(false); // Save the new status
-              setIsHistoryEnabled(false); // Update the UI
-              Alert.alert("Succès", "L'historique a été vidé.");
+              await setHistoryEnabledStatus(false);
+              setIsHistoryEnabled(false);
+              Alert.alert("Succès", "L'historique et les favoris ont été vidés.");
             }
           }
         ]
       );
-    } else {
-      setHistoryEnabledStatus(true); // Save the new status
-      setIsHistoryEnabled(true); // Update the UI
     }
   };
 
