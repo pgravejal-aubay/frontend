@@ -19,14 +19,19 @@ export const styles = (theme = 'light') => StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors[theme].buttonBackground, // #6d0d61
   },
   activeTab: {
-    backgroundColor: Colors[theme].buttonBackground, // #6d0d61
+    backgroundColor: '#ffffff',
   },
   tabText: {
     fontSize: 16,
     color: Colors[theme].text, // #eb76c7
+    fontWeight: 'bold',
+  },
+  activeTabText: {
+    fontSize: 16,
+    color: Colors[theme].activeText, // #6d0d61 (violet)
     fontWeight: 'bold',
   },
   content: {

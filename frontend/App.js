@@ -1,3 +1,5 @@
+
+
 // frontend/App.js
 
 import React, { useEffect, useMemo, useCallback } from 'react';
@@ -25,6 +27,7 @@ import ProcessingScreen from './screens/ProcessingScreen';
 import TranslationScreen from './screens/TranslationScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import HistoryScreen from './screens/HistoryScreen';
+import PolicyScreen from './screens/PolicyScreen'; // Importer le nouvel écran
 
 
 const Stack = createStackNavigator();

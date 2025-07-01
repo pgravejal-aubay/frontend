@@ -129,7 +129,7 @@ def extract_keypoints_v2_mediapipe(video_frames_dir: str, task_temp_dir: str) ->
     return keypoints_output_file
 
 @torch.no_grad()
-def run_translation_pipeline_v2(video_frames_dir: str, task_temp_dir: str,targetLang: str) -> str:
+def run_translation_pipeline_v2(video_frames_dir: str, task_temp_dir: str,targetLang: str) -> dict:
     """Runs the complete Pipeline V2."""
     device = MODELS_V2['device']
     
@@ -251,5 +251,17 @@ def run_translation_pipeline_v2(video_frames_dir: str, task_temp_dir: str,target
     predicted_text_v2 = text_tokenizer_v2.decode(generated_ids[0], skip_special_tokens=True)
     print(f"Pipeline V2: Predicted text: '{predicted_text_v2}'")
     final_text_v2 = text_translation(predicted_text_v2,targetLang)
+
+    targetLangMapping = {
+        "fr": "Français",
+        "en": "English",
+        "de": "German",
+    }
+    full_target_lang_name = targetLangMapping.get(targetLang, targetLang.capitalize())
+
     print(f" Pipeline V2: Translated text: '{final_text_v2}'")
-    return final_text_v2
+    return {
+        "original_text": predicted_text_v2,
+        "translated_text": final_text_v2,
+        "target_lang": full_target_lang_name,
+    }

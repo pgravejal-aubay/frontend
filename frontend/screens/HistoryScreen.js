@@ -5,7 +5,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import AppHeader from '../components/AppHeaders';
 import { styles } from '../styles/HistoryStyle';
 import { AuthContext } from '../contexts/AuthContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { SettingsContext } from '../contexts/SettingsContext';
+
 import { getHistory, getSavedTranslations } from '../services/storageService';
 
 const capitalize = (s) => {
@@ -16,7 +17,7 @@ const capitalize = (s) => {
 const HistoryScreen = ({ navigation }) => {
   const { textSize } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('Historique');
-  const theme = useColorScheme() ?? 'light';
+  const { theme, setTheme } = useContext(SettingsContext);
 
   const [historyItems, setHistoryItems] = useState([]);
   const [savedItems, setSavedItems] = useState([]);
@@ -65,14 +66,13 @@ const HistoryScreen = ({ navigation }) => {
       <View style={styles(theme).tabContainer}>
         <TouchableOpacity
           style={[styles(theme).tab, activeTab === 'Historique' && styles(theme).activeTab]}
-          onPress={() => setActiveTab('Enregistrés')}
+          onPress={() => setActiveTab('Historique')}
         >
           <Text style={styles(theme).tabText}>Historique</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles(theme).tab, activeTab === 'Enregistrés' && styles(theme).activeTab]}
-
-          onPress={() => setActiveTab('Historique')}
+          onPress={() => setActiveTab('Enregistrés')}
         >
           <Text style={styles(theme).tabText}>Enregistrés</Text>
         </TouchableOpacity>

@@ -6,14 +6,14 @@ import { checkTaskStatus, cancelTask } from '../services/uploadService';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { AuthContext } from '../contexts/AuthContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { SettingsContext } from '../contexts/SettingsContext'
 import { processingStyles as styles } from '../styles/processingStyles';
 
 const ProcessingScreen = ({ route, navigation }) => {
     const { taskId } = route.params;
     const intervalRef = useRef(null);
     const { textSize } = useContext(AuthContext);
-    const theme = useColorScheme() ?? 'light';
+    const { theme, setTheme } = useContext(SettingsContext);
 
     const [fontsLoaded] = useFonts({
         'SpaceMono-Regular': require('../assets/fonts/SpaceMono-Regular.ttf'),

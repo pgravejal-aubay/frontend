@@ -13,9 +13,6 @@ def create_app(config_class=Config):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config_class)
 
-    # Initialise le statut des modèles IA à False
-    app.config['AI_MODELS_READY'] = False
-
     # Ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)
@@ -51,12 +48,7 @@ def create_app(config_class=Config):
         print("Pipeline V2 models loaded.")
 
         # Une fois que tous les modèles sont chargés, met à jour le statut
-        app.config['AI_MODELS_READY'] = True
         print("All AI models are now ready.")
-
-    @app.route('/status/ai_ready', methods=['GET'])
-    def ai_ready_status():
-        return jsonify({'ready': app.config['AI_MODELS_READY']})
 
     @app.route('/hello')
     def hello():
