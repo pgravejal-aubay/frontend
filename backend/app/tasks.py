@@ -122,13 +122,11 @@ def translate_video_task_v2(task_id: str, video_path: str,targetLang: str):
         print(f"Task {task_id} (V2): Successfully extracted {count} frames to {frames_dir_v2}")
 
         # Call Pipeline V2's translation function
-        translated_text = run_translation_pipeline_v2(frames_dir_v2, task_temp_dir,targetLang)
+        result = run_translation_pipeline_v2(frames_dir_v2, task_temp_dir,targetLang)
 
         task['status'] = 'completed'
-        task['result'] = {
-            'translated_text': translated_text
-        }
-        print(f"✅ Pipeline V2 Processing completed for task {task_id}. Result: '{translated_text}'")
+        task['result'] = result
+        print(f"✅ Pipeline V2 Processing completed for task {task_id}. Result: '{result}'")
 
     except Exception as e:
         task['status'] = 'failed'

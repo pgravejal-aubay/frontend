@@ -2,6 +2,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useState, useEffect } from 'react';
 import * as Speech from 'expo-speech';
+import { getHistoryEnabledStatus, setHistoryEnabledStatus as saveHistoryStatus } from '../services/storageService';
+
 
 // 1. Création du contexte
 export const SettingsContext = createContext();
@@ -13,6 +15,7 @@ export const SettingsProvider = ({ children }) => {
   const [voice, setVoice] = useState(null); // Stocke l'identifiant de la voix
   const [speechRate, setSpeechRate] = useState(1.0); // Vitesse de lecture (1.0 = normale)
   const [theme, setThemeState] = useState('light');
+  const [isHistoryEnabled, setIsHistoryEnabled] = useState(true);
 
   // Au premier chargement de l'app, on récupère les voix disponibles
   useEffect(() => {
@@ -61,6 +64,11 @@ export const SettingsProvider = ({ children }) => {
       } catch (error) {
         console.error("Failed to save theme:", error);
       }
+    },
+    isHistoryEnabled,
+    setHistoryEnabled: async (newStatus) => {
+      setIsHistoryEnabled(newStatus); // Met à jour l'état dans l'app
+      await saveHistoryStatus(newStatus); // Sauvegarde l'état dans le stockage
     },
   };
 

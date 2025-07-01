@@ -1,5 +1,3 @@
-
-
 // frontend/screens/SettingsScreen.js
 import React, { useState, useContext } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
@@ -13,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../contexts/AuthContext';
 import { styles } from '../styles/SettingsStyle';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { clearHistory,getHistoryEnabledStatus, setHistoryEnabledStatus } from '../services/storageService'; 
 // --- MODIFICATION ICI : On importe le bon fichier et la bonne variable ---
 import { policyContent } from '../constants/policyContent'; 
 
@@ -80,7 +79,7 @@ const preferenceItems = [
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const { signOut, setTextSize, textSize } = useContext(AuthContext);
-  const { voice, setVoice, speechRate, setSpeechRate, availableVoices } = useContext(SettingsContext);
+  const { voice, setVoice, speechRate, setSpeechRate, availableVoices, isHistoryEnabled, setHistoryEnabled } = useContext(SettingsContext);
   
   const [localPickerValues, setLocalPickerValues] = useState({
       3: 'fr',
@@ -102,14 +101,37 @@ const SettingsScreen = () => {
     }
   };
 
-  const handlePolicyNavigation = (label) => {
-    // --- MODIFICATION ICI : On utilise la bonne variable ---
-    const data = policyContent[label];
-    
-    if (data) {
-      navigation.navigate('Policy', { title: data.title, content: data.content });
+
+   const handleHistoryToggle = (newValue) => {
+    // Si l'utilisateur veut désactiver
+    if (!newValue) {
+      Alert.alert(
+        "Désactiver l'historique",
+        "Voulez-vous aussi vider l'historique et les favoris ?",
+        [
+          { text: "Annuler", style: "cancel" },
+          { 
+            text: "Juste Désactiver",
+            onPress: () => {
+              // On appelle simplement la fonction du contexte
+              setHistoryEnabled(false);
+            }
+          },
+          { 
+            text: "Vider et Désactiver", 
+            style: "destructive",
+            onPress: async () => {
+              await clearHistory();
+              // On appelle la fonction du contexte après avoir vidé
+              setHistoryEnabled(false);
+              Alert.alert("Succès", "L'historique et les favoris ont été vidés.");
+            }
+          }
+        ]
+      );
     } else {
-      console.log(`Pas de contenu trouvé pour le bouton: ${label}`);
+      // Si l'utilisateur veut réactiver, on appelle la fonction du contexte
+      setHistoryEnabled(true);
     }
   };
 
@@ -125,6 +147,7 @@ const SettingsScreen = () => {
           {preferenceItems.map((item) => (
             <View key={item.id} style={styles(theme).preferenceItem}>
               <Text style={[styles(theme).preferenceLabel, { fontSize: 22 + textSize }]}>{item.label}</Text>
+
               {item.type === 'switch' && item.label === 'Clair/Sombre' && (
                 <Switch
                   value={theme === 'dark'}
@@ -134,11 +157,20 @@ const SettingsScreen = () => {
                 />
               )}
               {item.type === 'switch' && item.label === 'Historique' && (
-                <Switch
-                  defaultChecked={item.defaultChecked}
-                  trackColor={{ false: '#767577', true: '#6750a4' }}
-                  thumbColor={item.defaultChecked ? '#f4f3f4' : '#f4f3f4'}
-                />
+                item.label === 'Historique' ? (
+                  <Switch
+                    value={isHistoryEnabled} // Valeur lue depuis le contexte
+                    onValueChange={handleHistoryToggle} // Fonction qui appelle le contexte
+                    trackColor={{ false: '#767577', true: '#6750a4' }}
+                    thumbColor={'#f4f3f4'}
+                  />
+                ) : (
+                  <Switch
+                    defaultChecked={item.defaultChecked}
+                    trackColor={{ false: '#767577', true: '#6750a4' }}
+                    thumbColor={item.defaultChecked ? '#f4f3f4' : '#f4f3f4'}
+                  />
+                )
               )}
 
                   {item.type === 'size-control' && (
