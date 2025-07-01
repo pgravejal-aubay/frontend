@@ -94,7 +94,6 @@ export default function App() {
                 <Stack.Screen name="Cover" component={CoverScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Register" component={RegisterScreen} />
-                <Stack.Screen name="Video" component={HomeScreen} />
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Processing" component={ProcessingScreen} />
                 <Stack.Screen name="Translation" component={TranslationScreen} />
@@ -119,3 +118,4 @@ export default function App() {
     </AuthContext.Provider>
   );
 }
+

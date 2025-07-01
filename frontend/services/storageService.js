@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HISTORY_KEY = 'translation_history';
 const SAVED_KEY = 'saved_translations';
+const HISTORY_ENABLED_KEY = 'history_enabled_status';
 
 
 export const getHistory = async () => {
@@ -17,6 +18,8 @@ export const getHistory = async () => {
 
 export const addToHistory = async (translationEntry) => {
   try {
+    const isEnabled = await getHistoryEnabledStatus();
+    if (!isEnabled) return;
     const history = await getHistory();
     const updatedHistory = [translationEntry, ...history];
 
@@ -30,6 +33,28 @@ export const addToHistory = async (translationEntry) => {
   }
 };
 
+export const getHistoryEnabledStatus = async () => {
+  try {
+    const status = await AsyncStorage.getItem(HISTORY_ENABLED_KEY);
+    // Si status est null (nouvel utilisateur), on retourne true.
+    if (status === null) {
+      return true;
+    }
+    // Sinon, on retourne la valeur booléenne sauvegardée.
+    return JSON.parse(status);
+  } catch (e) {
+    console.error("Failed to load history status.", e);
+    return true; // En cas d'erreur, on active par sécurité.
+  }
+};
+
+export const setHistoryEnabledStatus = async (isEnabled) => {
+  try {
+    await AsyncStorage.setItem(HISTORY_ENABLED_KEY, JSON.stringify(isEnabled));
+  } catch (e) {
+    console.error("Failed to save history status.", e);
+  }
+};
 
 export const getSavedTranslations = async () => {
   try {
@@ -58,6 +83,16 @@ export const saveTranslation = async (translationToSave) => {
   } catch (e) {
     console.error("Failed to save translation.", e);
     throw e;
+  }
+};
+
+export const clearHistory = async () => {
+  try {
+    await AsyncStorage.removeItem(HISTORY_KEY);
+    await AsyncStorage.removeItem(SAVED_KEY);
+    console.log("History cleared successfully.");
+  } catch (e) {
+    console.error("Failed to clear history.", e);
   }
 };
 

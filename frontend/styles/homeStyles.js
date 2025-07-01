@@ -91,7 +91,7 @@ export const homeStyles = (theme = 'light') => StyleSheet.create({
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: '#d3d3d3', // Gris pour le cercle intérieur
+    backgroundColor: Colors[theme].recordOff,
     justifyContent: 'center',
     alignItems: 'center',
   },

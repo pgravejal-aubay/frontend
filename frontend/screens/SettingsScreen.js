@@ -1,5 +1,3 @@
-
-
 // frontend/screens/SettingsScreen.js
 import React, { useState, useContext } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
@@ -11,9 +9,9 @@ import AppHeader from '../components/AppHeaders';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../contexts/AuthContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { styles } from '../styles/SettingsStyle';
 import { SettingsContext } from '../contexts/SettingsContext';
+import { clearHistory,getHistoryEnabledStatus, setHistoryEnabledStatus } from '../services/storageService'; 
 // --- MODIFICATION ICI : On importe le bon fichier et la bonne variable ---
 import { policyContent } from '../constants/policyContent'; 
 
@@ -82,12 +80,13 @@ const preferenceItems = [
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const { signOut, setTextSize, textSize } = useContext(AuthContext);
-  const { voice, setVoice, speechRate, setSpeechRate, availableVoices } = useContext(SettingsContext);
+  const { voice, setVoice, speechRate, setSpeechRate, availableVoices, isHistoryEnabled, setHistoryEnabled } = useContext(SettingsContext);
   
   const [localPickerValues, setLocalPickerValues] = useState({
       3: 'fr',
   });
-  const theme = useColorScheme() ?? 'light';
+  const { theme, setTheme } = useContext(SettingsContext);
+
 
   const handleLogout = async () => {
     await signOut();
@@ -119,6 +118,40 @@ const SettingsScreen = () => {
     }
   };
 
+
+   const handleHistoryToggle = (newValue) => {
+    // Si l'utilisateur veut désactiver
+    if (!newValue) {
+      Alert.alert(
+        "Désactiver l'historique",
+        "Voulez-vous aussi vider l'historique et les favoris ?",
+        [
+          { text: "Annuler", style: "cancel" },
+          { 
+            text: "Juste Désactiver",
+            onPress: () => {
+              // On appelle simplement la fonction du contexte
+              setHistoryEnabled(false);
+            }
+          },
+          { 
+            text: "Vider et Désactiver", 
+            style: "destructive",
+            onPress: async () => {
+              await clearHistory();
+              // On appelle la fonction du contexte après avoir vidé
+              setHistoryEnabled(false);
+              Alert.alert("Succès", "L'historique et les favoris ont été vidés.");
+            }
+          }
+        ]
+      );
+    } else {
+      // Si l'utilisateur veut réactiver, on appelle la fonction du contexte
+      setHistoryEnabled(true);
+    }
+  };
+
   const handlePolicyNavigation = (label) => {
     // --- MODIFICATION ICI : On utilise la bonne variable ---
     const data = policyContent[label];
@@ -130,37 +163,54 @@ const SettingsScreen = () => {
     }
   };
 
-  return (
+   return (
     <View style={styles(theme).container}>
       {/* Header fixe */}
       <AppHeader />
-
       {/* Contenu défilant */}
       <ScrollView>
-
         {/* Preferences Section */}
         <View style={styles(theme).section}>
           <Text style={[styles(theme).sectionTitle, { fontSize: 28 + textSize }]}>Préférences</Text>
           {preferenceItems.map((item) => (
             <View key={item.id} style={styles(theme).preferenceItem}>
               <Text style={[styles(theme).preferenceLabel, { fontSize: 22 + textSize }]}>{item.label}</Text>
-              {item.type === 'switch' && (
+
+              {item.type === 'switch' && item.label === 'Clair/Sombre' && (
                 <Switch
-                  defaultChecked={item.defaultChecked}
+                  value={theme === 'dark'}
+                  onValueChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                   trackColor={{ false: '#767577', true: '#6750a4' }}
-                  thumbColor={item.defaultChecked ? '#f4f3f4' : '#f4f3f4'}
+                  thumbColor={'#f4f3f4'}
                 />
               )}
-              {item.type === 'size-control' && (
-                <View style={styles(theme).sizeControl}>
-                  <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
-                    <Ionicons name="remove" size={16} color="black" style={styles(theme).icon} />
-                  </Button>
-                  <Separator style={styles(theme).separator} />
-                  <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(true)}>
-                    <Ionicons name="add" size={16} color="black" style={styles(theme).icon} />
-                  </Button>
-              </View> )}
+              {item.type === 'switch' && item.label === 'Historique' && (
+                item.label === 'Historique' ? (
+                  <Switch
+                    value={isHistoryEnabled} // Valeur lue depuis le contexte
+                    onValueChange={handleHistoryToggle} // Fonction qui appelle le contexte
+                    trackColor={{ false: '#767577', true: '#6750a4' }}
+                    thumbColor={'#f4f3f4'}
+                  />
+                ) : (
+                  <Switch
+                    defaultChecked={item.defaultChecked}
+                    trackColor={{ false: '#767577', true: '#6750a4' }}
+                    thumbColor={item.defaultChecked ? '#f4f3f4' : '#f4f3f4'}
+                  />
+                )
+              )}
+
+                  {item.type === 'size-control' && (
+                  <View style={styles(theme).sizeControl}>
+                    <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
+                      <Ionicons name="remove" size={16} color="black" style={styles(theme).icon} />
+                    </Button>
+                    <Separator style={styles(theme).separator} />
+                    <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(true)}>
+                      <Ionicons name="add" size={16} color="black" style={styles(theme).icon} />
+                    </Button>
+                </View> )}
 
               {item.type === 'picker' && (
                 <View style={styles(theme).pickerContainer}>

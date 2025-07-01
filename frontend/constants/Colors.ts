@@ -17,16 +17,18 @@ export const Colors = {
     buttonBackground: '#ed9bd4', // Violet foncé pour boutons
     border: '#ed9bd4', // Violet foncé pour bordures
     cardBackground: '#ed9bd4', // Violet foncé pour encadrés
+    recordOff : '#d3d3d3', 
   },
   dark: {
     text: '#6d0d61', // Rose pour textes
-    background: '#27b2a4', // Bleu foncé pour fond
+    background: '#1E8F84', // Bleu foncé pour fond
     tint: '#007AFF', // Conserver
     icon: '#98a0a6', // Conserver
     tabIconDefault: '#98a0a6', // Conserver
     tabIconSelected: '#007AFF', // Conserver
-    buttonBackground: '#ed9bd4', // Violet foncé pour boutons
-    border: '#ed9bd4', // Violet foncé pour bordures
-    cardBackground: '#ed9bd4', // Violet foncé pour encadrés
+    buttonBackground: '#9A4F84', // Violet foncé pour boutons
+    border: '#9A4F84', // Violet foncé pour bordures
+    cardBackground: '#9A4F84', // Violet foncé pour encadrés
+    recordOff : '#a9a9a9',
   },
 };
