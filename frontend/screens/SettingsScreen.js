@@ -1,3 +1,5 @@
+
+
 // frontend/screens/SettingsScreen.js
 import React, { useState, useContext } from 'react';
 import { View, Text, ScrollView } from 'react-native';
@@ -12,6 +14,8 @@ import { AuthContext } from '../contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { styles } from '../styles/SettingsStyle';
 import { SettingsContext } from '../contexts/SettingsContext';
+// --- MODIFICATION ICI : On importe le bon fichier et la bonne variable ---
+import { policyContent } from '../constants/policyContent'; 
 
 const policyButtons = [
   { id: 1, label: 'Politique de confidentialité' },
@@ -62,6 +66,17 @@ const SettingsScreen = () => {
     }
   };
 
+  const handlePolicyNavigation = (label) => {
+    // --- MODIFICATION ICI : On utilise la bonne variable ---
+    const data = policyContent[label];
+    
+    if (data) {
+      navigation.navigate('Policy', { title: data.title, content: data.content });
+    } else {
+      console.log(`Pas de contenu trouvé pour le bouton: ${label}`);
+    }
+  };
+
   return (
     <View style={styles(theme).container}>
       {/* Header fixe */}
@@ -102,7 +117,6 @@ const SettingsScreen = () => {
                       {maleVoice && <Picker.Item label="Homme" value={maleVoice.identifier} />}
                     </Picker>
                   ) : item.label === 'Vitesse de lecture' ? (
-                    // <<< MODIFICATION FINALE : retour à x1 et x1.5 >>>
                     <Picker selectedValue={speechRate} onValueChange={(v) => setSpeechRate(parseFloat(v))} style={styles.picker}>
                         <Picker.Item label="x 1" value="1.0" />
                         <Picker.Item label="x 1.5" value="1.5" />
@@ -124,7 +138,12 @@ const SettingsScreen = () => {
         <View style={styles(theme).section}>
           <Text style={[styles(theme).sectionTitle, { fontSize: 28 + textSize }]}>Conditions et politiques</Text>
           {policyButtons.map((button) => (
-            <Button key={button.id} variant="outline" style={styles(theme).policyButton}>
+            <Button 
+              key={button.id} 
+              variant="outline" 
+              style={styles(theme).policyButton}
+              onPress={() => handlePolicyNavigation(button.label)}
+            >
               <Text style={[styles(theme).policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>
           ))}
@@ -134,7 +153,12 @@ const SettingsScreen = () => {
         <View style={styles(theme).section}>
           <Text style={[styles(theme).sectionTitle, { fontSize: 28 + textSize }]}>Assistance</Text>
           {assistanceButtons.map((button) => (
-            <Button key={button.id} variant="outline" style={styles(theme).policyButton}>
+            <Button 
+              key={button.id} 
+              variant="outline" 
+              style={styles(theme).policyButton}
+              onPress={() => handlePolicyNavigation(button.label)}
+            >
               <Text style={[styles(theme).policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>
           ))}
