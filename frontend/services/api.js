@@ -1,3 +1,5 @@
+// frontend/service/api.js
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_BASE_URL = 'http://10.0.2.2:5000';
@@ -18,4 +20,13 @@ export const getAuthHeaders = async () => {
     }
 
     return headers;
+};
+
+export const checkAiStatus = async () => {
+    try {
+      const response = await fetch(getApiUrl('/hello'));
+      return response.ok;
+    } catch (error) {
+      return false; // Le backend n'est pas joignable en cas d'erreur réseau
+    }
 };
