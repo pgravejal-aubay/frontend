@@ -32,8 +32,21 @@ export const homeStyles = (theme = 'light') => StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 24,
     overflow: 'hidden',
-    backgroundColor: Colors[theme].cardBackground, // #6d0d61
+    backgroundColor: 'black', // <-- MODIFICATION 1 : Masque le fond turquoise de la page
   },
+  cameraOverlayContainer: {
+    ...StyleSheet.absoluteFillObject, // Raccourci pour position: 'absolute', top:0, left:0, right:0, bottom:0
+    justifyContent: 'center',        // Centre verticalement
+    alignItems: 'center',            // Centre horizontalement
+  },
+    cameraOverlayImage: {
+        position: 'contains',
+        top: 0,
+        left: 0,
+        width: '90%',
+        height: '90%',
+        opacity: 0.7, // Opacité de l'image (ajustez selon vos préférences)
+    },
   timerOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.4)',
