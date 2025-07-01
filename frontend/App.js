@@ -17,6 +17,7 @@ import TranslationScreen from './screens/TranslationScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import HistoryScreen from './screens/HistoryScreen';
 import PolicyScreen from './screens/PolicyScreen'; // Importer le nouvel écran
+import AboutTeamScreen from './screens/AboutTeamScreen';
 
 // --- Import des services et contextes ---
 import { getToken, logout } from './services/authService';
@@ -96,6 +97,7 @@ export default function App() {
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Processing" component={ProcessingScreen} />
                 <Stack.Screen name="Translation" component={TranslationScreen} />
+                <Stack.Screen name="AboutTeam" component={AboutTeamScreen} />
 
               </>
             ) : (
@@ -106,6 +108,8 @@ export default function App() {
                 <Stack.Screen name="History" component={HistoryScreen} />
                 <Stack.Screen name="Processing" component={ProcessingScreen} />
                 <Stack.Screen name="Translation" component={TranslationScreen} />
+                <Stack.Screen name="Policy" component={PolicyScreen} />
+                <Stack.Screen name="AboutTeam" component={AboutTeamScreen} />
               </>
             )}
           </Stack.Navigator>
