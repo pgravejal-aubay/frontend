@@ -95,3 +95,4 @@ tmp/
 
 # TypeScript specific 
 *.tsbuildinfo
+android/

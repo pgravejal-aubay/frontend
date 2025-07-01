@@ -11,7 +11,6 @@ import AppHeader from '../components/AppHeaders';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../contexts/AuthContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { styles } from '../styles/SettingsStyle';
 import { SettingsContext } from '../contexts/SettingsContext';
 // --- MODIFICATION ICI : On importe le bon fichier et la bonne variable ---
@@ -86,7 +85,8 @@ const SettingsScreen = () => {
   const [localPickerValues, setLocalPickerValues] = useState({
       3: 'fr',
   });
-  const theme = useColorScheme() ?? 'light';
+  const { theme, setTheme } = useContext(SettingsContext);
+
 
   const handleLogout = async () => {
     await signOut();
@@ -113,37 +113,44 @@ const SettingsScreen = () => {
     }
   };
 
-  return (
+   return (
     <View style={styles(theme).container}>
       {/* Header fixe */}
       <AppHeader />
-
       {/* Contenu défilant */}
       <ScrollView>
-
         {/* Preferences Section */}
         <View style={styles(theme).section}>
           <Text style={[styles(theme).sectionTitle, { fontSize: 28 + textSize }]}>Préférences</Text>
           {preferenceItems.map((item) => (
             <View key={item.id} style={styles(theme).preferenceItem}>
               <Text style={[styles(theme).preferenceLabel, { fontSize: 22 + textSize }]}>{item.label}</Text>
-              {item.type === 'switch' && (
+              {item.type === 'switch' && item.label === 'Clair/Sombre' && (
+                <Switch
+                  value={theme === 'dark'}
+                  onValueChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  trackColor={{ false: '#767577', true: '#6750a4' }}
+                  thumbColor={'#f4f3f4'}
+                />
+              )}
+              {item.type === 'switch' && item.label === 'Historique' && (
                 <Switch
                   defaultChecked={item.defaultChecked}
                   trackColor={{ false: '#767577', true: '#6750a4' }}
                   thumbColor={item.defaultChecked ? '#f4f3f4' : '#f4f3f4'}
                 />
               )}
-              {item.type === 'size-control' && (
-                <View style={styles(theme).sizeControl}>
-                  <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
-                    <Ionicons name="remove" size={16} color="black" style={styles(theme).icon} />
-                  </Button>
-                  <Separator style={styles(theme).separator} />
-                  <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(true)}>
-                    <Ionicons name="add" size={16} color="black" style={styles(theme).icon} />
-                  </Button>
-              </View> )}
+
+                  {item.type === 'size-control' && (
+                  <View style={styles(theme).sizeControl}>
+                    <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
+                      <Ionicons name="remove" size={16} color="black" style={styles(theme).icon} />
+                    </Button>
+                    <Separator style={styles(theme).separator} />
+                    <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(true)}>
+                      <Ionicons name="add" size={16} color="black" style={styles(theme).icon} />
+                    </Button>
+                </View> )}
 
               {item.type === 'picker' && (
                 <View style={styles(theme).pickerContainer}>

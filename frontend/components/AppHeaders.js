@@ -4,15 +4,15 @@ import {AuthContext  } from "../contexts/AuthContext";
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, TouchableWithoutFeedback, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { supression,isLoggedIn } from '../services/authService'
+import { SettingsContext } from '../contexts/SettingsContext'
 
 
 export default function AppHeader() {
     const navigation = useNavigation();
     const [isProfileModalVisible, setProfileModalVisible] = useState(false);
-    const theme = useColorScheme() ?? 'light';
+    const { theme, setTheme } = useContext(SettingsContext);
 
     const { signOut } = useContext(AuthContext);
     const handleLogout = async () => {
