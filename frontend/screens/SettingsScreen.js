@@ -2,7 +2,7 @@
 
 // frontend/screens/SettingsScreen.js
 import React, { useState, useContext } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Picker } from '@react-native-picker/picker';
@@ -24,9 +24,45 @@ const policyButtons = [
 ];
 
 const assistanceButtons = [
-  { id: 1, label: 'Guide utilisateur' },
-  { id: 2, label: 'Centre d\'assistance' },
-  { id: 3, label: 'À propos de l\'équipe' },
+  {
+    id: 1,
+    label: 'Guide utilisateur',
+    alertTitle: 'Guide Utilisateur', // New property
+    alertMessage: `Bienvenue sur HandsUp ! Voici comment traduire une vidéo en quelques étapes simples :
+
+1.  **Capturer ou Importer**
+    *   **Filmer :** Utilisez le bouton d'enregistrement sur l'écran d'accueil. Pour de meilleurs résultats, assurez-vous que le signataire est bien éclairé, visible de face (visage, torse et mains), et que la vidéo est stable.
+    *   **Importer :** Appuyez sur l'icône d'importation pour choisir une vidéo depuis votre galerie. La vidéo ne doit pas dépasser 100 Mo.
+
+2.  **Lancer la Traduction**
+    Une fois la vidéo enregistrée ou sélectionnée, le traitement commence automatiquement. Cela peut prendre un petit moment.
+
+3.  **Découvrir le Résultat**
+    Le texte traduit s'affiche à l'écran. Vous pouvez alors :
+    *   🔊 **Écouter** la traduction grâce à la synthèse vocale.
+    *   💾 **Sauvegarder** le résultat dans votre historique.
+    *   🔗 **Partager** le texte avec d'autres applications.
+
+Bonnes traductions !`
+  },
+  {
+    id: 2,
+    label: 'Centre d\'assistance',
+    alertTitle: 'Centre d\'Assistance', // New property
+    alertMessage: `Vous rencontrez un problème ? Voici quelques solutions aux questions fréquentes.
+
+• **La traduction est incorrecte ou vide ?**
+La qualité de la vidéo est essentielle. Essayez de filmer à nouveau avec un meilleur éclairage et un cadrage plus large. Vous pouvez aussi essayer l'autre modèle de traduction (V1/V2) sur l'écran d'accueil. Si le problème persiste, utilisez l'icône "drapeau" 🚩 sur l'écran de résultat pour nous signaler l'erreur.
+
+• **L'application est lente ?**
+Le traitement vidéo demande beaucoup de ressources. Assurez-vous d'avoir une bonne connexion internet, surtout pour l'importation de vidéos.
+
+• **Besoin de plus d'aide ?**
+Si votre problème n'est pas résolu, contactez notre support par email à : support@handsup.app
+
+Merci de nous aider à améliorer l'application !`
+  },
+  { id: 3, label: 'À propos de l\'équipe', alertTitle: 'À propos de l\'Équipe', alertMessage: 'Découvrez l\'équipe derrière l\'application dans la section dédiée.' },
 ];
 
 const preferenceItems = [
@@ -62,6 +98,14 @@ const SettingsScreen = () => {
       navigation.navigate('AboutTeam');
     } else if (['Politique de confidentialité', 'Conditions générales', 'Mentions légales'].includes(label)) {
       navigation.navigate('Policy', { policy: label }); // Ajuste selon ta logique de navigation pour Policy
+    }
+  };
+
+  const handleAssistancePress = (button) => {
+    if (button.label === 'À propos de l\'équipe') {
+      handleNavigation(button.label);
+    } else {
+      Alert.alert(button.alertTitle, button.alertMessage);
     }
   };
 
@@ -157,16 +201,15 @@ const SettingsScreen = () => {
             </Button>
           ))}
         </View>
-
         {/* Assistance Section */}
         <View style={styles(theme).section}>
           <Text style={[styles(theme).sectionTitle, { fontSize: 28 + textSize }]}>Assistance</Text>
           {assistanceButtons.map((button) => (
-            <Button 
-              key={button.id} 
-              variant="outline" 
+            <Button
+              key={button.id}
+              variant="outline"
               style={styles(theme).policyButton}
-              onPress={() => handleNavigation(button.label)}
+              onPress={() => handleAssistancePress(button)}
             >
               <Text style={[styles(theme).policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>
