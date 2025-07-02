@@ -1,5 +1,5 @@
 # backend/app/__init__.py
-from flask import Flask
+from flask import Flask, jsonify # Importe jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -10,7 +10,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 def create_app(config_class=Config):
-    app = Flask(__name__, instance_relative_config=True) # instance_relative_config=True
+    app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config_class)
 
     # Ensure the instance folder exists
@@ -24,7 +24,7 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    CORS(app) 
+    CORS(app)
 
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -38,7 +38,7 @@ def create_app(config_class=Config):
     with app.app_context():
         from . import ai_pipeline
         from .pipeline_v2 import pipeline_v2_orchestrator # New import
-        
+
         print("Loading Pipeline V1 models...")
         ai_pipeline.load_models()
         print("Pipeline V1 models loaded.")
@@ -47,8 +47,12 @@ def create_app(config_class=Config):
         pipeline_v2_orchestrator.load_v2_models() # Load V2 models
         print("Pipeline V2 models loaded.")
 
+        # Une fois que tous les modèles sont chargés, met à jour le statut
+        print("All AI models are now ready.")
+
     @app.route('/hello')
     def hello():
         return "Hello from Flask Backend (Account Management Focus)!"
 
     return app
+

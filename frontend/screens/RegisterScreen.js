@@ -9,7 +9,6 @@ import { authStyles as styles } from '../styles/authStyles';
 import { register } from '../services/authService';
 import { AuthContext } from '../contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import AppHeader from '../components/AppHeaders';
 
 export default function RegisterScreen({ navigation }) {
   const { textSize } = useContext(AuthContext);
@@ -49,7 +48,6 @@ export default function RegisterScreen({ navigation }) {
   return (
     <SafeAreaView style={styles(theme).screen}>
       <StatusBar barStyle="dark-content" />
-      <AppHeader />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles(theme).container}

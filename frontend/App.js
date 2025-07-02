@@ -2,10 +2,21 @@
 
 // frontend/App.js
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, ActivityIndicator, Text } from 'react-native';
+import { View, ActivityIndicator, Text, Image } from 'react-native'; // Importe Image
+import * as SplashScreen from 'expo-splash-screen';
+
+// --- Import des services et contextes ---
+import { getToken, logout } from './services/authService';
+import { AuthContext } from './contexts/AuthContext';
+import { SettingsProvider } from './contexts/SettingsContext';
+import { checkAiStatus } from './services/api'; // Chemin corrigé pour './service/api'
+import AppStyles from './styles/AppStyles';
+
+// Garde le splash screen visible jusqu'à ce que nous soyons prêts à cacher
+SplashScreen.preventAutoHideAsync();
 
 // --- Import de tous les écrans ---
 import CoverScreen from './screens/CoverScreen';
@@ -20,10 +31,6 @@ import PolicyScreen from './screens/PolicyScreen';
 import AboutTeamScreen from './screens/AboutTeamScreen';
 import VideoPreviewScreen from './screens/PrevisualisationScreen';
 
-// --- Import des services et contextes ---
-import { getToken, logout } from './services/authService';
-import { AuthContext } from './contexts/AuthContext';
-import { SettingsProvider } from './contexts/SettingsContext';
 
 const Stack = createStackNavigator();
 
@@ -46,18 +53,48 @@ export default function App() {
     { isLoading: true, isSignout: false, userToken: null, textSize : 0 }
   );
 
+  // Effet pour restaurer le token et gérer l'initialisation de l'application
   useEffect(() => {
     const bootstrapAsync = async () => {
       let userToken;
       try {
-        userToken = await getToken();
+        // --- Attendre que le backend réponde ---
+        console.log('Attente de la disponibilité du backend...');
+        let backendReady = false;
+        while (!backendReady) {
+          backendReady = await checkAiStatus(); // Appel de la fonction importée
+          if (!backendReady) {
+            console.log('Backend non disponible, nouvelle tentative dans 1 seconde...');
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Attendre 1 seconde avant de réessayer
+          }
+        }
+        console.log('Backend disponible !');
+        // --- Fin de l'attente du backend ---
+
+        userToken = await getToken(); // Restaure le token utilisateur
       } catch (e) {
-        console.error("Failed to restore token", e);
+        console.error("Échec de la restauration du token ou de la connexion au backend", e);
+      } finally {
+        // Dispatche l'action pour indiquer que le chargement initial est terminé
+        dispatch({ type: 'RESTORE_TOKEN', token: userToken });
       }
-      dispatch({ type: 'RESTORE_TOKEN', token: userToken });
     };
     bootstrapAsync();
   }, []);
+
+  // NOUVEL EFFET : Masque le splash screen natif dès que le composant App est monté
+  // et que la vue de chargement personnalisée est prête à être rendue.
+  // Cela garantit que notre écran de chargement React Native devient visible.
+  useEffect(() => {
+    async function hideNativeSplash() {
+      try {
+        await SplashScreen.hideAsync();
+      } catch (e) {
+        console.warn('Erreur lors du masquage du splash screen natif:', e);
+      }
+    }
+    hideNativeSplash();
+  }, []); // S'exécute une seule fois après le premier rendu du composant
 
   const authContext = useMemo(
     () => ({
@@ -69,17 +106,26 @@ export default function App() {
         await logout();
         dispatch({ type: 'SIGN_OUT' });
       },
-      signUp: async (data) => { /* Placeholder */ },
+      signUp: async (data) => { /* Placeholder pour l'inscription */ },
       setTextSize: (offset) => dispatch({ type: 'SET_TEXT_SIZE_OFFSET', offset }),
       textSize: state.textSize, // Expose l'offset de taille
     }),
     [state.textSize]
   );
 
+  // Si l'application est toujours en chargement (attente du backend/token),
+  // affiche l'indicateur et le message personnalisé.
   if (state.isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
+      <View style={AppStyles.loadingContainer}>
+        {/* Ajout du logo de l'application */}
+        <Image
+          source={require('./assets/images/logo.png')} // Assurez-vous que le chemin vers votre logo est correct
+          style={AppStyles.logo}
+        />
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text style={AppStyles.loadingText}>Veuillez patienter...</Text>
+        <Text style={AppStyles.loadingSubText}>Connexion au serveur et chargement de l'application</Text>
       </View>
     );
   }
@@ -89,8 +135,8 @@ export default function App() {
       <SettingsProvider>
         <NavigationContainer>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
-             {state.userToken == null ? (
-              // Ecrans si l'utilisateur N'EST PAS connecté
+              {state.userToken == null ? (
+              // Écrans si l'utilisateur N'EST PAS connecté
               <>
                 <Stack.Screen name="Cover" component={CoverScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} />
@@ -102,7 +148,7 @@ export default function App() {
                 <Stack.Screen name="VideoPreview" component={VideoPreviewScreen} />
               </>
             ) : (
-              // Ecrans si l'utilisateur EST connecté
+              // Écrans si l'utilisateur EST connecté
               <>
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Settings" component={SettingsScreen} />
@@ -121,4 +167,3 @@ export default function App() {
     </AuthContext.Provider>
   );
 }
-

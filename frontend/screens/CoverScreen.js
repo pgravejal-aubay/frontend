@@ -1,22 +1,22 @@
 // screens/CoverScreen.js
 
 import React, {useContext } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  TouchableOpacity,
   SafeAreaView,
-  Alert
+  Image
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { styles } from '../styles/coverStyles';
+import { styles } from '../styles/coverStyles'; // Assure-toi que le chemin est correct
 
 export default function CoverScreen() {
   const navigation = useNavigation();
   const { textSize } = useContext(AuthContext);
-  const theme = useColorScheme() ?? 'light';
+  const theme = useColorScheme() ?? 'dark';
 
   const handleLoginPress = () => {
     navigation.navigate('Login');
@@ -29,6 +29,12 @@ export default function CoverScreen() {
 
   return (
     <SafeAreaView style={styles(theme).container}>
+        {/* Ajout du logo au centre de l'écran */}
+        <Image
+        source={require('../assets/images/logo.png')} // Chemin vers ton logo. Assure-toi qu'il est correct.
+        style={styles(theme).logo}
+      />
+
       <View style={styles(theme).buttonContainer}>
         <TouchableOpacity style={styles(theme).loginButton} onPress={handleLoginPress}>
           <Text style={[styles(theme).loginButtonText, { fontSize: 16 + textSize }]}>Se connecter</Text>
@@ -40,7 +46,7 @@ export default function CoverScreen() {
             <Text style={[styles(theme).linkText, { fontSize: 14 + textSize }]}>Continuer sans créer de compte</Text>
           </View>
         </TouchableOpacity>
-        
+
       </View>
     </SafeAreaView>
   );
