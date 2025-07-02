@@ -1,7 +1,8 @@
 // frontend/screens/HomeScreen.js
  
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Button, Image } from 'react-native';import { CameraView, useCameraPermissions } from 'expo-camera';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Button, Image } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -42,6 +43,8 @@ export default function HomeScreen({ navigation }) {
     const [isTutorialVisible, setTutorialVisible] = useState(false);
     const [elementLayouts, setElementLayouts] = useState({});
     const pipelinePickerRef = useRef(null);
+    const sourceLanguageRef = useRef(null);
+    const targetLanguageRef = useRef(null);
     const flipCameraRef = useRef(null);
     const timerRef = useRef(null);
     const recordRef = useRef(null);
@@ -71,6 +74,8 @@ export default function HomeScreen({ navigation }) {
     // tutorial steps
     const tutorialSteps = [
         { key: 'pipelinePicker', title: 'Sélecteur de Modèle', description: 'Choisissez le modèle de traduction que vous souhaitez utiliser. Le modèle V2 est plus récent et généralement plus performant.' },
+        {key: 'sourceLanguage', title: 'Langue Source', description: 'Sélectionnez la langue des signes que vous souhaitez traduire. Vous pouvez choisir "Détection Auto" pour une détection automatique.' },
+        { key: 'targetLanguage', title: 'Langue Cible', description: 'Sélectionnez la langue dans laquelle vous souhaitez traduire. Actuellement, nous supportons le Français, l\'Anglais et l\'Allemand.' },
         { key: 'flipCamera', title: 'Changer de Caméra', description: 'Basculez entre la caméra avant (pour vous filmer) et la caméra arrière.' },
         { key: 'timer', title: 'Retardateur', description: 'Déclenchez un compte à rebours de 3 secondes avant de commencer à enregistrer, pour avoir le temps de vous placer.' },
         { key: 'record', title: 'Enregistrer une Vidéo', description: 'Appuyez sur ce bouton pour démarrer l\'enregistrement. Appuyez à nouveau pour l\'arrêter et passer à la traduction.' },
@@ -81,6 +86,8 @@ export default function HomeScreen({ navigation }) {
     const measureElements = () => {
         const refs = {
             pipelinePicker: pipelinePickerRef,
+            sourceLanguage: sourceLanguageRef,
+            targetLanguage: targetLanguageRef,
             flipCamera: flipCameraRef,
             timer: timerRef,
             record: recordRef,
@@ -253,7 +260,8 @@ export default function HomeScreen({ navigation }) {
 
         {/* Section des sélecteurs de langue */}
         <View style={styles(theme).pickerRow}>
-            <View style={styles(theme).pickerContainer}>
+            {/* ===== MODIFICATION ICI : Ajout du ref au conteneur du Picker ===== */}
+            <View ref={sourceLanguageRef} style={styles(theme).pickerContainer}>
                 <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles(theme).picker} enabled={!isTutorialVisible}>
                     <Picker.Item label="Détection Auto" value="auto" />
                     <Picker.Item label="ASL" value="asl" />
@@ -261,7 +269,8 @@ export default function HomeScreen({ navigation }) {
                 </Picker>
             </View>
             <Icon name="arrow-forward" size={24} color="black" style={{ marginHorizontal: 10 }} />
-            <View style={styles(theme).pickerContainer}>
+            {/* ===== MODIFICATION ICI : Ajout du ref au conteneur du Picker ===== */}
+            <View ref={targetLanguageRef} style={styles(theme).pickerContainer}>
                 <Picker selectedValue={targetLanguage} onValueChange={setTargetLanguage} style={styles(theme).picker} enabled={!isTutorialVisible}>
                     <Picker.Item label="Français" value="fr" />
                     <Picker.Item label="English" value="en" />
