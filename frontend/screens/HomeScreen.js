@@ -73,28 +73,14 @@ export default function HomeScreen({ navigation }) {
                 const video = await cameraRef.current.recordAsync({ quality: '1080p' });
                 setIsRecording(false);
                 if (video && video.uri) {
-                    const videoAsset = {
-                        uri: video.uri,
-                        name: `recording-${Date.now()}.mp4`,
-                        mimeType: 'video/mp4',
-                    };
-                    const data = await local_video(videoAsset, selectedPipeline);
-                    if (data.task_id) {
-                        navigation.navigate('Processing', { taskId: data.task_id });
-                    } else {
-                        Alert.alert('Error', data.message || "Upload failed after recording, no task ID received.");
-                    }
-                    try {
-                        const { status } = await MediaLibrary.requestPermissionsAsync();
-                        if (status === 'granted') {
-                            await MediaLibrary.createAssetAsync(video.uri);
-                            console.log("Video saved to gallery.");
-                        }
-                    } catch (error) {
-                        console.error("Erreur lors de la sauvegarde de la vidéo :", error);
-                    }
+                    navigation.navigate('VideoPreview', {
+                        videoUri: video.uri,
+                        selectedPipeline: selectedPipeline,
+                        targetLanguage: targetLanguage,
+                    });
+                    
                 } else {
-                     Alert.alert('Erreur', "L'enregistrement a échoué ou n'a pas retourné de vidéo.");
+                    Alert.alert('Erreur', "L'enregistrement a échoué ou n'a pas retourné de vidéo.");
                 }
             } catch (error) {
                 console.error("Erreur d'enregistrement:", error);
@@ -115,6 +101,7 @@ export default function HomeScreen({ navigation }) {
 
             if (video.canceled) { 
                 console.log("Stop importing video");
+                setIsImporting(false);
                 return;
             }
         
@@ -123,22 +110,21 @@ export default function HomeScreen({ navigation }) {
             const fileSizeInMB = (asset.size / 1000000).toFixed(2);
 
             if (fileSizeInMB > MAX_FILE_SIZE_MB) {
-                Alert.alert('File too large',
-                    `The selected video is ${fileSizeInMB} MB. Please select a video smaller than ${MAX_FILE_SIZE_MB} MB.`
+                Alert.alert('Fichier trop volumineux',
+                    `La vidéo sélectionnée fait ${fileSizeInMB} MB. Veuillez sélectionner une vidéo de moins de ${MAX_FILE_SIZE_MB} MB.`
                 );
+                setIsImporting(false); 
                 return;
             }
 
-            const data = await local_video(asset, selectedPipeline, targetLanguage, selectedPipeline);
-
-            if (data.task_id) {
-                navigation.navigate('Processing', { taskId: data.task_id });
-            } else {
-                Alert.alert('Error', data.message || "Upload failed, no task ID received.");
-            }
+            navigation.navigate('VideoPreview', {
+                videoUri: asset.uri, // On passe l'URI de la vidéo
+                selectedPipeline: selectedPipeline,
+                targetLanguage: targetLanguage,
+            });
         } catch (error) {
             console.error('Error importing video:', error);
-            Alert.alert('Import Error', `An issue occurred: ${error.message || 'Unknown error'}`);
+            Alert.alert('Erreur d\'importation', `Un problème est survenu: ${error.message || 'Erreur inconnue'}`);
         } finally {
             setIsImporting(false);
         }
