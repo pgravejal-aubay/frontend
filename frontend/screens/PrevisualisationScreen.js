@@ -95,8 +95,8 @@ const styles = StyleSheet.create({
         borderColor: '#fff',
     },
     confirmButton: {
-        backgroundColor: '#4CAF50', // Un vert pour confirmer
-        borderColor: '#4CAF50',
+        backgroundColor: '#40e0d0', // Un vert pour confirmer
+        borderColor: '#40e0d0',
     },
     buttonText: {
         color: '#fff',
