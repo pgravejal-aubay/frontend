@@ -1,5 +1,5 @@
 // frontend/screens/TranslationScreen.js
-import React, { useEffect, useContext } from 'react'; // 'useState' n'est plus nécessaire ici
+import React, { useEffect, useContext, useState } from 'react'; // 'useState' n'est plus nécessaire ici
 import { 
   View, 
   Text, 
@@ -8,6 +8,7 @@ import {
   SafeAreaView, 
   Alert,
   Modal,
+  TextInput
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
@@ -19,6 +20,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { addToHistory, saveTranslation } from '../services/storageService'; 
 import { styles } from '../styles/translationStyles';
+import { submitReport } from '../services/reportService';
 
 export default function TranslationScreen() {
   const { textSize } = useContext(AuthContext);
@@ -56,8 +58,36 @@ export default function TranslationScreen() {
     navigation.navigate('Home');
   };
 
-  const handleReportError = () => {
-    Alert.alert("Signaler une erreur", "Merci d'avoir signalé cette erreur. Nous allons l'examiner.");
+  const [isReportModalVisible, setReportModalVisible] = useState(false);
+  const [reportComment, setReportComment] = useState('');
+
+  const handleReportError = async () => {
+    const logged = await isLoggedIn();
+    if (!logged){
+      showLoginAlert();
+      return;
+    }
+    setReportModalVisible(true);
+  };
+
+  // NOUVEAU: Fonction pour gérer la soumission du formulaire
+  const handleSubmitReport = async () => {
+    if (reportComment.trim() === '') {
+      Alert.alert("Commentaire requis", "Veuillez décrire le problème.");
+      return;
+    }
+    try {
+      await submitReport({
+        originalText: originalText,
+        erroneousTranslation: translatedText,
+        userComment: reportComment,
+      });
+      setReportModalVisible(false);
+      setReportComment('');
+      Alert.alert("Merci !", "Votre signalement a bien été envoyé.");
+    } catch (error) {
+      Alert.alert("Erreur", "Impossible d'envoyer le signalement. Veuillez réessayer.");
+    }
   };
 
   const handleSpeak = async () => {
@@ -128,9 +158,55 @@ export default function TranslationScreen() {
 
   return (
     <SafeAreaView style={styles(theme).container}>
-      {/* Header fixe */}
-      <AppHeader />
+       {/* MODAL */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isReportModalVisible}
+        onRequestClose={() => setReportModalVisible(false)}
+      >
+        {/* Le conteneur qui assombrit l'arrière-plan */}
+        <View style={styles(theme).modalContainer}>
+          {/* Le panneau/carte du modal */}
+          <View style={styles(theme).modalView}>
+            
+            <Text style={styles(theme).modalTitle}>Signaler une erreur</Text>
+            
+            <Text style={styles(theme).modalText}>Pourquoi cette traduction est-elle incorrecte ?</Text>
+            
+            <TextInput
+              style={styles(theme).textInput}
+              multiline
+              numberOfLines={4}
+              onChangeText={setReportComment}
+              value={reportComment}
+              placeholder="Ex: Le mot '...' est mal traduit..."
+              placeholderTextColor={styles(theme).placeholder}
+            />
 
+            <View style={styles(theme).modalButtonContainer}>
+              <TouchableOpacity
+                style={[styles(theme).modalButton, styles(theme).cancelButton]}
+                onPress={() => {
+                  setReportModalVisible(false);
+                  setReportComment('');
+                }}
+              >
+                <Text style={styles(theme).buttonText}>Annuler</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles(theme).modalButton, styles(theme).submitButton]}
+                onPress={handleSubmitReport}
+              >
+                <Text style={styles(theme).buttonText}>Envoyer</Text>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+        </View>
+      </Modal>
+
+      <AppHeader />
       <View style={styles(theme).mainContent}>
         <TouchableOpacity style={styles(theme).closeButton} onPress={handleClose}>
           <Ionicons name="close-circle" size={32} color="#ccc" />
