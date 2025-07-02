@@ -66,25 +66,16 @@ Merci de nous aider à améliorer l'application !`
 const preferenceItems = [
   { id: 1, label: 'Clair/Sombre', type: 'switch', defaultChecked: true },
   { id: 2, label: 'Taille du texte', type: 'size-control' },
-  { id: 3, label: 'Langue cible', type: 'picker', options: [
-    { value: 'default', label: 'Choisir la langue' },
-    { value: 'fr', label: 'Français' },
-    { value: 'en', label: 'English' },
-    { value: 'es', label: 'Español' },
-  ] },
-  { id: 4, label: 'Historique', type: 'switch', defaultChecked: true },
-  { id: 5, label: 'Voix', type: 'picker' },
-  { id: 6, label: 'Vitesse de lecture', type: 'picker' },
+  { id: 3, label: 'Historique', type: 'switch', defaultChecked: true },
+  { id: 4, label: 'Voix', type: 'picker' },
+  { id: 5, label: 'Vitesse de lecture', type: 'picker' },
 ];
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const { signOut, setTextSize, textSize } = useContext(AuthContext);
   const { voice, setVoice, speechRate, setSpeechRate, availableVoices, isHistoryEnabled, setHistoryEnabled } = useContext(SettingsContext);
-  
-  const [localPickerValues, setLocalPickerValues] = useState({
-      3: 'fr',
-  });
+
   const { theme, setTheme } = useContext(SettingsContext);
 
 
@@ -221,16 +212,10 @@ const SettingsScreen = () => {
                     </Picker>
                   ) : item.label === 'Vitesse de lecture' ? (
                     <Picker selectedValue={speechRate} onValueChange={(v) => setSpeechRate(parseFloat(v))} style={styles.picker}>
-                        <Picker.Item label="x 1" value="1.0" />
-                        <Picker.Item label="x 1.5" value="1.5" />
+                      <Picker.Item label="x 1" value="1.0" />
+                      <Picker.Item label="x 1.5" value="1.5" />
                     </Picker>
-                  ) : (
-                    <Picker style={styles(theme).picker} selectedValue={localPickerValues[item.id]} onValueChange={(v) => setLocalPickerValues({ ...localPickerValues, [item.id]: v })}>
-                      {item.options?.map((option) => (
-                        <Picker.Item key={option.value} label={option.label} value={option.value} />
-                      ))}
-                    </Picker>
-                  )}
+                  ) : null}
                 </View>
               )}
             </View>
