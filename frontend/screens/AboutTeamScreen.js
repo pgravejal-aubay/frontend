@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { View, Text, ScrollView, Image, StyleSheet } from 'react-native';
 import AppHeader from '../components/AppHeaders';
 import { AuthContext } from '../contexts/AuthContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { SettingsContext } from '../contexts/SettingsContext'
 import { styles } from '../styles/AboutTeamStyle';
 
 const teamMembers = [
@@ -17,8 +17,7 @@ const teamMembers = [
 
 const AboutTeamScreen = () => {
   const { textSize } = useContext(AuthContext);
-  const theme = useColorScheme() ?? 'light';
-
+  const { theme, setTheme } = useContext(SettingsContext);
   return (
     <View style={styles(theme).container}>
       <AppHeader />

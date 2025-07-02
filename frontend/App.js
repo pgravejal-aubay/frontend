@@ -27,8 +27,9 @@ import ProcessingScreen from './screens/ProcessingScreen';
 import TranslationScreen from './screens/TranslationScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import HistoryScreen from './screens/HistoryScreen';
-import PolicyScreen from './screens/PolicyScreen'; // Importer le nouvel écran
+import PolicyScreen from './screens/PolicyScreen';
 import AboutTeamScreen from './screens/AboutTeamScreen';
+import VideoPreviewScreen from './screens/PrevisualisationScreen';
 
 
 const Stack = createStackNavigator();
@@ -144,7 +145,7 @@ export default function App() {
                 <Stack.Screen name="Processing" component={ProcessingScreen} />
                 <Stack.Screen name="Translation" component={TranslationScreen} />
                 <Stack.Screen name="AboutTeam" component={AboutTeamScreen} />
-
+                <Stack.Screen name="VideoPreview" component={VideoPreviewScreen} />
               </>
             ) : (
               // Écrans si l'utilisateur EST connecté
@@ -156,6 +157,8 @@ export default function App() {
                 <Stack.Screen name="Translation" component={TranslationScreen} />
                 <Stack.Screen name="Policy" component={PolicyScreen} />
                 <Stack.Screen name="AboutTeam" component={AboutTeamScreen} />
+                <Stack.Screen name="VideoPreview" component={VideoPreviewScreen} options={{ headerShown: false }} 
+  />
               </>
             )}
           </Stack.Navigator>

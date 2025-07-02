@@ -1,20 +1,24 @@
 // styles/coverStyles.js
 import { StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
-// import { useColorScheme } from '@/hooks/useColorScheme';
 
-// const theme = Colors[useColorScheme() ?? 'light'];
-
-export const styles = (theme = 'light') => StyleSheet.create({
+export const styles = (theme = 'dark') => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors[theme].background, // #40e0d0 (clair) ou #27b2a4 (sombre)
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    backgroundColor: "FFFFFF",
+    justifyContent: 'center', // Centrer verticalement le contenu
+    alignItems: 'center', // Centrer horizontalement le contenu
   },
+  logo: {
+    width: 300,
+    height: 300,
+    resizeMode: 'contain',
+    marginBottom: 50,
+  },
+
   buttonContainer: {
     alignItems: 'center',
-    paddingBottom: 200,
+    paddingBottom: 200, // Garde l'espace en bas pour les boutons
   },
   loginButton: {
     backgroundColor: Colors[theme].buttonBackground, // #6d0d61
