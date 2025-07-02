@@ -3,9 +3,10 @@ import React, { useContext } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthContext } from '../contexts/AuthContext';
 import { styles as policyStyles } from '../styles/policyStyles';
+import { SettingsContext } from '../contexts/SettingsContext';
+
 
 const ContentRenderer = ({ item, styles, textSize }) => {
   switch (item.type) {
@@ -54,9 +55,8 @@ const ContentRenderer = ({ item, styles, textSize }) => {
 const PolicyScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const theme = useColorScheme() ?? 'light';
+  const { theme, setTheme } = useContext(SettingsContext);
   const styles = policyStyles(theme);
-
   const { title, content } = route.params;
   const { textSize } = useContext(AuthContext);
 
