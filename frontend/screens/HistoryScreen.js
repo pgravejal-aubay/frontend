@@ -26,7 +26,7 @@ const HistoryScreen = ({ navigation }) => {
     React.useCallback(() => {
       const loadData = async () => {
         const historyData = await getHistory();
-        const savedData = await getSavedTranslations();
+        const savedData = await getSavedTranslations();     
         setHistoryItems(historyData);
         setSavedItems(savedData);
       };
