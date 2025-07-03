@@ -115,7 +115,7 @@ const SettingsScreen = () => {
     if (!newValue) {
       Alert.alert(
         "Désactiver l'historique",
-        "Voulez-vous aussi vider l'historique et les favoris ?",
+        "Voulez-vous aussi vider l'historique?",
         [
           { text: "Annuler", style: "cancel" },
           { 
@@ -132,7 +132,7 @@ const SettingsScreen = () => {
               await clearHistory();
               // On appelle la fonction du contexte après avoir vidé
               setHistoryEnabled(false);
-              Alert.alert("Succès", "L'historique et les favoris ont été vidés.");
+              Alert.alert("Succès", "L'historique a été vidé.");
             }
           }
         ]

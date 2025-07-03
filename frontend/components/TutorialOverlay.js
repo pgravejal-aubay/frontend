@@ -1,11 +1,34 @@
 // frontend/components/TutorialOverlay.js
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, Dimensions, Animated } from 'react-native';
 
 const { height: screenHeight } = Dimensions.get('window');
 
 const TutorialOverlay = ({ visible, steps, layouts, onFinish }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  // Animated value for brillance effect
+  const shineAnim = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    if (visible) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(shineAnim, {
+            toValue: 1,
+            duration: 700,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shineAnim, {
+            toValue: 0,
+            duration: 700,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      shineAnim.stopAnimation();
+    }
+  }, [visible, currentStepIndex]);
 
   const handleNext = () => {
     if (currentStepIndex < steps.length - 1) {
@@ -43,11 +66,21 @@ const TutorialOverlay = ({ visible, steps, layouts, onFinish }) => {
 
   const { layout, step, dialogPosition, isLastStep } = currentStepData;
 
+  // Animated style for brillance
+  const animatedHighlightStyle = {
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: shineAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] }),
+    shadowRadius: shineAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 25] }),
+    borderColor: shineAnim.interpolate({ inputRange: [0, 1], outputRange: ['#fff', '#ffe066'] }),
+    borderWidth: 3,
+  };
+
   return (
     <Modal visible={visible} transparent={true} animationType="fade">
       <View style={styles.container}>
-        {/* Cercle de surbrillance */}
-        <View
+        {/* Cercle de surbrillance animé */}
+        <Animated.View
           style={[
             styles.highlight,
             {
@@ -55,8 +88,9 @@ const TutorialOverlay = ({ visible, steps, layouts, onFinish }) => {
               top: layout.y - 10,
               width: layout.width + 20,
               height: layout.height + 20,
-              borderRadius: (layout.width + 20) / 2, 
+              borderRadius: (layout.width + 20) / 2,
             },
+            animatedHighlightStyle,
           ]}
         />
 
