@@ -12,7 +12,6 @@ import { AuthContext } from '../contexts/AuthContext';
 import { styles } from '../styles/SettingsStyle';
 import { SettingsContext } from '../contexts/SettingsContext';
 import { clearHistory,getHistoryEnabledStatus, setHistoryEnabledStatus } from '../services/storageService'; 
-// --- MODIFICATION ICI : On importe le bon fichier et la bonne variable ---
 import { policyContent } from '../constants/policyContent'; 
 
 const policyButtons = [
