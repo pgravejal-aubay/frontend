@@ -1,14 +1,45 @@
+# Hands Up Instalation Guide
 
-# Dans backend/app, ouvrir un terminal wsl: 
-pip install install -r requierments.txt
-set FLASK_APP=run.py
 
-flask db init  # Only run once to create the migrations folder
-flask db migrate -m "Initial user table"
-flask db upgrade # Applies the migration to the database
+## Prerequisites
+ - Python 3.8.20
+ - `pip` and `venv` (or `conda`) for environement mangement
 
-# modèle POC2
-Assurez-vous de placer les fichiers et dossiers suivants aux bons emplacements :
+
+
+## Pour lancer le backend (dans hands-up/backend)
+ ### In a wsl terminal
+ 1) Create and activate a virutal environement :
+   
+    - With venv : 
+    ```bash
+        python -m venv venv
+        # On macOS/Linux
+        source venv/bin/activate
+        # On Windows
+        venv\Scripts\activate
+    ```
+
+    - With conda :
+    ```bash
+    conda create --name env python=3.8.20 -y
+    conda activate env
+    ```
+2) Install dependencies
+   ```bash
+   pip install -r requierments.txt
+   ```
+
+3) Setup the Database
+    ```bash
+    set FLASK_APP=run.py
+    flask db init  # Only run once to create the migrations folder
+    flask db migrate -m "Initial user table"
+    flask db upgrade # Applies the migration to the database
+    ```
+
+4) Installer les modeles (A modifier)
+Assurez-vous de placer les fichiers et dossiers suivants aux bons emplacements :\
 rtmpose-l_simcc-ucoco_dw-ucoco_270e-384x288-2438fd99_20230728.pth →
 backend/app/POC2/MMPose/checkpoint/wholebody/
 
@@ -18,23 +49,65 @@ backend/app/POC2/checkpoints/
 Dossier flan_model/ →
 backend/app/POC2/
 
-python run.py pour run le backend
 
-# Dans frontend ouvrir un terminal powershell:
+5) Run the backend
+   ```bash
+   python run.py
+   ```
 
-Intstaller node sur windows et ajouter npm / npx au path
+## Pour lancer le frontend (dan hands-up/frontend) 
+### In a powershell terminal
 
-npm install
+1) Install and setup node
+     - Intstaller node sur windows
+     - Ajouter node au path dans les variables d'environements de l'ordiniateur
+  
 
-npx expo install expo-file-system expo-document-picker expo-media-library react-native-picker expo-av expo-audio
+2) Install npm and the expo library
+    ```bash
+        npm install
+        npx expo install expo-file-system expo-document-picker expo-media-library react-native-picker expo-av expo-audio
+    ```
+
+3) Run the frontend
+    ```bash
+    npx expo start --clear
+    ```
+
+## App Preview Guide
+
+### Using an Emulator (Android Studio)
+
+1. **Install Android Studio**  
+   - Launch the base SDK.
+
+2. **Create or Launch a Virtual Device**  
+   - Either create a new device or use the default one (usually a basic phone).
+   - Click the play button to start the emulator.
+
+3. **Run the App**  
+   - If the frontend is already running, press `a` in the terminal where the frontend is running.
+   - The app should build and appear in the emulator.
+   - If it doesn’t:
+     - Turn off the virtual device.
+     - Restart it.
+     - Press `a` again in the frontend terminal.
+
+4. **Enable Webcam (Optional)**  
+   - Connect your webcam to your computer.
+   - In Android Studio, click the three dots next to the device name.
+   - Go to **"Edit" > "Advanced Settings"**.
+   - Add the webcam under additional settings.
 
 
-npx expo start --clear pour run le frontend
+##  Using a Physical Mobile Device (Android Only)
 
-# Pour visualiser
+1. **Connect via QR Code**  
+   - Scan the QR code displayed in the terminal (PowerShell).
+   - Install **Expo Go** if prompted.
+   - The app should launch automatically.
 
-installer android studio, puis lancer le SDK de base,
-
-depuis android studio creer un nouveau device ou alors utiliser l'existant en general c'est un telephone de base, cliquer sur la fleche pour le lancer, si le frontend tourne en meme temps normalement en appuyant sur a dans la console ou le front tourne l'app doit build et etre visualisée depuis l'émulateur. sinon il faut eteindre le telephone et le reallumer puis appuyer sur a dans le frontend.
-
-ajouter la webcam dans les options android studio une fois qu'elle est connectée au fixe
+2. **If the Build Hangs**  
+   - Close **Expo Go** completely (make sure all tabs are closed).
+   - Restart the backend.
+   - Re-scan the QR code.
