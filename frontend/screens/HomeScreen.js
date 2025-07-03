@@ -22,7 +22,6 @@ import TutorialOverlay from '../components/TutorialOverlay';
 export default function HomeScreen({ navigation }) {
     const { textSize } = useContext(AuthContext);
     const [permission, requestPermission] = useCameraPermissions();
-    // AJOUT : Hook pour la permission du microphone
     const [microphonePermission, requestMicrophonePermission] = Audio.usePermissions();
    
     const cameraRef = useRef(null);
@@ -42,6 +41,10 @@ export default function HomeScreen({ navigation }) {
     // Tutorial states
     const [isTutorialVisible, setTutorialVisible] = useState(false);
     const [elementLayouts, setElementLayouts] = useState({});
+    const logoutRef = useRef(null);
+    const homeRef = useRef(null);
+    const historyRef = useRef(null);
+    const settingsRef = useRef(null);
     const pipelinePickerRef = useRef(null);
     const sourceLanguageRef = useRef(null);
     const targetLanguageRef = useRef(null);
@@ -73,6 +76,10 @@ export default function HomeScreen({ navigation }) {
 
     // tutorial steps
     const tutorialSteps = [
+        { key: 'logout', title: 'Mon Compte', description: 'Appuyez ici pour vous déconnecter ou gérer votre compte.' },
+        { key: 'home', title: 'Accueil', description: 'Ce bouton vous ramène à l\'écran principal.' },
+        { key: 'history', title: 'Historique', description: 'Consultez l\'historique de vos traductions.' },
+        { key: 'settings', title: 'Paramètres', description: 'Accédez aux paramètres de l\'application.' },
         { key: 'pipelinePicker', title: 'Sélecteur de Modèle', description: 'Choisissez le modèle de traduction que vous souhaitez utiliser. Le modèle V2 est plus récent et généralement plus performant.' },
         {key: 'sourceLanguage', title: 'Langue Source', description: 'Sélectionnez la langue des signes que vous souhaitez traduire. Vous pouvez choisir "Détection Auto" pour une détection automatique.' },
         { key: 'targetLanguage', title: 'Langue Cible', description: 'Sélectionnez la langue dans laquelle vous souhaitez traduire. Actuellement, nous supportons le Français, l\'Anglais et l\'Allemand.' },
@@ -85,6 +92,10 @@ export default function HomeScreen({ navigation }) {
 
     const measureElements = () => {
         const refs = {
+            logout: logoutRef,
+            home: homeRef,
+            history: historyRef,
+            settings: settingsRef,
             pipelinePicker: pipelinePickerRef,
             sourceLanguage: sourceLanguageRef,
             targetLanguage: targetLanguageRef,
@@ -149,7 +160,6 @@ export default function HomeScreen({ navigation }) {
         }, 1000);
     };
  
-    // Similar modification for handleRecordPress if it calls local_video
     const handleRecordPress = async () => {
         if (!cameraRef.current) return;
         if (isRecording) {
@@ -206,7 +216,7 @@ export default function HomeScreen({ navigation }) {
             }
 
             navigation.navigate('VideoPreview', {
-                videoUri: asset.uri, // On passe l'URI de la vidéo
+                videoUri: asset.uri,
                 selectedPipeline: selectedPipeline,
                 targetLanguage: targetLanguage,
             });
@@ -241,9 +251,9 @@ export default function HomeScreen({ navigation }) {
  
     return (
     <View style={styles(theme).container}>
-        <AppHeader />
+        {/* ===== MODIFICATION ICI : Passez l'objet ref à AppHeader ===== */}
+        <AppHeader ref={{ logoutRef, homeRef, historyRef, settingsRef }} />
         
-        {/* Section des sélecteurs de modèle */}
         <View style={styles(theme).pickerRow}>
             <View ref={pipelinePickerRef} style={[styles(theme).pickerContainer, {width: '90%', marginBottom: 10}]}>
                 <Picker
@@ -258,9 +268,7 @@ export default function HomeScreen({ navigation }) {
             </View>
         </View>
 
-        {/* Section des sélecteurs de langue */}
         <View style={styles(theme).pickerRow}>
-            {/* ===== MODIFICATION ICI : Ajout du ref au conteneur du Picker ===== */}
             <View ref={sourceLanguageRef} style={styles(theme).pickerContainer}>
                 <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles(theme).picker} enabled={!isTutorialVisible}>
                     <Picker.Item label="Détection Auto" value="auto" />
@@ -269,7 +277,6 @@ export default function HomeScreen({ navigation }) {
                 </Picker>
             </View>
             <Icon name="arrow-forward" size={24} color="black" style={{ marginHorizontal: 10 }} />
-            {/* ===== MODIFICATION ICI : Ajout du ref au conteneur du Picker ===== */}
             <View ref={targetLanguageRef} style={styles(theme).pickerContainer}>
                 <Picker selectedValue={targetLanguage} onValueChange={setTargetLanguage} style={styles(theme).picker} enabled={!isTutorialVisible}>
                     <Picker.Item label="Français" value="fr" />
@@ -302,7 +309,6 @@ export default function HomeScreen({ navigation }) {
             }
         </View>
         
-        {/* Section des contrôles */}
         <View style={styles(theme).controlsContainer}>
             <View style={styles(theme).sideControls}>
                 <TouchableOpacity ref={flipCameraRef} style={styles(theme).controlButton} onPress={handleFlipCamera} disabled={isImporting || isRecording || isDelaying || isTutorialVisible}>
