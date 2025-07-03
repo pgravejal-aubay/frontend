@@ -1,10 +1,11 @@
 // frontend/components/TutorialOverlay.js
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, Dimensions, Animated } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 const { height: screenHeight } = Dimensions.get('window');
 
-const TutorialOverlay = ({ visible, steps, layouts, onFinish }) => {
+const TutorialOverlay = ({ visible, steps, layouts, onFinish, theme = 'light' }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   // Animated value for brillance effect
   const shineAnim = React.useRef(new Animated.Value(0)).current;
@@ -98,7 +99,7 @@ const TutorialOverlay = ({ visible, steps, layouts, onFinish }) => {
         <View style={[styles.dialogBox, dialogPosition]}>
           <Text style={styles.title}>{step.title}</Text>
           <Text style={styles.description}>{step.description}</Text>
-          <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <TouchableOpacity style={[styles.button, { backgroundColor: Colors[theme].buttonBackground }]} onPress={handleNext}>
             <Text style={styles.buttonText}>{isLastStep ? 'Terminer' : 'Suivant'}</Text>
           </TouchableOpacity>
         </View>
