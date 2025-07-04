@@ -5,7 +5,7 @@ import axios from 'axios';
 const HISTORY_KEY = 'translation_history';
 const SAVED_KEY = 'saved_translations';
 const HISTORY_ENABLED_KEY = 'history_enabled_status';
-const API_BASE_URL = 'http://10.0.2.2:5000'; // Ensure this URL is correct for your backend
+const API_BASE_URL = 'http://10.0.2.2:5000';
 
 export const getHistory = async () => {
   try {
@@ -21,21 +21,11 @@ export const addToHistory = async (translationEntry) => {
   try {
     const isEnabled = await getHistoryEnabledStatus();
     if (!isEnabled) return;
-
     const history = await getHistory();
-
-    // Ensure property names are consistent for the backend
-    const entryToSave = {
-      original_text: translationEntry.originalText,
-      translate_text: translationEntry.translatedText,
-      source_language: translationEntry.sourceLang,
-      target_language: translationEntry.targetLang,
-    };
-
-    const updatedHistory = [entryToSave, ...history];
+    const updatedHistory = [translationEntry, ...history];
 
     if (updatedHistory.length > 5) {
-      updatedHistory.pop();
+        updatedHistory.pop();
     }
     const jsonValue = JSON.stringify(updatedHistory);
     await AsyncStorage.setItem(HISTORY_KEY, jsonValue);
@@ -47,13 +37,15 @@ export const addToHistory = async (translationEntry) => {
 export const getHistoryEnabledStatus = async () => {
   try {
     const status = await AsyncStorage.getItem(HISTORY_ENABLED_KEY);
+    // Si status est null (nouvel utilisateur), on retourne true.
     if (status === null) {
-      return true; // History enabled by default for new users
+      return true;
     }
+    // Sinon, on retourne la valeur booléenne sauvegardée.
     return JSON.parse(status);
   } catch (e) {
     console.error("Failed to load history status.", e);
-    return true; // Enable history in case of error for safety
+    return true; // En cas d'erreur, on active par sécurité.
   }
 };
 
@@ -67,28 +59,16 @@ export const setHistoryEnabledStatus = async (isEnabled) => {
 
 export const getSavedTranslations = async () => {
   try {
-    const token = await AsyncStorage.getItem('userToken'); 
-
-    if (!token) {
-      console.warn("No token found. Cannot retrieve user-specific translations.");
-      return []; 
-    }
-
+    const token = await AsyncStorage.getItem('userToken');
     const response = await axios.post(`${API_BASE_URL}/translation/get`, {
       token,
     });
-    // Check that the backend response correctly contains 'translations' and that it is an array
-    if (response.data && Array.isArray(response.data.translations)) {
-        return response.data.translations;
-    } else {
-        console.warn("API response structure for saved translations is unexpected:", response.data);
-        return [];
-    }
+      return response.data.translations || [];
 
   } catch (error) {
     console.error("Failed to load saved translations from the backend with Axios:", error);
     if (axios.isAxiosError(error)) {
-      console.error("Axios error details:", error.response?.status, error.response?.data || error.message);
+      console.error("Axios error details:", error.response?.data || error.message);
     }
     return [];
   }
@@ -97,52 +77,67 @@ export const getSavedTranslations = async () => {
 export const saveTranslation = async (translationToSave) => {
   try {
     const token = await AsyncStorage.getItem('userToken');
-    console.log("Translation to save (frontend) :", translationToSave); 
-
+    console.log(translationToSave)
     if (!token) {
-      console.warn("No token found. Cannot save translation.");
+      console.warn("Aucun token trouvé. Impossible de sauvegarder la traduction.");
       return false;
     }
-
-    const saved = await getSavedTranslations(); 
-    console.log("Saved translations from backend :", saved); 
-
+    const saved = await getSavedTranslations();
+    console.log(saved)
     const isAlreadySaved = saved.some(item =>
-      item.original_text === translationToSave.originalText &&
-      item.translate_text === translationToSave.translatedText &&
-      item.source_language === translationToSave.sourceLang &&
-      item.target_language === translationToSave.targetLang
-    );
+      item.originalText === translationToSave.originalText &&
+      item.translatedText === translationToSave.translatedText);
 
     if (isAlreadySaved) {
-      console.log("Translation already saved on the backend.");
+      console.log("Traduction déjà sauvegardée.");
       return false; 
     }
-
     const response = await axios.post(`${API_BASE_URL}/translation/save`, {
       token: token,
       original_text: translationToSave.originalText,
       translate_text: translationToSave.translatedText,
-      source_language: translationToSave.sourceLang,
-      target_language: translationToSave.targetLang,
+      sourceLang: translationToSave.sourceLang,
+      target_lang: translationToSave.targetLang,
     });
 
     if (response.status === 200 || response.status === 201) {
-      console.log("Translation successfully saved to backend:", response.data);
+      console.log("Traduction sauvegardée avec succès sur le backend :", response.data);
       return true;
     } else {
-      console.error("Backend returned an unexpected status:", response.status, response.data);
+      console.error("Le backend a renvoyé un statut inattendu :", response.status, response.data);
       return false;
     }
 
   } catch (error) {
-    console.error("Failed to save translation via backend:", error);
+    console.error("Échec de la sauvegarde de la traduction via le backend:", error);
     if (axios.isAxiosError(error)) {
-      console.error("Axios error details:", error.response?.status, error.response?.data || error.message);
+      console.error("Détails de l'erreur Axios :", error.response?.data || error.message);
     }
-    throw error; 
+    throw error;
   }
 };
+
+export const clearHistory = async () => {
+  try {
+    await AsyncStorage.removeItem(HISTORY_KEY);
+    await AsyncStorage.removeItem(SAVED_KEY);
+    console.log("History cleared successfully.");
+  } catch (e) {
+    console.error("Failed to clear history.", e);
+  }
+};
+
+export const removeSavedTranslation = async (translationId) => {
+    try {
+        let saved = await getSavedTranslations();
+        saved = saved.filter(item => item.id !== translationId);
+        const jsonValue = JSON.stringify(saved);
+        await AsyncStorage.setItem(SAVED_KEY, jsonValue);
+    } catch(e) {
+        console.error("Failed to remove saved translation.", e);
+    }
+}
+
 
 export const clearSaved = async () => {
   try {
@@ -170,14 +165,5 @@ export const clearSaved = async () => {
       console.error("Axios error details:", error.response?.status, error.response?.data || error.message);
     }
     return false;
-  }
-};
-
-export const clearHistory = async () => {
-  try {
-    await AsyncStorage.removeItem(HISTORY_KEY);
-    console.log("History cleared successfully.");
-  } catch (e) {
-    console.error("Failed to clear history.", e);
   }
 };
