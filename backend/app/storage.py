@@ -79,3 +79,36 @@ def save_user_translation():
         current_app.logger.error(f"Erreur interne du serveur lors de la sauvegarde de la traduction: {e}")
         db.session.rollback()
         return jsonify({"message": "Erreur interne du serveur."}), 500
+    
+
+@bp.route('/clear', methods=['POST'])
+def clear_user_saved_translations():
+    data = request.get_json()
+    if not data or 'token' not in data:
+        return jsonify({"message": "Token missing from request."}), 400
+
+    token = data['token']
+    try:
+        payload = jwt.decode(token, current_app.config['JWT_SECRET_KEY'], algorithms=["HS256"])
+        user_id = payload['user_id']
+        print(f"User ID from token: {user_id}")
+        user = User.query.get(user_id)
+        print(f"User found: {user}")
+        if not user:
+            return jsonify({"message": "User not found."}), 404
+        num_deleted = SavingTranslation.query.filter_by(user_id=user_id).delete(synchronize_session=False)
+
+        db.session.commit()
+
+        return jsonify({
+            "message": f"{num_deleted} translations have been successfully deleted."
+        }), 200
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Token expired."}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid token."}), 401
+    except Exception as e:
+        current_app.logger.error(f"Internal server error when clearing translations: {e}")
+        db.session.rollback()
+        return jsonify({"message": "Internal server error."}), 500
