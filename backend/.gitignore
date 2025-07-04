@@ -13,7 +13,6 @@ venv.bak/
 
 # Instance Folder (contains sensitive config or DB file if not in version control)
 instance/site.db
-migrations/
 
 # Secrets file
 .env
