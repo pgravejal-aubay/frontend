@@ -50,6 +50,7 @@ export const login = async (email, password) => {
 export const logout = async () => {
   await AsyncStorage.removeItem('userToken');
   await AsyncStorage.removeItem('userData');
+  await AsyncStorage.removeItem('hasCompletedTutorial');
 };
 
 export const supression = async () => {

@@ -9,7 +9,7 @@ class User(db.Model):
     surname = db.Column(db.String(64), index=True, unique=False, nullable=False)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    reports = db.relationship('TranslationReport', backref='reporter', lazy='dynamic')
+    reports = db.relationship('TranslationReport', backref='reporter', lazy='dynamic', cascade="all, delete-orphan")
     saved_translations = db.relationship('SavingTranslation', backref='saver', lazy='dynamic')
 
     def set_password(self, password):
