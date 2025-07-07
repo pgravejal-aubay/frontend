@@ -54,7 +54,8 @@ build/
 instance/uploads/
 
 # model weights
-app/POC2/checkpoints/
+app/POC2/checkpoints/*.pt
+app/POC2/checkpoints/*.pth
 app/POC2/flan_model/
 app/POC2/MMPose/checkpoint/
 app/pipeline_v2/assets/checkpoints_slr_ctc

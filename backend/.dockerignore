@@ -1,0 +1,55 @@
+# Fichier .dockerignore
+
+# Ignorer le Dockerfile lui-même et le docker-compose
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Ignorer les fichiers de Git
+.git
+.gitignore
+
+# Ignorer l'environnement virtuel Python
+.venv
+venv
+env
+ENV
+
+# Ignorer les caches Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorer les fichiers de l'IDE
+.vscode/
+.idea/
+
+# Ignorer la base de données de développement locale
+instance/
+*.db
+*.sqlite3
+
+# Ignorer les fichiers de logs locaux
+*.log
+
+# Ignorer les fichiers de test et de configuration locale
+# (à adapter si vous en avez)
+pytest.ini
+.pytest_cache/
+
+# model weights
+app/POC2/checkpoints/*.pt
+app/POC2/checkpoints/*.pth
+app/POC2/flan_model/*.pt
+app/POC2/flan_model/*.pth
+app/POC2/MMPose/checkpoint/
+app/pipeline_v2/assets/checkpoints_slr_ctc
+app/pipeline_v2/assets/checkpoints_translator_t5
+app/pipeline_v2/assets/data
+*.pth
+
+*.xml
+
+# Très important pour les utilisateurs Windows/macOS
+.DS_Store
+Thumbs.db
