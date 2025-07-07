@@ -7,19 +7,18 @@ from tqdm import tqdm
 TASK_PREFIX = "translate Gloss to German: "
 
 class GlossTranslator:
-    """
-    A class to hold a pre-loaded Seq2Seq model and tokenizer for translation.
-    """
-    def __init__(self, model_dir):
+    # Changez la signature du constructeur
+    def __init__(self, model_dir, subfolder=None):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"🚀 Initializing GlossTranslator on device: {self.device}")
 
         # 1. Load Model and Tokenizer
         try:
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_dir).to(self.device)
-            self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
-            self.model.eval() # Set the model to evaluation mode
-            print(f"✅ Seq2Seq model and tokenizer loaded from {model_dir}")
+            # Passez subfolder aux méthodes from_pretrained
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(model_dir, subfolder=subfolder).to(self.device)
+            self.tokenizer = AutoTokenizer.from_pretrained(model_dir, subfolder=subfolder)
+            self.model.eval()
+            print(f"✅ Seq2Seq model and tokenizer loaded from {model_dir}" + (f" (subfolder: {subfolder})" if subfolder else ""))
         except Exception as e:
             print(f"❌ Error loading model or tokenizer from {model_dir}: {e}")
             raise e
