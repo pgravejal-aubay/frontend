@@ -66,7 +66,7 @@ class CTCPredictor:
         print("✅ CTC models loaded and set to evaluation mode.")
 
     @torch.no_grad()
-    def predict(self, features_path, beam_width=5):
+    def predict(self, features_path, beam_width=1):
         """
         Generates a gloss prediction for a single feature file.
         Args:
@@ -116,7 +116,7 @@ def generate_ctc_predictions(
     cnn_output_dim,
     lstm_hidden_dim,
     num_encoder_layers,
-    beam_width=5
+    beam_width=1
 ):
     """
     Wrapper function to initialize the predictor once and generate a prediction for a single file.

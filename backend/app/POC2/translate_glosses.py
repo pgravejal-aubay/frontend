@@ -69,7 +69,7 @@ def translate_gloss_to_text(
     gloss_sequence: str,
     model_dir: str = "flan_model",
     max_length: int = 128,
-    num_beams: int = 5
+    num_beams: int = 1
 ) -> str:
     """
     Wrapper function to initialize the translator once and translate a gloss sequence.

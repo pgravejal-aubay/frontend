@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView, Platform, ActivityIndicator, Pressable, StatusBar, Alert
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { authStyles as styles } from '../styles/authStyles';
 import { register } from '../services/authService';
 import { AuthContext } from '../contexts/AuthContext';
@@ -33,6 +34,7 @@ export default function RegisterScreen({ navigation }) {
     setError('');
     try {
       await register(prenom, nom, email, password, confirmPassword);
+      await AsyncStorage.setItem('showTutorial', 'true'); // sets the tutorial to be shown after registration
       Alert.alert(
         "Inscription réussie !",
         "Vous pouvez maintenant vous connecter avec votre email et mot de passe.",

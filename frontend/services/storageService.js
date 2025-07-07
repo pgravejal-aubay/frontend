@@ -89,7 +89,6 @@ export const saveTranslation = async (translationToSave) => {
 export const clearHistory = async () => {
   try {
     await AsyncStorage.removeItem(HISTORY_KEY);
-    await AsyncStorage.removeItem(SAVED_KEY);
     console.log("History cleared successfully.");
   } catch (e) {
     console.error("Failed to clear history.", e);
