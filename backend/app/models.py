@@ -10,6 +10,7 @@ class User(db.Model):
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     reports = db.relationship('TranslationReport', backref='reporter', lazy='dynamic', cascade="all, delete-orphan")
+    saved_translations = db.relationship('SavingTranslation', backref='saver', lazy='dynamic')
 
     def set_password(self, password):
         # Generate salt and hash password
@@ -33,3 +34,14 @@ class TranslationReport(db.Model):
 
     def __repr__(self):
         return f'<TranslationReport {self.id} by User {self.user_id}>'
+    
+class SavingTranslation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    original_text = db.Column(db.Text, nullable=False)
+    translate_text = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    source_language = db.Column(db.Text, nullable=False)
+    target_language = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f'<SavingTranslation {self.id} by User {self.user_id}>'
