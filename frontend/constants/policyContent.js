@@ -118,5 +118,27 @@ export const policyContent = {
       { type: 'subtitle', text: '4. Contact pour réclamation sur le contenu' },
       { type: 'paragraph', text: "Pour toute réclamation concernant le contenu de l'application, l'utilisateur est invité à contacter l'éditeur à l'adresse suivante : reclamation@lesmainsagiles.app" },
     ]
+  },
+  // --- NOUVELLE SECTION ---
+  'Guide utilisateur': {
+    title: 'Guide Utilisateur',
+    content: [
+      { type: 'paragraph', text: "Bienvenue sur HandsUp ! Voici comment traduire une vidéo en quelques étapes simples :" },
+      { type: 'definition_item', term: '1. Capturer ou Importer', definition: "Utilisez le bouton d'enregistrement sur l'écran d'accueil pour filmer. Pour de meilleurs résultats, assurez-vous que le signataire est bien éclairé, visible de face (visage, torse et mains), et que la vidéo est stable. Alternativement, appuyez sur l'icône d'importation pour choisir une vidéo depuis votre galerie (taille max 100 Mo)." },
+      { type: 'definition_item', term: '2. Lancer la Traduction', definition: "Une fois la vidéo enregistrée ou sélectionnée, le traitement commence automatiquement. Cela peut prendre un petit moment." },
+      { type: 'definition_item', term: '3. Découvrir le Résultat', definition: "Le texte traduit s'affiche à l'écran. Vous pouvez alors écouter la traduction (🔊), la sauvegarder dans votre historique (💾) ou la partager (🔗)." },
+      { type: 'paragraph', text: "\nBonnes traductions !" },
+    ]
+  },
+  // --- NOUVELLE SECTION ---
+  'Centre d\'assistance': {
+    title: 'Centre d\'Assistance',
+    content: [
+      { type: 'paragraph', text: "Vous rencontrez un problème ? Voici quelques solutions aux questions fréquentes." },
+      { type: 'definition_item', term: 'La traduction est incorrecte ou vide ?', definition: "La qualité de la vidéo est essentielle. Essayez de filmer à nouveau avec un meilleur éclairage et un cadrage plus large. Vous pouvez aussi essayer l'autre modèle de traduction (V1/V2) sur l'écran d'accueil. Si le problème persiste, utilisez l'icône \"drapeau\" 🚩 sur l'écran de résultat pour nous signaler l'erreur." },
+      { type: 'definition_item', term: "L'application est lente ?", definition: "Le traitement vidéo demande beaucoup de ressources. Assurez-vous d'avoir une bonne connexion internet, surtout pour l'importation de vidéos." },
+      { type: 'definition_item', term: "Besoin de plus d'aide ?", definition: "Si votre problème n'est pas résolu, contactez notre support par email à : support@handsup.app" },
+      { type: 'paragraph', text: "\nMerci de nous aider à améliorer l'application !" },
+    ]
   }
 };

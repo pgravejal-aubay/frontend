@@ -20,46 +20,11 @@ const policyButtons = [
   { id: 3, label: 'Mentions légales' },
 ];
 
+// --- MODIFICATION ICI : On enlève les propriétés "alert" ---
 const assistanceButtons = [
-  {
-    id: 1,
-    label: 'Guide utilisateur',
-    alertTitle: 'Guide Utilisateur', // New property
-    alertMessage: `Bienvenue sur HandsUp ! Voici comment traduire une vidéo en quelques étapes simples :
-
-1.  **Capturer ou Importer**
-    *   **Filmer :** Utilisez le bouton d'enregistrement sur l'écran d'accueil. Pour de meilleurs résultats, assurez-vous que le signataire est bien éclairé, visible de face (visage, torse et mains), et que la vidéo est stable.
-    *   **Importer :** Appuyez sur l'icône d'importation pour choisir une vidéo depuis votre galerie. La vidéo ne doit pas dépasser 100 Mo.
-
-2.  **Lancer la Traduction**
-    Une fois la vidéo enregistrée ou sélectionnée, le traitement commence automatiquement. Cela peut prendre un petit moment.
-
-3.  **Découvrir le Résultat**
-    Le texte traduit s'affiche à l'écran. Vous pouvez alors :
-    *   🔊 **Écouter** la traduction grâce à la synthèse vocale.
-    *   💾 **Sauvegarder** le résultat dans votre historique.
-    *   🔗 **Partager** le texte avec d'autres applications.
-
-Bonnes traductions !`
-  },
-  {
-    id: 2,
-    label: 'Centre d\'assistance',
-    alertTitle: 'Centre d\'Assistance', // New property
-    alertMessage: `Vous rencontrez un problème ? Voici quelques solutions aux questions fréquentes.
-
-• **La traduction est incorrecte ou vide ?**
-La qualité de la vidéo est essentielle. Essayez de filmer à nouveau avec un meilleur éclairage et un cadrage plus large. Vous pouvez aussi essayer l'autre modèle de traduction (V1/V2) sur l'écran d'accueil. Si le problème persiste, utilisez l'icône "drapeau" 🚩 sur l'écran de résultat pour nous signaler l'erreur.
-
-• **L'application est lente ?**
-Le traitement vidéo demande beaucoup de ressources. Assurez-vous d'avoir une bonne connexion internet, surtout pour l'importation de vidéos.
-
-• **Besoin de plus d'aide ?**
-Si votre problème n'est pas résolu, contactez notre support par email à : support@handsup.app
-
-Merci de nous aider à améliorer l'application !`
-  },
-  { id: 3, label: 'À propos de l\'équipe', alertTitle: 'À propos de l\'Équipe', alertMessage: 'Découvrez l\'équipe derrière l\'application dans la section dédiée.' },
+  { id: 1, label: 'Guide utilisateur' },
+  { id: 2, label: 'Centre d\'assistance' },
+  { id: 3, label: 'À propos de l\'équipe' },
 ];
 
 const preferenceItems = [
@@ -74,27 +39,23 @@ const SettingsScreen = () => {
   const navigation = useNavigation();
   const { signOut, setTextSize, textSize } = useContext(AuthContext);
   const { voice, setVoice, speechRate, setSpeechRate, availableVoices, isHistoryEnabled, setHistoryEnabled } = useContext(SettingsContext);
-
   const { theme, setTheme } = useContext(SettingsContext);
 
-
-  const handleLogout = async () => {
-    await signOut();
-  };
-
+  // --- NOUVELLE FONCTION UNIFIÉE ---
+  // Gère la navigation pour les politiques, l'assistance et "À propos"
   const handleNavigation = (label) => {
     if (label === 'À propos de l\'équipe') {
       navigation.navigate('AboutTeam');
-    } else if (['Politique de confidentialité', 'Conditions générales', 'Mentions légales'].includes(label)) {
-      navigation.navigate('Policy', { policy: label }); // Ajuste selon ta logique de navigation pour Policy
+      return;
     }
-  };
 
-  const handleAssistancePress = (button) => {
-    if (button.label === 'À propos de l\'équipe') {
-      handleNavigation(button.label);
+    const data = policyContent[label];
+    if (data) {
+      navigation.navigate('Policy', { title: data.title, content: data.content });
     } else {
-      Alert.alert(button.alertTitle, button.alertMessage);
+      console.log(`Aucun contenu trouvé pour le bouton : ${label}`);
+      // Optionnel : afficher une alerte si le contenu n'est pas trouvé
+      Alert.alert("Contenu non disponible", "Cette section n'est pas encore disponible.");
     }
   };
 
@@ -108,9 +69,7 @@ const SettingsScreen = () => {
     }
   };
 
-
-   const handleHistoryToggle = (newValue) => {
-    // Si l'utilisateur veut désactiver
+  const handleHistoryToggle = (newValue) => {
     if (!newValue) {
       Alert.alert(
         "Désactiver l'historique",
@@ -120,7 +79,6 @@ const SettingsScreen = () => {
           { 
             text: "Juste Désactiver",
             onPress: () => {
-              // On appelle simplement la fonction du contexte
               setHistoryEnabled(false);
             }
           },
@@ -129,7 +87,6 @@ const SettingsScreen = () => {
             style: "destructive",
             onPress: async () => {
               await clearHistory();
-              // On appelle la fonction du contexte après avoir vidé
               setHistoryEnabled(false);
               Alert.alert("Succès", "L'historique a été vidé.");
             }
@@ -137,27 +94,13 @@ const SettingsScreen = () => {
         ]
       );
     } else {
-      // Si l'utilisateur veut réactiver, on appelle la fonction du contexte
       setHistoryEnabled(true);
-    }
-  };
-
-  const handlePolicyNavigation = (label) => {
-    // --- MODIFICATION ICI : On utilise la bonne variable ---
-    const data = policyContent[label];
-    
-    if (data) {
-      navigation.navigate('Policy', { title: data.title, content: data.content });
-    } else {
-      console.log(`Pas de contenu trouvé pour le bouton: ${label}`);
     }
   };
 
    return (
     <View style={styles(theme).container}>
-      {/* Header fixe */}
       <AppHeader />
-      {/* Contenu défilant */}
       <ScrollView>
         {/* Preferences Section */}
         <View style={styles(theme).section}>
@@ -165,7 +108,6 @@ const SettingsScreen = () => {
           {preferenceItems.map((item) => (
             <View key={item.id} style={styles(theme).preferenceItem}>
               <Text style={[styles(theme).preferenceLabel, { fontSize: 22 + textSize }]}>{item.label}</Text>
-
               {item.type === 'switch' && item.label === 'Clair/Sombre' && (
                 <Switch
                   value={theme === 'dark'}
@@ -177,8 +119,8 @@ const SettingsScreen = () => {
               {item.type === 'switch' && item.label === 'Historique' && (
                 item.label === 'Historique' ? (
                   <Switch
-                    value={isHistoryEnabled} // Valeur lue depuis le contexte
-                    onValueChange={handleHistoryToggle} // Fonction qui appelle le contexte
+                    value={isHistoryEnabled}
+                    onValueChange={handleHistoryToggle}
                     trackColor={{ false: '#767577', true: '#6750a4' }}
                     thumbColor={'#f4f3f4'}
                   />
@@ -190,18 +132,17 @@ const SettingsScreen = () => {
                   />
                 )
               )}
-
-                  {item.type === 'size-control' && (
-                  <View style={styles(theme).sizeControl}>
-                    <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
-                      <Ionicons name="remove" size={16} color="black" style={styles(theme).icon} />
-                    </Button>
-                    <Separator style={styles(theme).separator} />
-                    <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(true)}>
-                      <Ionicons name="add" size={16} color="black" style={styles(theme).icon} />
-                    </Button>
-                </View> )}
-
+              {item.type === 'size-control' && (
+                <View style={styles(theme).sizeControl}>
+                  <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(false)}>
+                    <Ionicons name="remove" size={16} color="black" style={styles(theme).icon} />
+                  </Button>
+                  <Separator style={styles(theme).separator} />
+                  <Button variant="ghost" size="icon" style={styles(theme).sizeButton} onPress={() => handleTextSizeChange(true)}>
+                    <Ionicons name="add" size={16} color="black" style={styles(theme).icon} />
+                  </Button>
+                </View>
+              )}
               {item.type === 'picker' && (
                 <View style={styles(theme).pickerContainer}>
                   {item.label === 'Voix' ? (
@@ -229,12 +170,14 @@ const SettingsScreen = () => {
               key={button.id} 
               variant="outline" 
               style={styles(theme).policyButton}
-              onPress={() => handlePolicyNavigation(button.label)}
+              // --- MODIFICATION ICI : On utilise la nouvelle fonction ---
+              onPress={() => handleNavigation(button.label)}
             >
               <Text style={[styles(theme).policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>
           ))}
         </View>
+        
         {/* Assistance Section */}
         <View style={styles(theme).section}>
           <Text style={[styles(theme).sectionTitle, { fontSize: 28 + textSize }]}>Assistance</Text>
@@ -243,7 +186,8 @@ const SettingsScreen = () => {
               key={button.id}
               variant="outline"
               style={styles(theme).policyButton}
-              onPress={() => handleAssistancePress(button)}
+              // --- MODIFICATION ICI : On utilise la nouvelle fonction ---
+              onPress={() => handleNavigation(button.label)}
             >
               <Text style={[styles(theme).policyText, { fontSize: 16 + textSize }]}>{button.label}</Text>
             </Button>

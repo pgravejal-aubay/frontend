@@ -2,7 +2,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'http://54.74.147.186:5000';
+const API_BASE_URL = 'http://10.0.2.2:5000';
 
 export const getApiUrl = (route) => {
     return `${API_BASE_URL}${route}`;
