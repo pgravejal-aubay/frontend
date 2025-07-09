@@ -35,6 +35,9 @@ def create_app(config_class=Config):
     from app.video import bp as video_bp
     app.register_blueprint(video_bp, url_prefix='/video')
 
+    from app.storage import bp as storage_bp
+    app.register_blueprint(storage_bp, url_prefix='/translation')
+
     with app.app_context():
         from . import ai_pipeline
         from .pipeline_v2 import pipeline_v2_orchestrator # New import

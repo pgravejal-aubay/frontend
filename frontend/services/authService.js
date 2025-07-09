@@ -1,6 +1,7 @@
 // frontend/services/authService.js
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearSaved } from './storageService';
 import { counterEvent } from 'react-native/Libraries/Performance/Systrace';
 
 
@@ -49,11 +50,12 @@ export const login = async (email, password) => {
 export const logout = async () => {
   await AsyncStorage.removeItem('userToken');
   await AsyncStorage.removeItem('userData');
+  await AsyncStorage.removeItem('hasCompletedTutorial');
 };
 
 export const supression = async () => {
   try{
-
+    await clearSaved();
     const userDataString = await AsyncStorage.getItem('userData');
     if (!userDataString) {
       console.error("userData est vide ou non trouvé");
@@ -66,7 +68,6 @@ export const supression = async () => {
     const response = await axios.post(`${API_URL}/delete`, {
       email,
     });
-    console.log("sdfgh")
     return response.data;
   } catch (error)
    {

@@ -9,12 +9,13 @@ import { supression,isLoggedIn } from '../services/authService'
 import { SettingsContext } from '../contexts/SettingsContext'
 
 
-export default function AppHeader() {
+// Accept refs for tutorial highlighting
+export default function AppHeader({ ref: tutorialRefs }) {
     const navigation = useNavigation();
     const [isProfileModalVisible, setProfileModalVisible] = useState(false);
     const { theme, setTheme } = useContext(SettingsContext);
-
     const { signOut } = useContext(AuthContext);
+
     const handleLogout = async () => {
         const logged = await isLoggedIn();
         if (!logged){
@@ -99,7 +100,8 @@ export default function AppHeader() {
                     <View style={styles.modalBackdrop}>
                         <TouchableWithoutFeedback>
                             <View style={styles(theme).modalView}>
-                                <TouchableOpacity style={styles.modalButton} onPress={handleLogout}>
+                                {/* Attach logoutRef to the logout button */}
+                                <TouchableOpacity ref={tutorialRefs?.logoutRef} style={styles.modalButton} onPress={handleLogout}>
                                     <Text style={styles.modalButtonText}>Déconnexion</Text>
                                 </TouchableOpacity>
                                 <View style={styles.modalSeparator} />
@@ -112,22 +114,25 @@ export default function AppHeader() {
                 </TouchableWithoutFeedback>
             </Modal>
 
-            {/* L'en-tête JSX mis à jour */}
+            {/* Header with refs for tutorial */}
             <View style={styles(theme).header}>
-                {/* ===== CHANGEMENT ICI : NOUVEAU GROUPE POUR LES ICÔNES DE GAUCHE ===== */}
                 <View style={styles(theme).headerLeft}>
-                    <TouchableOpacity onPress={() => setProfileModalVisible(true)}>
+                    {/* Attach logoutRef to the profile icon for tutorial */}
+                    <TouchableOpacity ref={tutorialRefs?.logoutRef} onPress={() => setProfileModalVisible(true)}>
                         <Icon name="person-outline" size={32} color={Colors[theme].text} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ marginLeft: 16 }} onPress={() => navigation.navigate('Home')}>
+                    {/* Attach homeRef to the home button */}
+                    <TouchableOpacity ref={tutorialRefs?.homeRef} style={{ marginLeft: 16 }} onPress={() => navigation.navigate('Home')}>
                         <Icon name="home" size={32} color={Colors[theme].text} />
                     </TouchableOpacity>
                 </View>
                 <View style={styles(theme).headerRight}>
-                    <TouchableOpacity onPress={goHistory}>
+                    {/* Attach historyRef to the history button */}
+                    <TouchableOpacity ref={tutorialRefs?.historyRef} onPress={goHistory}>
                         <Icon name="bookmark-border" size={32} color={Colors[theme].text} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ marginLeft: 16 }} onPress={goSettings}>
+                    {/* Attach settingsRef to the settings button */}
+                    <TouchableOpacity ref={tutorialRefs?.settingsRef} style={{ marginLeft: 16 }} onPress={goSettings}>
                         <Icon name="settings" size={32} color={Colors[theme].text} />
                     </TouchableOpacity>
                 </View>

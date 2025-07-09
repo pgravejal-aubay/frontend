@@ -5,6 +5,7 @@ import torch
 import cv2
 from torchvision import transforms
 from transformers import AutoTokenizer
+from huggingface_hub import hf_hub_download
 
 # Imports from within pipeline_v2
 from . import config as v2_config # Important: uses the config within pipeline_v2
@@ -28,6 +29,9 @@ PIPELINE_V2_DIR = os.path.join(APP_DIR, 'pipeline_v2')
 
 MODELS_V2 = {}
 
+# L'identifiant de votre dépôt sur Hugging Face
+HF_REPO_ID = "pgravejal-innov/sign-language-translator-models"
+
 def get_v2_transforms(): # Based on dataset.py from V2 project
     return transforms.Compose([
         transforms.ToPILImage(),
@@ -38,31 +42,31 @@ def get_v2_transforms(): # Based on dataset.py from V2 project
 
 def load_v2_models():
     """Load Pipeline V2 models into memory."""
-    print("Pre-loading Pipeline V2 AI models...")
+    print("Pre-loading Pipeline V2 AI models from Hugging Face...")
     device = torch.device(v2_config.DEVICE)
     MODELS_V2['device'] = device
 
-    # 1. V2 Gloss Vocabulary
-    v2_gloss_vocab_path = os.path.join(PIPELINE_V2_DIR, v2_config.VOCAB_PATH_GLOSS)
+    # 1. V2 Gloss Vocabulary (on peut le garder local)
+    v2_gloss_vocab_path = os.path.join(PIPELINE_V2_DIR, 'assets', 'data', 'phoenix_gloss.vocab')
     if not os.path.exists(v2_gloss_vocab_path):
-        # Fallback to constructing path if original v2_config.VOCAB_PATH_GLOSS was relative to project root
-        alt_vocab_path = os.path.join(PIPELINE_V2_DIR, 'assets', 'data', 'phoenix_gloss.vocab') # Example, adjust if needed
-        if os.path.exists(alt_vocab_path):
-            v2_gloss_vocab_path = alt_vocab_path
-        else:
-            raise FileNotFoundError(f"V2 Gloss vocab not found at {v2_gloss_vocab_path} or {alt_vocab_path}")
-    
+        # Alternative : le télécharger aussi depuis le Hub
+        print(f"Downloading V2 gloss vocab from {HF_REPO_ID}...")
+        v2_gloss_vocab_path = hf_hub_download(
+            repo_id=HF_REPO_ID,
+            filename="POC1/data/phoenix_gloss.vocab" # En supposant que vous l'ayez nommé POC1
+        )
     MODELS_V2['gloss_vocab_v2'] = GlossVocabularyV2(v2_gloss_vocab_path)
     print(f"Pipeline V2: Gloss Vocabulary loaded (size: {len(MODELS_V2['gloss_vocab_v2'])})")
 
     # 2. V2 SLR Model (TwoStreamSLRModel)
     slr_model_v2 = TwoStreamSLRModel(gloss_vocab_size=len(MODELS_V2['gloss_vocab_v2'])).to(device)
-    slr_checkpoint_path_v2 = os.path.join(PIPELINE_V2_DIR, v2_config.CHECKPOINT_DIR_SLR, v2_config.BEST_MODEL_NAME_SLR)
-    if not os.path.exists(slr_checkpoint_path_v2):
-         alt_slr_path = os.path.join(PIPELINE_V2_DIR, 'assets', 'checkpoints_slr_ctc', v2_config.BEST_MODEL_NAME_SLR) # MODIFIED HERE
-         if os.path.exists(alt_slr_path): slr_checkpoint_path_v2 = alt_slr_path
-         else: raise FileNotFoundError(f"V2 SLR checkpoint not found at {slr_checkpoint_path_v2} or {alt_slr_path}")
-
+    
+    print(f"Downloading V2 SLR model from {HF_REPO_ID}...")
+    slr_checkpoint_path_v2 = hf_hub_download(
+        repo_id=HF_REPO_ID,
+        filename="POC1/checkpoints_slr_ctc/twostream_best_epoch_067_wer31.12.pth"
+    )
+    
     load_checkpoint_v2(slr_checkpoint_path_v2, slr_model_v2)
     slr_model_v2.eval()
     MODELS_V2['slr_model_v2'] = slr_model_v2
@@ -72,13 +76,14 @@ def load_v2_models():
     MODELS_V2['text_tokenizer_v2'] = AutoTokenizer.from_pretrained(v2_config.TRANSLATOR_MODEL_NAME)
     
     translator_model_v2 = GlossToTextTranslatorT5(model_name_or_path=v2_config.TRANSLATOR_MODEL_NAME).to(device)
-    translator_checkpoint_path_v2 = os.path.join(PIPELINE_V2_DIR, v2_config.CHECKPOINT_DIR_TRANSLATOR, v2_config.BEST_MODEL_NAME_TRANSLATOR)
-    if not os.path.exists(translator_checkpoint_path_v2):
-        alt_translator_path = os.path.join(PIPELINE_V2_DIR, 'assets', 'checkpoints_translator_t5', v2_config.BEST_MODEL_NAME_TRANSLATOR) # This was already correct
-        if os.path.exists(alt_translator_path): translator_checkpoint_path_v2 = alt_translator_path
-        else: raise FileNotFoundError(f"V2 Translator checkpoint not found at {translator_checkpoint_path_v2} or {alt_translator_path}")
 
-    load_checkpoint_v2(translator_checkpoint_path_v2, translator_model_v2) # This load_checkpoint needs to handle T5's structure
+    print(f"Downloading V2 Translator model from {HF_REPO_ID}...")
+    translator_checkpoint_path_v2 = hf_hub_download(
+        repo_id=HF_REPO_ID,
+        filename="POC1/checkpoints_translator_t5/translator_checkpoint_epoch_019.pth"
+    )
+
+    load_checkpoint_v2(translator_checkpoint_path_v2, translator_model_v2)
     translator_model_v2.eval()
     MODELS_V2['translator_model_v2'] = translator_model_v2
     print("Pipeline V2: GlossToTextTranslatorT5 loaded.")

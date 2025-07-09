@@ -6,6 +6,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from mmpose.apis import inference_topdown, init_model
 from mmpose.structures import merge_data_samples
+from huggingface_hub import hf_hub_download
 
 from .POC2.generate_ctc_predictions import CTCPredictor
 from .POC2.translate_glosses import GlossTranslator
@@ -31,32 +32,65 @@ targetLangMapping = {
 # Dictionary to hold pre-loaded models
 MODELS = {}
 
+# L'identifiant de votre dépôt sur Hugging Face
+HF_REPO_ID = "pgravejal-innov/sign-language-translator-models"
+
 def load_models():
     """Load all AI models into memory only once."""
-    print("Pre-loading AI models...")
-    # 1. Keypoint Extraction Model (MMPose)
-    config = os.path.join(POC2_DIR, 'MMPose/config/wholebody/rtmpose-l_8xb32-270e_coco-ubody-wholebody-384x288.py')
-    checkpoint = os.path.join(POC2_DIR, 'MMPose/checkpoint/wholebody/rtmpose-l_simcc-ucoco_dw-ucoco_270e-384x288-2438fd99_20230728.pth')
+    print("Pre-loading AI models from Hugging Face...")
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    MODELS['keypoint_extractor'] = init_model(config, checkpoint, device=device)
-    print(f"Keypoint extractor loaded.")
+
+    # 1. Keypoint Extraction Model (MMPose)
+    # Les fichiers de config peuvent rester dans le code Git, car ils sont petits.
+    config_path = os.path.join(POC2_DIR, 'MMPose/config/wholebody/rtmpose-l_8xb32-270e_coco-ubody-wholebody-384x288.py')
     
+    # On télécharge le checkpoint
+    print(f"Downloading MMPose checkpoint from {HF_REPO_ID}...")
+    checkpoint_path_mmpose = hf_hub_download(
+        repo_id=HF_REPO_ID,
+        filename="POC2/MMPose/checkpoint/wholebody/rtmpose-l_simcc-ucoco_dw-ucoco_270e-384x288-2438fd99_20230728.pth"
+    )
+    
+    MODELS['keypoint_extractor'] = init_model(config_path, checkpoint_path_mmpose, device=device)
+    print("Keypoint extractor loaded.")
+
+    # 2. CTC Predictor
     ctc_model_config = {
         'input_dim': 369,
         'cnn_output_dim': 512, 'lstm_hidden_dim': 384, 'num_encoder_layers': 3,
         'cnn_block_dims': [128, 256, 512], 'cnn_num_blocks': [2, 2, 2],
         'cnn_kernel_size': 5, 'cnn_dropout_rate': 0.2, 'bilstm_dropout': 0.4,
     }
+
+    # On télécharge le checkpoint CTC
+    print(f"Downloading CTC model checkpoint from {HF_REPO_ID}...")
+    ctc_model_path = hf_hub_download(
+        repo_id=HF_REPO_ID,
+        filename="POC2/checkpoints/model.pt"
+    )
+
+    # Le vocabulaire peut aussi être sur le Hub, ou rester local s'il est petit.
+    # Pour l'exemple, on le laisse local, mais vous pourriez le télécharger aussi.
+    ctc_vocab_path = os.path.join(POC2_DIR, "checkpoints/vocab.json")
+
     MODELS['ctc_predictor'] = CTCPredictor(
-        model_path=os.path.join(POC2_DIR, "checkpoints/model.pt"),
-        vocab_path=os.path.join(POC2_DIR, "checkpoints/vocab.json"),
+        model_path=ctc_model_path,
+        vocab_path=ctc_vocab_path, # Gardé en local pour l'instant
         config=ctc_model_config
     )
-    print(f"CTC Predictor loaded.")
+    print("CTC Predictor loaded.")
 
-    # 3. Gloss Translator
-    MODELS['gloss_translator'] = GlossTranslator(model_dir=os.path.join(POC2_DIR, "flan_model"))
-    print(f"Gloss Translator loaded.")
+    # 3. Gloss Translator (flan_model)
+    # Pour les modèles de type transformers, on peut directement passer le repo_id !
+    # C'est la méthode la plus simple.
+    print(f"Loading Gloss Translator model from {HF_REPO_ID}...")
+    flan_model_repo_path = f"{HF_REPO_ID}"
+    # Note: Pour que cela marche, il faut que le sous-dossier `flan_model` soit à la racine du repo HF, 
+    # ou alors on spécifie le sous-dossier comme ceci:
+    # MODELS['gloss_translator'] = GlossTranslator(model_dir=flan_model_repo_path, subfolder="POC2/flan_model")
+    # Modifions GlossTranslator pour qu'il gère ça.
+    MODELS['gloss_translator'] = GlossTranslator(model_dir=flan_model_repo_path, subfolder="POC2/flan_model")
+    print("Gloss Translator loaded.")
 
 
 def run_translation_pipeline(video_frames_dir: str, task_temp_dir: str, targetLang: str, cancellation_check: callable) -> dict:

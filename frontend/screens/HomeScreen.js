@@ -1,7 +1,8 @@
 // frontend/screens/HomeScreen.js
  
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Button, Image } from 'react-native';import { CameraView, useCameraPermissions } from 'expo-camera';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Button, Image } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -10,16 +11,17 @@ import { Audio } from 'expo-av';
 import { local_video } from '../services/uploadService';
 import { AuthContext } from '../contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { SettingsContext } from '../contexts/SettingsContext'
 // Importe les styles locaux et le composant d'en-tête réutilisable
 import { homeStyles as styles } from '../styles/homeStyles';
 import AppHeader from '../components/AppHeaders';
+import TutorialOverlay from '../components/TutorialOverlay';
 
 export default function HomeScreen({ navigation }) {
     const { textSize } = useContext(AuthContext);
     const [permission, requestPermission] = useCameraPermissions();
-    // AJOUT : Hook pour la permission du microphone
     const [microphonePermission, requestMicrophonePermission] = Audio.usePermissions();
    
     const cameraRef = useRef(null);
@@ -33,15 +35,112 @@ export default function HomeScreen({ navigation }) {
     const [sourceLanguage, setSourceLanguage] = useState('auto');
     const [targetLanguage, setTargetLanguage] = useState('fr');
     const [isImporting, setIsImporting] = useState(false);
-    const [isDelayting, setIsDelaying] = useState(false);
+    const [isDelaying, setIsDelaying] = useState(false);
     const [selectedPipeline, setSelectedPipeline] = useState('v1'); // 'v1' or 'v2'
 
+    // Tutorial states
+    const [isTutorialVisible, setTutorialVisible] = useState(false);
+    const [elementLayouts, setElementLayouts] = useState({});
+    const logoutRef = useRef(null);
+    const homeRef = useRef(null);
+    const historyRef = useRef(null);
+    const settingsRef = useRef(null);
+    const pipelinePickerRef = useRef(null);
+    const sourceLanguageRef = useRef(null);
+    const targetLanguageRef = useRef(null);
+    const flipCameraRef = useRef(null);
+    const timerRef = useRef(null);
+    const recordRef = useRef(null);
+    const uploadRef = useRef(null);
+    const infoRef = useRef(null);
  
     useEffect(() => {
+        const checkTutorialStatus = async () => {
+            try {
+                const showTutorial = await AsyncStorage.getItem('showTutorial');
+                const hasCompleted = await AsyncStorage.getItem('hasCompletedTutorial');
+                if (showTutorial === 'true' && hasCompleted !== 'true') {
+                    // Use a small delay to ensure UI is fully rendered before measuring
+                    setTimeout(measureElements, 500); 
+                }
+            } catch (e) {
+                console.error("Failed to check tutorial status", e);
+            }
+        };
+        checkTutorialStatus();
+
         return () => {
             if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
         };
     }, []);
+
+    // tutorial steps
+    const tutorialSteps = [
+        { key: 'logout', title: 'Mon Compte', description: 'Appuyez ici pour vous déconnecter ou gérer votre compte.' },
+        { key: 'home', title: 'Accueil', description: 'Ce bouton vous ramène à l\'écran principal.' },
+        { key: 'history', title: 'Historique', description: 'Consultez l\'historique de vos traductions.' },
+        { key: 'settings', title: 'Paramètres', description: 'Accédez aux paramètres de l\'application.' },
+        { key: 'pipelinePicker', title: 'Sélecteur de Modèle', description: 'Choisissez le modèle de traduction que vous souhaitez utiliser. Le modèle V2 est plus récent et généralement plus performant.' },
+        {key: 'sourceLanguage', title: 'Langue Source', description: 'Sélectionnez la langue des signes que vous souhaitez traduire. Vous pouvez choisir "Détection Auto" pour une détection automatique.' },
+        { key: 'targetLanguage', title: 'Langue Cible', description: 'Sélectionnez la langue dans laquelle vous souhaitez traduire. Actuellement, nous supportons le Français, l\'Anglais et l\'Allemand.' },
+        { key: 'flipCamera', title: 'Changer de Caméra', description: 'Basculez entre la caméra avant (pour vous filmer) et la caméra arrière.' },
+        { key: 'timer', title: 'Retardateur', description: 'Déclenchez un compte à rebours de 3 secondes avant de commencer à enregistrer, pour avoir le temps de vous placer.' },
+        { key: 'record', title: 'Enregistrer une Vidéo', description: 'Appuyez sur ce bouton pour démarrer l\'enregistrement. Appuyez à nouveau pour l\'arrêter et passer à la traduction.' },
+        { key: 'upload', title: 'Importer une Vidéo', description: 'Sélectionnez une vidéo existante depuis la galerie de votre téléphone pour la traduire.' },
+        { key: 'info', title: 'Informations', description: 'Obtenez des informations générales sur le fonctionnement de l\'application.' }
+    ];
+
+    const measureElements = () => {
+        const refs = {
+            logout: logoutRef,
+            home: homeRef,
+            history: historyRef,
+            settings: settingsRef,
+            pipelinePicker: pipelinePickerRef,
+            sourceLanguage: sourceLanguageRef,
+            targetLanguage: targetLanguageRef,
+            flipCamera: flipCameraRef,
+            timer: timerRef,
+            record: recordRef,
+            upload: uploadRef,
+            info: infoRef,
+        };
+        const layouts = {};
+        let measuredCount = 0;
+        const totalElements = Object.keys(refs).length;
+
+        Object.entries(refs).forEach(([key, ref]) => {
+            if (ref.current) {
+                ref.current.measureInWindow((x, y, width, height) => {
+                    if (!isNaN(x) && !isNaN(y)) {
+                        layouts[key] = { x, y, width, height };
+                    }
+                    measuredCount++;
+                    if (measuredCount === totalElements) {
+                        setElementLayouts(layouts);
+                        setTutorialVisible(true);
+                    }
+                });
+            } else {
+                console.warn(`Tutorial: Ref for ${key} is not available.`);
+                measuredCount++;
+                if (measuredCount === totalElements) {
+                    setElementLayouts(layouts);
+                    if (Object.keys(layouts).length > 0) setTutorialVisible(true);
+                }
+            }
+        });
+    };
+
+    const handleTutorialFinish = async () => {
+        setTutorialVisible(false);
+        try {
+            await AsyncStorage.setItem('hasCompletedTutorial', 'true');
+            await AsyncStorage.removeItem('showTutorial');
+        } catch (e) {
+            console.error("Failed to save tutorial completion state", e);
+        }
+    };
  
     const handleFlipCamera = () => setFacing(current => (current === 'back' ? 'front' : 'back'));
  
@@ -61,7 +160,6 @@ export default function HomeScreen({ navigation }) {
         }, 1000);
     };
  
-    // Similar modification for handleRecordPress if it calls local_video
     const handleRecordPress = async () => {
         if (!cameraRef.current) return;
         if (isRecording) {
@@ -118,7 +216,7 @@ export default function HomeScreen({ navigation }) {
             }
 
             navigation.navigate('VideoPreview', {
-                videoUri: asset.uri, // On passe l'URI de la vidéo
+                videoUri: asset.uri,
                 selectedPipeline: selectedPipeline,
                 targetLanguage: targetLanguage,
             });
@@ -153,15 +251,16 @@ export default function HomeScreen({ navigation }) {
  
     return (
     <View style={styles(theme).container}>
-        <AppHeader />
+        {/* ===== MODIFICATION ICI : Passez l'objet ref à AppHeader ===== */}
+        <AppHeader ref={{ logoutRef, homeRef, historyRef, settingsRef }} />
         
-        {/* Section des sélecteurs de modèle */}
         <View style={styles(theme).pickerRow}>
-            <View style={[styles(theme).pickerContainer, {width: '90%', marginBottom: 10}]}>
+            <View ref={pipelinePickerRef} style={[styles(theme).pickerContainer, {width: '90%', marginBottom: 10}]}>
                 <Picker
                     selectedValue={selectedPipeline}
                     onValueChange={(itemValue) => setSelectedPipeline(itemValue)}
                     style={styles(theme).picker}
+                    enabled={!isTutorialVisible}
                 >
                     <Picker.Item label="Modèle V1 (POC2/MMPose)" value="v1" />
                     <Picker.Item label="Modèle V2 (MediaPipe/TwoStream)" value="v2" />
@@ -169,18 +268,17 @@ export default function HomeScreen({ navigation }) {
             </View>
         </View>
 
-        {/* Section des sélecteurs de langue */}
         <View style={styles(theme).pickerRow}>
-            <View style={styles(theme).pickerContainer}>
-                <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles(theme).picker}>
+            <View ref={sourceLanguageRef} style={styles(theme).pickerContainer}>
+                <Picker selectedValue={sourceLanguage} onValueChange={setSourceLanguage} style={styles(theme).picker} enabled={!isTutorialVisible}>
                     <Picker.Item label="Détection Auto" value="auto" />
                     <Picker.Item label="ASL" value="asl" />
                     <Picker.Item label="GSL" value="gsl" />
                 </Picker>
             </View>
             <Icon name="arrow-forward" size={24} color="black" style={{ marginHorizontal: 10 }} />
-            <View style={styles(theme).pickerContainer}>
-                <Picker selectedValue={targetLanguage} onValueChange={setTargetLanguage} style={styles(theme).picker}>
+            <View ref={targetLanguageRef} style={styles(theme).pickerContainer}>
+                <Picker selectedValue={targetLanguage} onValueChange={setTargetLanguage} style={styles(theme).picker} enabled={!isTutorialVisible}>
                     <Picker.Item label="Français" value="fr" />
                     <Picker.Item label="English" value="en" />
                     <Picker.Item label="German" value="de" />
@@ -188,28 +286,22 @@ export default function HomeScreen({ navigation }) {
             </View>
         </View>
 
-        {/* --- BLOC CAMÉRA ENTIÈREMENT CORRIGÉ --- */}
         <View style={styles(theme).cameraPreview}>
-            {/* Couche 0 : La caméra, tout en bas */}
             <CameraView 
                 style={[StyleSheet.absoluteFill, { zIndex: 0 }]} 
                 ref={cameraRef} 
                 facing={facing} 
                 mode="video" 
             />
-
-            {/* Couche 1 : La silhouette de cadrage, par-dessus la caméra */}
             <View 
                 style={[styles(theme).cameraOverlayContainer, { zIndex: 1 }]}
-                pointerEvents="none" // Permet aux clics de "passer à travers"
+                pointerEvents="none"
             >
                 <Image 
                     source={require('../assets/images/silouhette.png')}
                     style={styles(theme).cameraOverlayImage}
                 />
             </View>
-            
-            {/* Couche 2 : Le minuteur, par-dessus tout le reste */}
             {timer > 0 && 
                 <View style={[styles(theme).timerOverlay, { zIndex: 2 }]}>
                     <Text style={styles(theme).timerText}>{timer}</Text>
@@ -217,28 +309,34 @@ export default function HomeScreen({ navigation }) {
             }
         </View>
         
-        {/* Section des contrôles */}
         <View style={styles(theme).controlsContainer}>
             <View style={styles(theme).sideControls}>
-                <TouchableOpacity style={styles(theme).controlButton} onPress={handleFlipCamera} disabled={isImporting || isRecording || isDelayting}>
+                <TouchableOpacity ref={flipCameraRef} style={styles(theme).controlButton} onPress={handleFlipCamera} disabled={isImporting || isRecording || isDelaying || isTutorialVisible}>
                     <Icon name="flip-camera-ios" size={28} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles(theme).controlButton} onPress={handleTimerPress} disabled={isImporting || isRecording || isDelayting}>
+                <TouchableOpacity ref={timerRef} style={styles(theme).controlButton} onPress={handleTimerPress} disabled={isImporting || isRecording || isDelaying || isTutorialVisible}>
                     <Icon name="timer" size={28} color="black" />
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles(theme).recordButton} onPress={handleRecordPress}  disabled={isImporting || isDelayting}>
+            <TouchableOpacity ref={recordRef} style={styles(theme).recordButton} onPress={handleRecordPress}  disabled={isImporting || isDelaying || isTutorialVisible}>
                 <View style={isRecording ? styles(theme).recordInnerRed : styles(theme).recordInnerWhite} />
             </TouchableOpacity>
             <View style={styles(theme).sideControls}>
-                <TouchableOpacity style={styles(theme).controlButton} onPress={importVideo} disabled={isImporting || isRecording || isDelayting}>
+                <TouchableOpacity ref={uploadRef} style={styles(theme).controlButton} onPress={importVideo} disabled={isImporting || isRecording || isDelaying || isTutorialVisible}>
                     <Icon name="file-upload" size={28} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles(theme).controlButton} onPress={handleInfoPress}  disabled={isImporting || isRecording || isDelayting}>
+                <TouchableOpacity ref={infoRef} style={styles(theme).controlButton} onPress={handleInfoPress}  disabled={isImporting || isRecording || isDelaying || isTutorialVisible}>
                     <Icon name="info-outline" size={28} color="black" />
                 </TouchableOpacity>
             </View>
         </View>
+
+        <TutorialOverlay
+            visible={isTutorialVisible}
+            steps={tutorialSteps}
+            layouts={elementLayouts}
+            onFinish={handleTutorialFinish}
+        />
     </View>
 );
 }

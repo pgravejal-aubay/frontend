@@ -12,8 +12,8 @@ venv.bak/
 .env.bak/
 
 # Instance Folder (contains sensitive config or DB file if not in version control)
-instance/site.db
 migrations/
+instance/site.db
 
 # Secrets file
 .env
@@ -54,7 +54,8 @@ build/
 instance/uploads/
 
 # model weights
-app/POC2/checkpoints/
+app/POC2/checkpoints/*.pt
+app/POC2/checkpoints/*.pth
 app/POC2/flan_model/
 app/POC2/MMPose/checkpoint/
 app/pipeline_v2/assets/checkpoints_slr_ctc
