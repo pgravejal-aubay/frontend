@@ -10,7 +10,7 @@ const teamMembers = [
   { id: 1, name: 'Nina Bourdonnec', school: 'ESIEE Paris', major: 'E-santé et biotechnologies', image: require('../assets/images/nina.jpg') },
   { id: 2, name: 'Elio Bruandet', school: 'ENSIMAG', major: '1ère année de cycle ingénieur', image: require('../assets/images/elio.jpg') },
   { id: 3, name: 'Iliana Carathanasis', school: 'ESIEE Paris', major: 'E-santé et biotechnologies', image: require('../assets/images/iliana.jpg') },
-  { id: 4, name: 'Paul Gravejal', school: 'EPITA Lyon', major: 'Data Science, Intelligence artificielle et Graphes', image: require('../assets/images/juliette.jpg') },
+  { id: 4, name: 'Paul Gravejal', school: 'EPITA Lyon', major: 'Data Science, Intelligence artificielle et Graphes', image: require('../assets/images/paul.jpg') },
   { id: 5, name: 'Alexandre Huynh', school: 'EPITA', major: 'Santé', image: require('../assets/images/alexandre.jpg') },
   { id: 6, name: 'Juliette Lavocat', school: 'ESIEE Paris', major: 'E-santé et biotechnologies', image: require('../assets/images/juliette.jpg') },
 ];
