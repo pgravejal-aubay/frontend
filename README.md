@@ -96,5 +96,5 @@
 
 2. **If the Build Hangs**  
    - Close **Expo Go** completely (make sure all tabs are closed).
-   - Restart the backend.
+   - Restart the frontend.
    - Re-scan the QR code.
