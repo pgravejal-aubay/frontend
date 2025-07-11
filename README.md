@@ -6,7 +6,6 @@
  - `pip` and `venv` (or `conda`) for environement mangement
 
 
-
 ## Pour lancer le backend (dans hands-up/backend)
  ### In a wsl terminal
  1) Create and activate a virutal environement :
@@ -38,19 +37,7 @@
     flask db upgrade # Applies the migration to the database
     ```
 
-4) Installer les modeles (A modifier)
-Assurez-vous de placer les fichiers et dossiers suivants aux bons emplacements :\
-rtmpose-l_simcc-ucoco_dw-ucoco_270e-384x288-2438fd99_20230728.pth →
-backend/app/POC2/MMPose/checkpoint/wholebody/
-
-model.pt et vocab.json →
-backend/app/POC2/checkpoints/
-
-Dossier flan_model/ →
-backend/app/POC2/
-
-
-5) Run the backend
+4) Run the backend
    ```bash
    python run.py
    ```
