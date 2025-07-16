@@ -53,7 +53,7 @@
 2) Install npm and the expo library
     ```bash
         npm install
-        npx expo install expo-file-system expo-document-picker expo-media-library react-native-picker expo-av expo-audio
+        npx expo install expo-file-system expo-document-picker expo-media-library react-native-picker expo-av expo-audio expo-speech expo-sharing
     ```
 
 3) Run the frontend
