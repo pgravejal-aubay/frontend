@@ -1,14 +1,14 @@
-# Hands Up Instalation Guide
+# Hands Up Installation Guide
 
 
 ## Prerequisites
  - Python 3.8.20
- - `pip` and `venv` (or `conda`) for environement mangement
+ - `pip` and `venv` (or `conda`) for environment management
 
 
 ## Pour lancer le backend (dans hands-up/backend)
  ### In a wsl terminal
- 1) Create and activate a virutal environement :
+ 1) Create and activate a virtual environment :
    
     - With venv : 
     ```bash
@@ -26,7 +26,7 @@
     ```
 2) Install dependencies
    ```bash
-   pip install -r requierments.txt
+   pip install -r requirements.txt
    ```
 
 3) Setup the Database
@@ -42,12 +42,12 @@
    python run.py
    ```
 
-## Pour lancer le frontend (dan hands-up/frontend) 
+## Pour lancer le frontend (dans hands-up/frontend) 
 ### In a powershell terminal
 
 1) Install and setup node
-     - Intstaller node sur windows
-     - Ajouter node au path dans les variables d'environements de l'ordiniateur
+     - Installer node sur windows
+     - Ajouter node au path dans les variables d'environnement de l'ordinateur
   
 
 2) Install npm and the expo library
