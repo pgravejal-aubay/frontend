@@ -6,8 +6,8 @@ import { counterEvent } from 'react-native/Libraries/Performance/Systrace';
 
 
 // frontend/services/authService.js
-const API_URL = 'http://18.201.251.29:5000/auth';
-const API_GENERAL_URL = 'http://18.201.251.29:5000/api';
+const API_URL = 'http://34.253.212.170:5000/auth';
+const API_GENERAL_URL = 'http://34.253.212.170:5000/api';
 
 export const register = async (name, surname, email, password, confirmPassword) => {
   try {

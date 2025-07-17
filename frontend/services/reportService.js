@@ -1,7 +1,7 @@
 // frontend/services/reportService.js (nouveau fichier)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'http://18.201.251.29:5000'; 
+const API_BASE_URL = 'http://34.253.212.170:5000'; 
 
 export const submitReport = async (reportData) => {
   try {

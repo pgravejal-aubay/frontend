@@ -5,7 +5,7 @@ import axios from 'axios';
 const HISTORY_KEY = 'translation_history';
 const SAVED_KEY = 'saved_translations';
 const HISTORY_ENABLED_KEY = 'history_enabled_status';
-const API_BASE_URL = 'http://18.201.251.29:5000';
+const API_BASE_URL = 'http://34.253.212.170:5000';
 
 export const getHistory = async () => {
   try {
